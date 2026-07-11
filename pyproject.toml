@@ -1,0 +1,28 @@
+[project]
+name = "scrollgt"
+version = "0.1.0"
+description = "ScrollGT: registered human ground-truth ink evaluation for the open Vesuvius Challenge SOTA scroll data"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.26",
+    "scikit-learn>=1.4",
+    "pillow>=10.0",
+]
+
+[project.scripts]
+scrollgt = "scrollgt.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/jonmarrs/scrollgt"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/scrollgt"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

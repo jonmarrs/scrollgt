@@ -1,0 +1,30 @@
+{
+  "target_id": "scroll1_20230702185753",
+  "scroll": "Scroll 1 (PHerc. Paris 4)",
+  "segment": "20230702185753",
+  "region": {
+    "source": "s3://vesuvius-challenge-open-data/PHercParis4/segments/20230702185753/surface-volumes/ (2.4um OME-Zarr, anonymous access)",
+    "pyramid_level": "2",
+    "y0": 4000,
+    "x0": 2500,
+    "size": 4096,
+    "depth_slices": "26 slices centered at mid-depth (lo = max(0, d//2 - 13))",
+    "note": "predict a probability map over exactly this 4096x4096 level-2 region"
+  },
+  "ground_truth": {
+    "origin": "2023 Grand-Prize-era human ink annotation (villa ink-detection train_scrolls inklabels) registered onto the re-flattened SOTA geometry",
+    "binarize_threshold": 127
+  },
+  "registration": {
+    "method": "obj-exact: original.obj vt (386108 vertices), NN bridge via on-7.91um tifxyz (same old-scan frame), vt convention rowHv_colu (selected by teacher-enrichment among 4 discrete candidates, disclosed; orientation verified visually)",
+    "median_residual": 7.923079129779206,
+    "p90_residual": 11.129887690188047,
+    "registered_ink_fraction": 0.12834036350250244,
+    "teacher_enrichment": 5.054253065039119,
+    "gate": {"max_median_residual": 12.0, "min_enrichment": 3.0, "passed": true},
+    "validation_basis": "enrichment-gated (5.05 >> 3.0 threshold); letterforms visually verified in overlay",
+    "caveat": "~8-voxel median correspondence residual smears stroke edges at 64px scale; scores are lower bounds on true agreement"
+  },
+  "role": "TRAIN-EXPOSED for the distilled baseline models listed in baselines/ (disclosed); clean for any model not trained on this segment",
+  "provenance_repo": "https://github.com/jonmarrs/vesuvius-autoresearch (repro/sota_data/register_run.py, reports/detector/registered_gt_validation.md)"
+}
