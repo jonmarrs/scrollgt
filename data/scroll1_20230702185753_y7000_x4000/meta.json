@@ -21,7 +21,8 @@
     "text_line_periodicity": 0.856,
     "gate": {"max_median_residual": 12.0, "min_periodicity": 0.6, "passed": true},
     "teacher_enrichment_all_candidates": {"rowv_colu": 0.809, "rowHv_colu": 3.134, "rowv_colWu": 1.496, "rowHv_colWu": 1.103},
-    "validation_basis": "DIRECT 4-candidate orientation probe (2026-07-11): rowHv_colu enrichment 3.13, clearly dominant over the 3 alternatives (0.81/1.50/1.10) — orientation validated for this region specifically, plus residual + periodicity gates",
+    "surface_ncc_all_candidates": {"rowv_colu": 0.016, "rowHv_colu": 0.280, "rowv_colWu": -0.002, "rowHv_colWu": -0.013},
+    "validation_basis": "DOUBLE-validated: (1) 4-candidate teacher-enrichment probe (rowHv_colu 3.13 vs 0.81/1.50/1.10) AND (2) independent teacher-free surface-texture NCC (rowHv_colu 0.280 raw / 0.231 tile-median vs <=0.016 for alternatives, ~15x runner-up) — two orthogonal checks agree; plus residual + periodicity gates",
     "caveat": "~8-voxel median correspondence residual smears stroke edges at 64px scale; scores are lower bounds on true agreement"
   },
   "role": "second region of the train-exposed segment; TRAIN-EXPOSED for the distilled and GT-fine-tuned baseline models (disclosed); clean for any model not trained on this segment",
