@@ -41,6 +41,27 @@ already scores F1 ≈ 0.31, so `val_f1` is degenerate here; the robust reads are
 row is a documented negative: fine-tuning on registered GT *reduced* discrimination and
 collapsed toward the trivial predictor.
 
+## Target `scroll1_20230702185753_y7000_x4000` (v0.1.1; TRAIN-EXPOSED for distilled + GT-fine-tuned rows)
+
+Second region of the train-exposed segment; orientation directly validated by a
+4-candidate enrichment probe (rowHv_colu 3.13 vs 0.81/1.50/1.10 — see meta.json).
+
+| model | val_f1 | f1_at_0.5 | average_precision | ap_prevalence_lift | roc_auc |
+|---|---|---|---|---|---|
+| canon teacher (binarized release) | 0.4627 | 0.4627 | 0.2860 | 2.2425 | 0.7259 |
+
+(Student rows for this region are welcome but carry the train-exposure disclosure.)
+
+## A target we did NOT ship (and why)
+
+A fourth registered region (`20231005123336_y4000_x2500`) passed the residual and
+periodicity gates but was **withheld**: the canon teacher is chance-quality on that
+segment (enrichment ≈ 1 for ALL four orientation candidates: 0.79–1.02), so its 2D
+orientation cannot currently be verified by any teacher-based or teacher-free check we
+have (periodicity is flip-invariant). A benchmark target whose label orientation is
+unverifiable is not a target. It will ship if/when an independent orientation check
+exists. This is what the gates are for.
+
 ## Submit a row
 
 Score your model's probability map on the held-out target and open a PR/issue with the

@@ -47,7 +47,12 @@ scrollgt check --window-px 64 --scan-um 8.0 --regions-json regions.json
 | target | role | registration validation |
 |---|---|---|
 | `data/scroll1_20230702185753` | train-exposed for the published baselines (disclosed) | enrichment-gated (5.05), residual 7.92vx |
+| `data/scroll1_20230702185753_y7000_x4000` | second region of the train-exposed segment | direct 4-candidate orientation probe (3.13 vs ≤1.50), residual 8.07vx |
 | `data/scroll1_20231210121321` | **held-out flagship** — no public model we know of trained here | teacher-free (residual 7.85vx, text-line periodicity 0.871) |
+
+A fourth gate-passing region was **withheld** because its orientation is currently
+unverifiable (chance-quality teacher there defeats the enrichment check) — see
+`baselines/BASELINES.md`. Targets only ship when validation is real.
 
 Each target directory contains `gt_ink.png` (registered binary label), `meta.json`
 (exact predict-region spec + full registration provenance and caveats), and an
