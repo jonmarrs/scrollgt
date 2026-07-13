@@ -41,16 +41,27 @@ already scores F1 ≈ 0.31, so `val_f1` is degenerate here; the robust reads are
 row is a documented negative: fine-tuning on registered GT *reduced* discrimination and
 collapsed toward the trivial predictor.
 
-## Target `scroll1_20230702185753_y7000_x4000` (v0.1.1; TRAIN-EXPOSED for distilled + GT-fine-tuned rows)
+## Target `scroll1_20230702185753_y7000_x4000` (v0.1.1)
 
-Second region of the train-exposed segment; orientation directly validated by a
-4-candidate enrichment probe (rowHv_colu 3.13 vs 0.81/1.50/1.10 — see meta.json).
+Second region of the train-exposed segment; orientation DOUBLE-validated (enrichment
+probe 3.13 + independent surface-NCC 0.28 — see meta.json). **Exposure per row is
+stated explicitly — read this table as a demonstration of what exposure does.**
 
-| model | val_f1 | f1_at_0.5 | average_precision | ap_prevalence_lift | roc_auc |
-|---|---|---|---|---|---|
-| canon teacher (binarized release) | 0.4627 | 0.4627 | 0.2860 | 2.2425 | 0.7259 |
+| model | exposure on THIS region | val_f1 | f1_at_0.5 | average_precision | ap_prevalence_lift | roc_auc |
+|---|---|---|---|---|---|---|
+| canon teacher (binarized release) | — (it *is* the reference model) | 0.4627 | 0.4627 | 0.2860 | 2.2425 | 0.7259 |
+| legacy detector | **clean** | 0.2192 | 0.1632 | 0.1150 | 0.9391 | 0.4802 |
+| arm A (1-scroll student) | teacher-supervised here | 0.4873 | 0.4800 | 0.4327 | 3.5322 | 0.8367 |
+| arm B (2-scroll student) | teacher-supervised here | 0.3930 | 0.3930 | 0.3425 | 2.7955 | 0.7680 |
+| arm C (3-scroll student) | teacher-supervised here | 0.4216 | 0.4204 | 0.3767 | 3.0752 | 0.7817 |
+| arm C + GT fine-tune | **GT-supervised here (its training region)** | 0.7343 | 0.7019 | 0.7919 | 6.4643 | **0.9538** |
 
-(Student rows for this region are welcome but carry the train-exposure disclosure.)
+**The exhibit:** `arm C + GT fine-tune` scores **ROC 0.9538 on its own training region**
+and **0.5308 on the held-out target** (same model, table above). That 0.42-ROC gap is
+what train-region fit looks like when an eval has a held-out surface — and why scores on
+exposed regions must never be read as reading ability. (Secondary observations: the clean
+legacy row sits at chance, and the 0.95 also confirms this region's registered labels are
+learnable signal, not noise.)
 
 ## A target we did NOT ship (and why)
 
