@@ -11,6 +11,9 @@ dependencies = [
     "pillow>=10.0",
 ]
 
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+
 [project.scripts]
 scrollgt = "scrollgt.cli:main"
 

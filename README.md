@@ -1,5 +1,8 @@
 # ScrollGT
 
+[![CI](https://github.com/jonmarrs/scrollgt/actions/workflows/ci.yml/badge.svg)](https://github.com/jonmarrs/scrollgt/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 **Registered human ground-truth ink evaluation for the open Vesuvius Challenge SOTA scroll data.**
 
 The Vesuvius Challenge open-data bucket ships surface volumes and *model predictions* —
@@ -53,6 +56,27 @@ scrollgt check --window-px 64 --scan-um 8.0 --regions-json regions.json
 A fourth gate-passing region was **withheld** because its orientation is currently
 unverifiable (chance-quality teacher there defeats the enrichment check) — see
 `baselines/BASELINES.md`. Targets only ship when validation is real.
+
+## Leaderboard (held-out flagship `scroll1_20231210121321`)
+
+The number that matters — scored against human ground truth on a segment no listed model
+trained on. Everything published so far sits at chance; **an honest ROC-AUC > 0.60 here
+would be news.** Full tables + the train-region contrast in
+[`baselines/BASELINES.md`](baselines/BASELINES.md); submit a row via
+[`CONTRIBUTING.md`](CONTRIBUTING.md).
+
+| model | exposure | ROC-AUC | AP-lift | val_f1 |
+|---|---|---|---|---|
+| canon teacher (released prediction) | — | 0.563 | 1.150 | 0.295 |
+| arm A (1-scroll student) | selection-set only | 0.563 | 1.203 | 0.311 |
+| arm B (2-scroll student) | **clean held-out** | 0.553 | 1.161 | 0.311 |
+| arm C (3-scroll student) | **clean held-out** | 0.558 | 1.165 | 0.310 |
+| arm C + GT fine-tune | **clean held-out** | 0.531 | 1.090 | 0.309 |
+| trivial all-positive | — | 0.500 | 1.000 | 0.309 |
+
+Note how close the `val_f1` column is to the trivial predictor (0.309) — at this ink
+prevalence F1 is near-degenerate, which is exactly why ScrollGT's headline is
+AP-prevalence-lift, not F1.
 
 Each target directory contains `gt_ink.png` (registered binary label), `meta.json`
 (exact predict-region spec + full registration provenance and caveats), and an
