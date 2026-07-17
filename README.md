@@ -29,7 +29,8 @@ This benchmark was built by catching our own over-reads; it will catch yours too
 ## Quickstart
 
 ```bash
-pip install scrollgt        # or: pip install -e . from a clone
+git clone https://github.com/jonmarrs/scrollgt && cd scrollgt
+pip install -e .            # (PyPI package coming; for now install from source)
 # predict a probability map over the target region (see data/<target>/meta.json
 # for the exact SOTA S3 zarr, pyramid level, and y0/x0/size), then:
 scrollgt score my_prediction.png data/scroll1_20231210121321 --json-out card.json
