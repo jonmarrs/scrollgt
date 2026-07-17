@@ -30,7 +30,7 @@ This benchmark was built by catching our own over-reads; it will catch yours too
 
 ```bash
 git clone https://github.com/jonmarrs/scrollgt && cd scrollgt
-pip install -e .            # (PyPI package coming; for now install from source)
+pip install -e .            # installs the `scrollgt` CLI (source install; not on PyPI)
 # predict a probability map over the target region (see data/<target>/meta.json
 # for the exact SOTA S3 zarr, pyramid level, and y0/x0/size), then:
 scrollgt score my_prediction.png data/scroll1_20231210121321 --json-out card.json
@@ -101,8 +101,15 @@ baselines (kept in sync with
 
 ## Roadmap
 
-- **v0.2 (August):** registered-GT targets on **Scrolls 2–3** — the live First
-  Letters/Title prize targets.
+- **v0.2 (August):** a **PHerc 1667** extension — the first non-training-scroll targets.
+  The scroll was read in full in June 2026, so a scholar-validated reading exists; the
+  open bucket ships only model predictions (which can never be GT here — that's the trap
+  this benchmark exists to break), so v0.2 aligns the published reading to segment
+  coordinates as transcription-level ground truth. (Scrolls 2–3 are not extendable today:
+  a 2026-07-17 bucket survey found Scroll 2 ships no segments and Scroll 3 no labels —
+  both scrolls are unread, which is exactly why the First Letters prizes are open.)
+- Converting the three **withheld** v0.1 regions into targets as independent orientation
+  validation becomes available.
 - Leaderboard: submit a scorecard via PR/issue (see `baselines/BASELINES.md`).
 
 ## Provenance & method
