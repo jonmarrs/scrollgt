@@ -4,6 +4,7 @@ import argparse
 import json
 import sys
 
+from .columns import score_columns
 from .compliance import check_submission
 from .score import markdown_report, score_prediction
 
@@ -20,6 +21,20 @@ def main(argv=None):
     p_score.add_argument("prediction", help="probability map (.png 8-bit or .npy in [0,1])")
     p_score.add_argument("target", help="target directory (contains gt_ink.png + meta.json)")
     p_score.add_argument("--json-out", default=None, help="write the scorecard JSON here")
+
+    p_cols = sub.add_parser(
+        "score-columns",
+        help="score a prediction against a column-level target (e.g. PHerc 1667 "
+             "merged geometry — scholar-validated column GT, no pixel labels)",
+    )
+    p_cols.add_argument("prediction", help="probability map at target grid resolution "
+                                           "(.png 8-bit or .npy in [0,1])")
+    p_cols.add_argument("target", help="column target directory (meta.json + columns.json)")
+    p_cols.add_argument("--origin", nargs=2, type=int, metavar=("Y", "X"),
+                        default=[0, 0],
+                        help="grid coordinate of the prediction's top-left corner "
+                             "(for partial-extent predictions; default 0 0)")
+    p_cols.add_argument("--json-out", default=None, help="write the scorecard JSON here")
 
     p_check = sub.add_parser("check", help="prize-compliance pre-check (window + overlap)")
     p_check.add_argument("--window-px", type=int, required=True,
@@ -40,6 +55,22 @@ def main(argv=None):
         print(f"val_f1={m.get('val_f1', float('nan')):.4f}  "
               f"ap_prevalence_lift={m.get('ap_prevalence_lift', float('nan')):.4f}  "
               f"roc_auc={m.get('roc_auc', float('nan')):.4f}")
+        if args.json_out:
+            with open(args.json_out, "w") as f:
+                json.dump(result, f, indent=2, default=float)
+            print(f"scorecard written to {args.json_out}")
+        return 0
+
+    if args.cmd == "score-columns":
+        result = score_columns(args.prediction, args.target,
+                               origin=tuple(args.origin))
+        m = result["metrics"]
+        print(f"target: {result['target']}  cols scored: {m['cols_scored']}")
+        print(f"col_gutter_auc={m.get('col_gutter_auc', float('nan')):.4f}  "
+              f"pixel_auc={m.get('col_gutter_pixel_auc', float('nan')):.4f}  "
+              f"line_period_peak_mean={m.get('line_period_peak_mean', float('nan')):.4f}")
+        print(f"(text cols {m['n_text_cols']}, gutters {m['n_gutters']}, "
+              f"excluded gutters {m['excluded_gutters']})")
         if args.json_out:
             with open(args.json_out, "w") as f:
                 json.dump(result, f, indent=2, default=float)

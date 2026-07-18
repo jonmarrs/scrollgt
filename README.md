@@ -99,6 +99,30 @@ baselines (kept in sync with
 - mask-restricted, pooled over the full region; degenerate regions return NaN, never a
   fake score.
 
+## Column-level targets (v0.2 preview): PHerc 1667 merged geometry
+
+`data/pherc1667_merged_columns` is the first **non-training-scroll** target — the merged
+full-reading geometry of PHerc 1667 (read in full June 2026), with the published reading's
+**22 columns registered onto the canonical grid** (all three preprint figure strips
+independently recover the same transform; tiling closure 3 px over 30,097). There is **no
+pixel GT** here: the ground truth is eight papyrologists' column-level consensus
+(Coll. 1–4 traces, 5–22 text), CC BY-NC 4.0. Scoring measures *consistency with the
+reading*, never letter accuracy:
+
+```bash
+# predict at grid resolution (full grid or a sub-extent + --origin), then:
+scrollgt score-columns my_pred.npy data/pherc1667_merged_columns --json-out card.json
+```
+
+Metrics: `col_gutter_auc` (region-level — does signal concentrate in text columns vs
+inter-column gutters?), `col_gutter_pixel_auc`, `line_period_peak_mean` (text-line
+periodicity inside columns). Anti-gaming floor, measured: constant and papyrus-mask
+predictions score exactly 0.5 (gutters are papyrus too); random noise shows the
+region-AUC granularity (~0.58 at n=18 vs 17); the disclosed geometry-oracle ceiling is
+1.0. Surface volumes for this segment don't exist in the bucket — render them with the
+[gate-validated renderer](https://github.com/jonmarrs/vesuvius-autoresearch/blob/main/docs/SURFACE_RENDERER.md)
+(clean-triple NCC 0.78 on this very scroll).
+
 ## Roadmap
 
 - **v0.2 (August):** a **PHerc 1667** extension — the first non-training-scroll targets.
