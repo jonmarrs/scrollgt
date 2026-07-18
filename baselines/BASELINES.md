@@ -92,8 +92,24 @@ has ~±0.08 statistical granularity at n = 18 text columns vs 17 gutters (the no
 The oracle row is the geometric ceiling and is trivially reachable by reading the public
 columns.json — which is why column scores measure *consistency with the published
 reading*, are necessary-not-sufficient evidence, and must be accompanied by the
-prediction itself for visual review. Model baseline rows (arm C, legacy) are pending a
-rendered multi-column region.
+prediction itself for visual review.
+
+**Model rows** (rendered cols 17–19 region, grid origin y=100 x=20800, 1710×3990 — a
+partial extent, so n = 3 text columns vs 2 gutters and the region AUC is quantized to
+sixths; both prediction maps are published for review in the provenance repo):
+
+| model | 1667 exposure | col_gutter_auc | col_gutter_pixel_auc | line_period_peak_mean |
+|---|---|---|---|---|
+| arm C (3-scroll student) | **none** (held-out scroll) | 0.667 | 0.521 | 0.132 |
+| legacy detector | **none** | 0.000 | 0.389 | 0.433 |
+
+Both maps are texture without letterforms (visual review), consistent with every prior
+cross-scroll result. Two honest readings of these rows: (1) arm C's 0.667 at n=3v2 is
+one rank-step from chance — not evidence of reading; (2) legacy's periodicity 0.433 is a
+**measured confound, not text**: its map shows broad horizontal banding (damage/fiber
+following and inference tiling) whose pitch falls inside the line-pitch range. This is
+exactly why `line_period_peak_mean` is a supporting diagnostic and the prediction map is
+a required part of any submission — a periodicity score alone can be an artifact.
 
 ## Submit a row
 
