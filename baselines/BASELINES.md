@@ -99,22 +99,25 @@ columns.json — which is why column scores measure *consistency with the publis
 reading*, are necessary-not-sufficient evidence, and must be accompanied by the
 prediction itself for visual review.
 
-**Model rows** (rendered cols 17–19 region, grid origin y=100 x=20800, 1710×3990 — a
-partial extent, so n = 3 text columns vs 2 gutters and the region AUC is quantized to
-sixths; both prediction maps are published for review in the provenance repo):
+**Model rows — full band, all 22 columns** (rendered y=[100,1950) × 30097, stitched from
+9 overlap-trimmed chunks; n = 18 text columns vs 17 gutters; maps published for review in
+the provenance repo):
 
-| model | 1667 exposure | col_gutter_auc | col_gutter_pixel_auc | line_period_peak_mean |
-|---|---|---|---|---|
-| arm C (3-scroll student) | **none** (held-out scroll) | 0.667 | 0.521 | 0.132 |
-| legacy detector | **none** | 0.000 | 0.389 | 0.433 |
+| model | 1667 exposure | col_gutter_auc | col_gutter_pixel_auc | line_period_peak_mean | traces_mean_ratio |
+|---|---|---|---|---|---|
+| arm C (3-scroll student) | **none** (held-out scroll) | 0.575 | 0.562 | 0.264 | 0.559 |
+| legacy detector | **none** | 0.595 | 0.590 | 0.350 | 0.400 |
+| *(uniform noise, same n)* | — | *0.578* | *0.500* | *0.062* | — |
 
-Both maps are texture without letterforms (visual review), consistent with every prior
-cross-scroll result. Two honest readings of these rows: (1) arm C's 0.667 at n=3v2 is
-one rank-step from chance — not evidence of reading; (2) legacy's periodicity 0.433 is a
-**measured confound, not text**: its map shows broad horizontal banding (damage/fiber
-following and inference tiling) whose pitch falls inside the line-pitch range. This is
-exactly why `line_period_peak_mean` is a supporting diagnostic and the prediction map is
-a required part of any submission — a periodicity score alone can be an artifact.
+**Both models are statistically at the noise floor** (0.575 / 0.595 vs the noise
+realization 0.578), and both maps are texture without letterforms. The earlier
+partial-extent rows (cols 17–19 only, n=3v2: arm C 0.667, legacy 0.000) are
+**superseded** — their spread across zero-to-high was exactly the small-n quantization
+artifact the caveat warned about, now demonstrated by measurement. The pixel AUCs
+(0.56–0.59) sit slightly above chance, consistent with preservation-correlated texture
+rather than reading (the traces_mean_ratio < 1 shows both models predict less on the
+fragmentary traces columns — damage response, not text detection). Periodicity remains a
+supporting diagnostic only: the prediction map is a required part of any submission.
 
 ## Submit a row
 
