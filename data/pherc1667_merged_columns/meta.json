@@ -14,8 +14,8 @@
   "render_recipe": "vesuvius-autoresearch repro/sota_data/render_cli.py --tifxyz <above> --volume <above> --region Y X SIZE --level 2 (renderer gate-validated on this scroll: clean-triple NCC 0.7799 vs released w011 surface volume, pre-registered gate 0.60)"
  },
  "line_pitch_range": [
-  60,
-  220
+  85,
+  160
  ],
  "prediction_contract": "probability map at grid resolution over the full grid or a rectangular sub-extent (pass --origin Y X); only columns and gutters fully inside the extent are scored and they are listed in the scorecard",
  "license": "column coordinates + transcription facts derive from Angelotti et al., 'Complete virtual unwrapping and reading of a rolled Herculaneum papyrus' (scrollprize.org/pdf/main.pdf), CC BY-NC 4.0 \u2014 attribution required, non-commercial. ScrollGT code is MIT; this data directory inherits CC BY-NC.",
@@ -25,5 +25,6 @@
   "provenance_repo": "https://github.com/jonmarrs/vesuvius-autoresearch (reports/detector/merged1667_column_registration.md)"
  },
  "role": "held-out at column level for every model in baselines/ (no distilled arm trained on any PHerc-1667 data; the core team's own pipeline obviously trained on this scroll \u2014 external submissions must disclose 1667 exposure)",
- "honesty_notes": "column-level scores measure CONSISTENCY WITH THE READING (signal in text columns vs gutters, line periodicity), not letter accuracy. A high col_gutter_auc is necessary-not-sufficient evidence of reading."
+ "honesty_notes": "column-level scores measure CONSISTENCY WITH THE READING (signal in text columns vs gutters, line periodicity), not letter accuracy. A high col_gutter_auc is necessary-not-sufficient evidence of reading.",
+ "line_pitch_provenance": "calibrated 2026-07-19 from the measured figure-ink line pitch (cluster 108-132 grid px, median 120, strongest autocorr 0.73 on col 20 whose estimated ~13 lines matches the attested 11); previous value [60, 220] was an uncalibrated guess"
 }

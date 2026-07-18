@@ -82,9 +82,14 @@ see the target's meta.json). Floor and ceiling, measured on the full grid
 | prediction | col_gutter_auc | col_gutter_pixel_auc | line_period_peak_mean |
 |---|---|---|---|
 | constant 0.5 | 0.5000 | 0.5000 | 0.0000 |
-| uniform noise | 0.5784 | 0.5000 | 0.0681 |
+| uniform noise | 0.5784 | 0.5000 | 0.0622 |
 | papyrus-mask copy | **0.5000** | 0.5000 | 0.0000 |
 | geometry oracle (disclosed cheat: paints the target's own column boxes) | 1.0000 | 1.0000 | 0.0000 |
+
+*(2026-07-19: `line_pitch_range` calibrated to [85, 160] from the measured figure-ink
+line pitch — well-preserved columns cluster at 108–132 grid px, median 120; per-column
+measured pitch now ships in columns.json. Floor rows re-measured under the calibrated
+range; only noise periodicity moved, 0.0681 → 0.0622.)*
 
 Read the floor rows before celebrating a score: predicting "papyrus everywhere" earns
 exactly 0.5 (the gutters are papyrus too — that is the design), and the region-level AUC

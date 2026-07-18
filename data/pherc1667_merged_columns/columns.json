@@ -9,7 +9,11 @@
     489,
     1642
    ],
-   "transcription": "traces"
+   "transcription": "traces",
+   "measured_line_pitch": {
+    "pitch_grid_px": 75.2,
+    "autocorr": 0.378
+   }
   },
   {
    "col": 2,
@@ -20,7 +24,11 @@
     479,
     1866
    ],
-   "transcription": "traces"
+   "transcription": "traces",
+   "measured_line_pitch": {
+    "pitch_grid_px": 61.1,
+    "autocorr": 0.338
+   }
   },
   {
    "col": 3,
@@ -31,7 +39,11 @@
     460,
     1936
    ],
-   "transcription": "traces"
+   "transcription": "traces",
+   "measured_line_pitch": {
+    "pitch_grid_px": 98.7,
+    "autocorr": 0.395
+   }
   },
   {
    "col": 4,
@@ -42,7 +54,11 @@
     517,
     1888
    ],
-   "transcription": "traces"
+   "transcription": "traces",
+   "measured_line_pitch": {
+    "pitch_grid_px": 103.4,
+    "autocorr": 0.438
+   }
   },
   {
    "col": 5,
@@ -55,7 +71,11 @@
    ],
    "transcription": "text",
    "traces_lines": "1-2",
-   "max_attested_line": 5
+   "max_attested_line": 5,
+   "measured_line_pitch": {
+    "pitch_grid_px": 79.9,
+    "autocorr": 0.331
+   }
   },
   {
    "col": 6,
@@ -68,7 +88,11 @@
    ],
    "transcription": "text",
    "traces_lines": "1-5",
-   "max_attested_line": 7
+   "max_attested_line": 7,
+   "measured_line_pitch": {
+    "pitch_grid_px": 108.1,
+    "autocorr": 0.528
+   }
   },
   {
    "col": 7,
@@ -81,7 +105,11 @@
    ],
    "transcription": "text",
    "traces_lines": "1-6",
-   "max_attested_line": 10
+   "max_attested_line": 10,
+   "measured_line_pitch": {
+    "pitch_grid_px": 112.8,
+    "autocorr": 0.402
+   }
   },
   {
    "col": 8,
@@ -94,7 +122,11 @@
    ],
    "transcription": "text",
    "traces_lines": "1-7",
-   "max_attested_line": 10
+   "max_attested_line": 10,
+   "measured_line_pitch": {
+    "pitch_grid_px": 89.3,
+    "autocorr": 0.394
+   }
   },
   {
    "col": 9,
@@ -107,7 +139,11 @@
    ],
    "transcription": "text",
    "max_attested_line": 10,
-   "note": "bbox spans a strip-crop gap; width inflated by up to ~200 grid px \u2014 treat edges as +/-250"
+   "note": "bbox spans a strip-crop gap; width inflated by up to ~200 grid px \u2014 treat edges as +/-250",
+   "measured_line_pitch": {
+    "pitch_grid_px": 131.6,
+    "autocorr": 0.394
+   }
   },
   {
    "col": 10,
@@ -119,7 +155,11 @@
     1833
    ],
    "transcription": "text",
-   "max_attested_line": 10
+   "max_attested_line": 10,
+   "measured_line_pitch": {
+    "pitch_grid_px": 61.1,
+    "autocorr": 0.256
+   }
   },
   {
    "col": 11,
@@ -131,7 +171,11 @@
     1767
    ],
    "transcription": "text",
-   "max_attested_line": 10
+   "max_attested_line": 10,
+   "measured_line_pitch": {
+    "pitch_grid_px": 117.5,
+    "autocorr": 0.501
+   }
   },
   {
    "col": 12,
@@ -143,7 +187,11 @@
     1852
    ],
    "transcription": "text",
-   "max_attested_line": 10
+   "max_attested_line": 10,
+   "measured_line_pitch": {
+    "pitch_grid_px": 122.2,
+    "autocorr": 0.607
+   }
   },
   {
    "col": 13,
@@ -155,7 +203,11 @@
     1795
    ],
    "transcription": "text",
-   "max_attested_line": 10
+   "max_attested_line": 10,
+   "measured_line_pitch": {
+    "pitch_grid_px": 122.2,
+    "autocorr": 0.514
+   }
   },
   {
    "col": 14,
@@ -167,7 +219,11 @@
     1678
    ],
    "transcription": "text",
-   "max_attested_line": 10
+   "max_attested_line": 10,
+   "measured_line_pitch": {
+    "pitch_grid_px": 112.8,
+    "autocorr": 0.428
+   }
   },
   {
    "col": 15,
@@ -179,7 +235,11 @@
     1649
    ],
    "transcription": "text",
-   "max_attested_line": 10
+   "max_attested_line": 10,
+   "measured_line_pitch": {
+    "pitch_grid_px": 126.9,
+    "autocorr": 0.54
+   }
   },
   {
    "col": 16,
@@ -192,7 +252,11 @@
    ],
    "transcription": "text",
    "max_attested_line": 10,
-   "note": "bbox spans a strip-crop gap; width inflated by up to ~200 grid px \u2014 treat edges as +/-250"
+   "note": "bbox spans a strip-crop gap; width inflated by up to ~200 grid px \u2014 treat edges as +/-250",
+   "measured_line_pitch": {
+    "pitch_grid_px": 131.6,
+    "autocorr": 0.48
+   }
   },
   {
    "col": 17,
@@ -204,7 +268,11 @@
     1612
    ],
    "transcription": "text",
-   "max_attested_line": 10
+   "max_attested_line": 10,
+   "measured_line_pitch": {
+    "pitch_grid_px": 126.9,
+    "autocorr": 0.709
+   }
   },
   {
    "col": 18,
@@ -216,7 +284,11 @@
     1711
    ],
    "transcription": "text",
-   "max_attested_line": 10
+   "max_attested_line": 10,
+   "measured_line_pitch": {
+    "pitch_grid_px": 126.9,
+    "autocorr": 0.656
+   }
   },
   {
    "col": 19,
@@ -228,7 +300,11 @@
     1433
    ],
    "transcription": "text",
-   "max_attested_line": 10
+   "max_attested_line": 10,
+   "measured_line_pitch": {
+    "pitch_grid_px": 122.2,
+    "autocorr": 0.644
+   }
   },
   {
    "col": 20,
@@ -240,7 +316,11 @@
     1631
    ],
    "transcription": "text",
-   "max_attested_line": 11
+   "max_attested_line": 11,
+   "measured_line_pitch": {
+    "pitch_grid_px": 126.9,
+    "autocorr": 0.725
+   }
   },
   {
    "col": 21,
@@ -253,7 +333,11 @@
    ],
    "transcription": "text",
    "traces_lines": "4-5",
-   "max_attested_line": 10
+   "max_attested_line": 10,
+   "measured_line_pitch": {
+    "pitch_grid_px": 122.2,
+    "autocorr": 0.373
+   }
   },
   {
    "col": 22,
@@ -265,11 +349,16 @@
     1786
    ],
    "transcription": "text",
-   "max_attested_line": 1
+   "max_attested_line": 1,
+   "measured_line_pitch": {
+    "pitch_grid_px": 126.9,
+    "autocorr": 0.202
+   }
   }
  ],
  "coordinate_frame": "merged tifxyz grid (2061x30097), scale 0.05 of the full-resolution flattening; multiply by 20 for full-res px",
  "derivation": "column brackets from Angelotti et al. preprint p.3 figure strips (CC BY-NC 4.0), shape-registered to the merged tifxyz grid (strip tiling closure 3px/30097)",
  "uncertainty": "registration: template step 1 fig px ~ 4.7 grid px; same scale+dy recovered independently on all 3 strips; tiling closure 3 px over 30097. Cross-strip cols (9, 16) carry crop-gap slack, flagged. text_band derived from ink-pixel row distribution (2-98 pctile) in the source strip per column; for cross-strip cols it uses the first strip only; traces cols have sparse ink so their bands are weak evidence.",
- "transcription_provenance": "Angelotti et al. preprint transcription pp. 22-27 (scrollprize.org/pdf/main.pdf), CC BY-NC 4.0; parsed 2026-07-18; max_attested_line is a LOWER BOUND on preserved lines (from printed line-number markers; only every 5th line is numbered), not an exact count"
+ "transcription_provenance": "Angelotti et al. preprint transcription pp. 22-27 (scrollprize.org/pdf/main.pdf), CC BY-NC 4.0; parsed 2026-07-18; max_attested_line is a LOWER BOUND on preserved lines (from printed line-number markers; only every 5th line is numbered), not an exact count",
+ "line_pitch_note": "measured_line_pitch derives from the ink row-profile of the preprint figure strips (same CC BY-NC provenance as the bboxes); well-preserved text columns cluster at 108-132 grid px (median ~120); values on low-ink/fragmentary columns are unreliable"
 }
