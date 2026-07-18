@@ -125,13 +125,13 @@ region-AUC granularity (~0.58 at n=18 vs 17); the disclosed geometry-oracle ceil
 
 ## Roadmap
 
-- **v0.2 (August):** a **PHerc 1667** extension — the first non-training-scroll targets.
-  The scroll was read in full in June 2026, so a scholar-validated reading exists; the
-  open bucket ships only model predictions (which can never be GT here — that's the trap
-  this benchmark exists to break), so v0.2 aligns the published reading to segment
-  coordinates as transcription-level ground truth. (Scrolls 2–3 are not extendable today:
-  a 2026-07-17 bucket survey found Scroll 2 ships no segments and Scroll 3 no labels —
-  both scrolls are unread, which is exactly why the First Letters prizes are open.)
+- **v0.2:** the PHerc 1667 column-level target above **shipped 2026-07-18** (the open
+  bucket ships only model predictions for 1667 — never GT-eligible here — so the target
+  registers the published scholar-validated reading instead). Remaining v0.2 work:
+  model baseline rows for `score-columns`, and per-line structure as the transcription
+  artifacts propagate to the bucket. (Scrolls 2–3 are not extendable today: a 2026-07-17
+  bucket survey found Scroll 2 ships no segments and Scroll 3 no labels — both scrolls
+  are unread, which is exactly why the First Letters prizes are open.)
 - Converting the three **withheld** v0.1 regions into targets as independent orientation
   validation becomes available.
 - Leaderboard: submit a scorecard via PR/issue (see `baselines/BASELINES.md`).
