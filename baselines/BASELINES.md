@@ -105,12 +105,16 @@ the provenance repo):
 
 | model | 1667 exposure | col_gutter_auc | col_gutter_pixel_auc | line_period_peak_mean | traces_mean_ratio |
 |---|---|---|---|---|---|
-| arm C (3-scroll student) | **none** (held-out scroll) | 0.575 | 0.562 | 0.264 | 0.559 |
-| legacy detector | **none** | 0.595 | 0.590 | 0.350 | 0.400 |
-| *(uniform noise, same n)* | — | *0.578* | *0.500* | *0.062* | — |
+| arm C (3-scroll student) | **none** (held-out scroll) | 0.575 | 0.562 | 0.266 | 0.560 |
+| legacy detector | **none** | 0.592 | 0.589 | 0.348 | 0.400 |
+| *(uniform noise, same n)* | — | *0.585* | *0.500* | *0.062* | — |
 
-**Both models are statistically at the noise floor** (0.575 / 0.595 vs the noise
-realization 0.578), and both maps are texture without letterforms. The earlier
+**Both models are statistically at the noise floor** (0.575 / 0.592 vs the noise
+realization 0.585), and both maps are texture without letterforms. *(2026-07-19: the two
+cross-strip column bboxes were refined by local junction-window registration — the
+inter-strip gaps close to <35 px and both widths land on the neighbor trend; uncertainty
+is now measured at ±90 grid px rather than bounded at ±250. Rows re-scored against the
+refined target; every shift ≤0.007, conclusion unchanged.)* The earlier
 partial-extent rows (cols 17–19 only, n=3v2: arm C 0.667, legacy 0.000) are
 **superseded** — their spread across zero-to-high was exactly the small-n quantization
 artifact the caveat warned about, now demonstrated by measurement. The pixel AUCs
