@@ -73,6 +73,28 @@ have (periodicity is flip-invariant). A benchmark target whose label orientation
 unverifiable is not a target. It will ship if/when an independent orientation check
 exists. This is what the gates are for.
 
+## Column-level target `pherc1667_merged_columns` (v0.2) — anti-gaming floor
+
+The first non-training-scroll target scores at COLUMN granularity (no pixel GT exists —
+see the target's meta.json). Floor and ceiling, measured on the full grid
+(22 columns scored, 17 gutters, 4 excluded for cross-strip-flagged neighbors):
+
+| prediction | col_gutter_auc | col_gutter_pixel_auc | line_period_peak_mean |
+|---|---|---|---|
+| constant 0.5 | 0.5000 | 0.5000 | 0.0000 |
+| uniform noise | 0.5784 | 0.5000 | 0.0681 |
+| papyrus-mask copy | **0.5000** | 0.5000 | 0.0000 |
+| geometry oracle (disclosed cheat: paints the target's own column boxes) | 1.0000 | 1.0000 | 0.0000 |
+
+Read the floor rows before celebrating a score: predicting "papyrus everywhere" earns
+exactly 0.5 (the gutters are papyrus too — that is the design), and the region-level AUC
+has ~±0.08 statistical granularity at n = 18 text columns vs 17 gutters (the noise row).
+The oracle row is the geometric ceiling and is trivially reachable by reading the public
+columns.json — which is why column scores measure *consistency with the published
+reading*, are necessary-not-sufficient evidence, and must be accompanied by the
+prediction itself for visual review. Model baseline rows (arm C, legacy) are pending a
+rendered multi-column region.
+
 ## Submit a row
 
 Score your model's probability map on the held-out target and open a PR/issue with the
