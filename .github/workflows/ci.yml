@@ -32,3 +32,19 @@ jobs:
           PY
           scrollgt score pred.png data/scroll1_20231210121321
           scrollgt check --window-px 64 --scan-um 8.0
+      - name: Smoke score-columns on the PHerc-1667 column target (constant, cols 5-8)
+        run: |
+          python - <<'PY'
+          import json
+          import numpy as np
+          cols = json.load(open("data/pherc1667_merged_columns/columns.json"))["columns"]
+          sel = [c for c in cols if 5 <= c["col"] <= 8]  # contiguous single-strip text cols
+          y0 = min(c["text_band"][0] for c in sel)
+          y1 = max(c["text_band"][1] for c in sel)
+          x0 = min(c["gx0"] for c in sel)
+          x1 = max(c["gx1"] for c in sel)
+          np.save("colpred.npy", np.full((y1 - y0, x1 - x0), 0.5, np.float32))
+          with open("origin.txt", "w") as f:
+              f.write(f"{y0} {x0}")
+          PY
+          scrollgt score-columns colpred.npy data/pherc1667_merged_columns --origin $(cat origin.txt)

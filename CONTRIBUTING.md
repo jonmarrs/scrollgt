@@ -25,6 +25,28 @@ model that ScrollGT's authors did not train. That is the whole point of the benc
 We add verified rows to `baselines/BASELINES.md`. **Beating ROC-AUC 0.60 on the held-out
 target, honestly, would be news.**
 
+## Submit a row on the column target (`pherc1667_merged_columns`)
+
+The PHerc-1667 target has **no pixel ground truth** — scoring measures *consistency with
+the published reading* at column granularity, never letter accuracy. The flow differs:
+
+1. The bucket ships no surface volume for the merged segment, so render one first with the
+   [full-3D-validated renderer](https://github.com/jonmarrs/vesuvius-autoresearch/blob/main/docs/SURFACE_RENDERER.md).
+   `data/pherc1667_merged_columns/README.md` has copy-paste `--region` commands per column
+   and the full-band protocol.
+2. Predict a probability map at grid resolution over your rendered extent, then:
+   ```bash
+   scrollgt score-columns my_pred.npy data/pherc1667_merged_columns --origin <Y> <X>
+   ```
+   where `--origin` is your extent's grid top-left. Multi-column extents are required for a
+   meaningful `col_gutter_auc` (a single column has no gutters); the full band (all 22
+   columns, n=18v17) is the definitive protocol.
+3. **Include your prediction map with the row.** Because the column layout is public, a
+   high `col_gutter_auc` proves layout-consistency, not reading — the map is a required
+   part of the evidence, and `line_period_peak_mean` is a supporting diagnostic only (a
+   periodicity score alone can be an inference-banding artifact, as the legacy-detector
+   baseline shows). State your PHerc-1667 exposure explicitly.
+
 ## Add a target
 
 New registered-GT targets are welcome but must clear the integrity bar: an **independent,
