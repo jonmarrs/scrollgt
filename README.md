@@ -147,5 +147,13 @@ surface volumes: `s3://vesuvius-challenge-open-data/` (anonymous).
 
 ## License
 
-MIT. Ground-truth annotations derive from the Vesuvius Challenge open data release;
-see the challenge's data terms.
+**Code: MIT** (see `LICENSE`).
+
+**Data: mixed, per target.** Check each target's `meta.json` before reuse.
+
+- The three pixel-level Scroll-1 targets (`scroll1_*`) register 2023 Grand-Prize-era human ink
+  annotations from the Vesuvius Challenge open data release; see the challenge's data terms.
+- `data/pherc1667_merged_columns/` is **CC BY-NC 4.0**: its column coordinates and
+  transcription facts derive from Angelotti et al., *Complete virtual unwrapping and reading of
+  a rolled Herculaneum papyrus* (<https://scrollprize.org/pdf/main.pdf>). Attribution required,
+  **non-commercial use only**. This directory does not inherit the MIT grant.
