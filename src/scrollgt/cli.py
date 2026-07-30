@@ -6,6 +6,8 @@ import sys
 
 from .columns import score_columns
 from .compliance import check_submission
+from .fibers.report import fiber_markdown_report
+from .fibers.target import score_fiber_prediction
 from .score import markdown_report, score_prediction
 
 
@@ -35,6 +37,19 @@ def main(argv=None):
                         help="grid coordinate of the prediction's top-left corner "
                              "(for partial-extent predictions; default 0 0)")
     p_cols.add_argument("--json-out", default=None, help="write the scorecard JSON here")
+
+    p_fib = sub.add_parser(
+        "score-fibers",
+        help="score a fiber instance labelling against hand-traced ground truth "
+             "(ERL, splits, merges, and the anti-gaming floors)",
+    )
+    p_fib.add_argument("prediction",
+                       help="instance labels (.npy of ints, 0 = background, cube-shaped)")
+    p_fib.add_argument("target", help="fiber target directory (data/fibers_<cube>)")
+    p_fib.add_argument("--recompute-floors", action="store_true",
+                       help="recompute the floors from the shipped mask instead of "
+                            "reading the published values (~50 s per cube)")
+    p_fib.add_argument("--json-out", default=None, help="write the scorecard JSON here")
 
     p_check = sub.add_parser("check", help="prize-compliance pre-check (window + overlap)")
     p_check.add_argument("--window-px", type=int, required=True,
@@ -75,6 +90,15 @@ def main(argv=None):
             with open(args.json_out, "w") as f:
                 json.dump(result, f, indent=2, default=float)
             print(f"scorecard written to {args.json_out}")
+        return 0
+
+    if args.cmd == "score-fibers":
+        card = score_fiber_prediction(args.prediction, args.target,
+                                      recompute_floors=args.recompute_floors)
+        print(fiber_markdown_report(card))
+        if args.json_out:
+            with open(args.json_out, "w") as f:
+                json.dump(card, f, indent=2, default=float)
         return 0
 
     if args.cmd == "check":
