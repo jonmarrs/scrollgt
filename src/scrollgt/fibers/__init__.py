@@ -17,6 +17,7 @@ from .skeleton_io import (
     rasterize,
     size_from_stem,
 )
+from .target import load_fiber_target, score_fiber_prediction
 
 __all__ = [
     "Fiber",
@@ -32,4 +33,6 @@ __all__ = [
     "floor_voxel_instances",
     "floor_connected_components",
     "floor_random_instances",
+    "load_fiber_target",
+    "score_fiber_prediction",
 ]
