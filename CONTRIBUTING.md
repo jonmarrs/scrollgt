@@ -47,6 +47,30 @@ the published reading* at column granularity, never letter accuracy. The flow di
    periodicity score alone can be an inference-banding artifact, as the legacy-detector
    baseline shows). State your PHerc-1667 exposure explicitly.
 
+## Submit a row on a fiber connectivity target (`fibers_*`)
+
+These targets score an **instance labelling**, not a probability map: which voxels belong to
+which fiber. Everything needed ships in the repo, so no GPU, model download, or network access
+is involved.
+
+1. Produce `labels.npy` — a cube-shaped integer array (256³), `0` = background, one distinct id
+   per predicted fiber instance. The reference fiber mask is in the target's `mask.npz` if you
+   want to label that rather than segment your own; every published row is scored against that
+   same mask, so differences come from the labelling.
+2. Score it:
+   ```bash
+   scrollgt score-fibers labels.npy data/fibers_<cube> --json-out card.json
+   ```
+   Add `--recompute-floors` to verify the published floors from the shipped mask yourself
+   (~50 s per cube) rather than reading them from `meta.json`.
+3. **Report both ERL variants together, with the tolerance.** Raw ERL alone is gameable — a
+   single instance covering the whole cube scores within 23% of the oracle while its
+   merge-penalized ERL is exactly 0.00 — so a row quoting one number without the other will be
+   sent back. Splits and merges are reported separately and must never be summed.
+4. Score all six cubes, and report `s5_03997_01497_03997_256` separately as the cross-scroll
+   split. Beating connected components on **both** metrics is the bar; our own tracer does not
+   clear it (see `baselines/BASELINES.md`).
+
 ## Add a target
 
 New registered-GT targets are welcome but must clear the integrity bar: an **independent,

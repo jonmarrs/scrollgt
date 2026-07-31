@@ -123,9 +123,57 @@ rather than reading (the traces_mean_ratio < 1 shows both models predict less on
 fragmentary traces columns — damage response, not text detection). Periodicity remains a
 supporting diagnostic only: the prediction map is a required part of any submission.
 
+## Fiber connectivity targets (v0.3)
+
+Six 256³ cubes from villa's `fiber-skeletons` dataset, tolerance 2.0 voxels, every row scored
+against the identical `fiber_hz_vt` mask shipped with each target. Source:
+`reports/fiber_benchmark_all_cubes.json` in vesuvius-autoresearch.
+
+**Connected components is a strong baseline, and our own tracer does not beat it** — losing on
+raw ERL and on merge-penalized ERL, on every cube.
+
+| cube | tracer ERL | cc ERL | tracer ERLpen | cc ERLpen | tracer coverage |
+|---|---|---|---|---|---|
+| s1_00497_01497_03997 | 26.6 | 197.1 | 23.2 | 37.1 | 0.623 |
+| s1_00497_02497_02997 | 45.8 | 207.5 | 33.6 | 64.3 | 0.704 |
+| s1_00997_02497_02997 | 36.3 | 195.8 | 29.8 | 56.5 | 0.605 |
+| s1_08997_02997_02497 | 34.1 | 186.5 | 30.8 | 106.1 | 0.671 |
+| s1_10997_02997_02997 | 37.4 | 194.1 | 34.2 | 57.7 | 0.616 |
+| s5_03997_01497_03997 (cross-scroll) | 31.5 | 182.2 | 25.4 | 51.1 | 0.623 |
+
+Fragmentation is the cause. The tracer finds the fibers — coverage 0.605–0.704 of ground-truth
+length is claimed by *something* — but it cannot hold one identity along them, so its runs are
+short and ERL is low. An earlier reading that the tracer was marginally ahead on the penalized
+metric came from a 128³ sub-volume and **does not survive at full-cube scale**; it should not be
+cited.
+
+### What the floors establish
+
+All four floors score **identical coverage and precision**, because those metrics are properties
+of the shared fiber mask rather than of the instance labelling. Only ERL and the merge count
+separate them. On `s1_00497_01497_03997`:
+
+| labelling | ERL | ERLpen | coverage | precision | splits | merges | n inst |
+|---|---|---|---|---|---|---|---|
+| *oracle (disclosed)* | *258.27* | *239.46* | *1.0000* | *1.0000* | *14* | *7* | *87* |
+| floor: one instance for everything | 199.18 | **0.00** | 0.9177 | 0.2194 | 243 | 86 | 1 |
+| floor: connected components | 197.11 | 37.13 | 0.9177 | 0.2194 | 265 | 66 | 299 |
+| floor: one instance per voxel | 0.94 | 0.94 | 0.9177 | 0.2194 | 23406 | 7 | 1005366 |
+| floor: 50 random instances | 0.98 | **0.00** | 0.9177 | 0.2194 | 22937 | 4125 | 50 |
+
+A benchmark reporting coverage and precision alone cannot distinguish a correct tracer from
+`numpy.random`. Raw ERL alone is gameable too: labelling everything once scores 199.18 against an
+oracle's 258.27 — within 23% — while its merge-penalized ERL is exactly 0.00. **Both ERL and the
+merge count are required**, which is why `scrollgt score-fibers` never prints one without the
+other. The claim is pinned by `tests/test_fiber_gaming.py`, so a change that breaks it fails CI.
+
 ## Submit a row
 
 Score your model's probability map on the held-out target and open a PR/issue with the
 scorecard JSON (`scrollgt score pred.png data/scroll1_20231210121321 --json-out card.json`).
 State plainly whether your model saw segment 20231210121321 (or its 2023 labels) in
 training. **Beating ROC 0.60 held-out, honestly, would be news.**
+
+For fibers, score an instance labelling against any cube
+(`scrollgt score-fibers labels.npy data/fibers_<cube> --json-out card.json`) and report both ERL
+variants with the tolerance. **Beating connected components on both metrics would be news.**
