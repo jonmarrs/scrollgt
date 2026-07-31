@@ -3,7 +3,9 @@
 [![CI](https://github.com/jonmarrs/scrollgt/actions/workflows/ci.yml/badge.svg)](https://github.com/jonmarrs/scrollgt/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-**Registered human ground-truth ink evaluation for the open Vesuvius Challenge SOTA scroll data.**
+**Human ground-truth evaluation for the open Vesuvius Challenge scroll data — registered ink
+targets, column-level reading targets, and fiber connectivity targets, each with anti-gaming
+floors and our own negative results published.**
 
 The Vesuvius Challenge open-data bucket ships surface volumes and *model predictions* —
 but no human ground truth aligned to the new re-flattened geometry. That makes an
@@ -123,6 +125,47 @@ region-AUC granularity (~0.58 at n=18 vs 17); the disclosed geometry-oracle ceil
 [gate-validated renderer](https://github.com/jonmarrs/vesuvius-autoresearch/blob/main/docs/SURFACE_RENDERER.md)
 (clean-triple NCC 0.78 on this very scroll).
 
+## Fiber connectivity targets (v0.3): can your tracer hold one fiber's identity?
+
+Papyrus fibers physically define the U and V axes of a sheet, so tracing them helps both
+flattening and surface segmentation. villa's 2026 open-problems post asks for exactly this, and
+states the preference plainly: *"a tracer that confidently follows fewer fibers correctly is more
+useful than one that follows more fibers with a higher error rate."*
+
+**The headline finding: coverage and precision cannot rank a fiber tracer.** Four completely
+different instance labellings of the same cube — connected components, one instance for
+everything, one instance per voxel, and 50 random labels — all score **identical** coverage
+(0.9177) and precision (0.2194), because those metrics are properties of the fiber *mask*, not of
+the *labelling*. Only expected run length and the merge count separate them, and even raw ERL
+alone is gameable: labelling the whole cube once scores 199.18 against an oracle's 258.27 while
+its merge-penalized ERL is exactly **0.00**.
+
+So `score-fibers` never prints one ERL without the other, and never prints either without the
+tolerance. That claim is pinned by `tests/test_fiber_gaming.py` — break it and CI fails.
+
+```bash
+# labels.npy: cube-shaped int array, 0 = background, one distinct id per predicted fiber
+scrollgt score-fibers labels.npy data/fibers_s1_00497_01497_03997_256 --json-out card.json
+```
+
+**No GPU, no model download, no network.** Each target ships the hand-traced ground truth and the
+reference fiber mask (~250 KB/cube), so the published floors reproduce from the repo alone — a
+test enforces exactly that. Pass `--recompute-floors` to verify them yourself from the shipped
+mask (~50 s per cube) instead of reading the published values.
+
+Six cubes: five from Scroll 1, plus `s5_03997_01497_03997_256` designated the **cross-scroll**
+reporting split. The ground truth is a public villa dataset and cannot be hidden, so that is a
+labelled convention for reporting transfer — not a claim of held-out secrecy.
+
+Ground truth: villa's `fiber-skeletons` dataset (`dl.ash2txt.org/datasets/fiber-skeletons/`),
+every fiber in each cube hand-traced in WEBKNOSSOS at 7.91 µm. Only the `nml/` files carry fiber
+identity; the shipped `labelsTr/*.tif` are semantic and cannot support connectivity metrics.
+Reference mask: `scrollprize/fiber_hz_vt` (Apache-2.0) at P ≥ 0.5, identical for every entrant so
+scorecard differences come from the labelling rather than the segmentation.
+
+**Our own tracer loses to connected components on both metrics, on all six cubes** — published in
+[`baselines/BASELINES.md`](baselines/BASELINES.md) rather than hidden. That is the bar to clear.
+
 ## Roadmap
 
 - **v0.2:** the PHerc 1667 column-level target above **shipped 2026-07-18** (the open
@@ -153,6 +196,10 @@ surface volumes: `s3://vesuvius-challenge-open-data/` (anonymous).
 
 - The three pixel-level Scroll-1 targets (`scroll1_*`) register 2023 Grand-Prize-era human ink
   annotations from the Vesuvius Challenge open data release; see the challenge's data terms.
+- The six fiber targets (`fibers_*`) carry hand-traced skeletons from villa's `fiber-skeletons`
+  dataset (`dl.ash2txt.org/datasets/fiber-skeletons/`), also a Vesuvius Challenge release — see
+  the challenge's data terms. Each target's `mask.npz` is derived from `scrollprize/fiber_hz_vt`
+  (Apache-2.0). Provenance for both is recorded in the target's `meta.json`.
 - `data/pherc1667_merged_columns/` is **CC BY-NC 4.0**: its column coordinates and
   transcription facts derive from Angelotti et al., *Complete virtual unwrapping and reading of
   a rolled Herculaneum papyrus* (<https://scrollprize.org/pdf/main.pdf>). Attribution required,

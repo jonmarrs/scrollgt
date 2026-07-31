@@ -48,3 +48,13 @@ jobs:
               f.write(f"{y0} {x0}")
           PY
           scrollgt score-columns colpred.npy data/pherc1667_merged_columns --origin $(cat origin.txt)
+      - name: Smoke score-fibers on a shipped cube (connected-components labelling)
+        run: |
+          python - <<'PY'
+          import numpy as np
+          from scrollgt.fibers import floor_connected_components
+          from scrollgt.fibers.target import load_fiber_target
+          _, mask, _ = load_fiber_target("data/fibers_s1_00497_01497_03997_256")
+          np.save("fibpred.npy", floor_connected_components(mask).astype(np.int32))
+          PY
+          scrollgt score-fibers fibpred.npy data/fibers_s1_00497_01497_03997_256
