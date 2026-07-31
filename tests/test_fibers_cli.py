@@ -55,6 +55,37 @@ def test_cli_writes_json(tmp_path, cc_labels, capsys):
     }
 
 
+def test_report_explains_why_coverage_and_precision_are_identical(cc_labels):
+    """A reader seeing four identical coverage values must not read it as a bug."""
+    from scrollgt.fibers.target import score_fiber_prediction
+
+    text = fiber_markdown_report(score_fiber_prediction(cc_labels, TARGET))
+    assert "That is the point, not a bug" in text
+    assert "cannot rank a tracer" in text
+
+
+def test_report_flags_an_entry_that_trails_the_baseline(tmp_path):
+    """The BELOW-baseline warning is the card's sharpest honest signal.
+
+    The other tests all score connected components against itself, so the flag is
+    never set and this rendering branch would otherwise go unexercised.
+    """
+    from scrollgt.fibers import floor_voxel_instances
+    from scrollgt.fibers.target import load_fiber_target, score_fiber_prediction
+
+    _, mask, _ = load_fiber_target(TARGET)
+    p = tmp_path / "voxels.npy"
+    np.save(p, floor_voxel_instances(mask).astype(np.int32))
+
+    card = score_fiber_prediction(p, TARGET)
+    assert card["below_baseline"] is True
+
+    text = fiber_markdown_report(card)
+    assert "BELOW the naive baseline" in text
+    cc = card["floors"]["floor_connected_components"]["erl"]
+    assert f"{cc:.2f}" in text, "the card must name the baseline it trails"
+
+
 def test_cli_reports_cross_scroll_split(tmp_path, capsys):
     from scrollgt.fibers import floor_connected_components
     from scrollgt.fibers.target import load_fiber_target

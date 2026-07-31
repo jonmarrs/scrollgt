@@ -48,6 +48,13 @@ def fiber_markdown_report(card: dict) -> str:
         "fails to help, a merge corrupts the U/V parameterization.",
     ]
 
+    if len(card.get("floors", {})) > 1:
+        lines.append(
+            "Every floor shows the same coverage and precision. That is the point, not a "
+            "bug: both are properties of the shared fiber mask, not of the labelling, so "
+            "they cannot rank a tracer. Only ERL and the merge count separate these rows."
+        )
+
     if card.get("below_baseline"):
         cc = card["floors"]["floor_connected_components"]["erl"]
         lines.append(
