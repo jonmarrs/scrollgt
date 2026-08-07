@@ -15,22 +15,36 @@
     "origin": "2023 Grand-Prize-era human ink annotation (villa ink-detection train_scrolls inklabels) registered onto the re-flattened SOTA geometry",
     "binarize_threshold": 127
   },
+  "revision": {
+    "regenerated": "2026-08-07",
+    "supersedes": "the 2026-07-07 label, which was INVALID",
+    "reason": "The prior label was produced with a hardcoded LEVEL0_SHAPE belonging to segment 20230702185753 (50600x36400). This segment's level-0 surface volume is 51000x39980, so the level-2 region crop was scaled wrongly in register_run.py::_region_in_mesh -- both the crop origin and the crop width -- emitting a label that was displaced AND stretched (x +9.8%, y +0.79%). Agreement with the canon prediction peaked ~1766 level-0 voxels away from zero shift instead of at it. That artifact produced the retracted claim that all published models read this segment at chance.",
+    "fix": "LEVEL0_SHAPES is now a per-segment dict; _set_target() raises for any segment without a recorded shape rather than falling back to a default. Verified against the bucket via `register_run.py verify_shapes`.",
+    "evidence": "https://github.com/jonmarrs/vesuvius-autoresearch/blob/main/reports/detector/registration_offset_2026-08-07.md",
+    "credit": "The misalignment was surfaced by erdpx when closing villa PR #1280 (https://github.com/ScrollPrize/villa/pull/1280)."
+  },
   "registration": {
-    "method": "obj-exact: original.obj vt (427091 vertices), NN bridge via on-7.91um tifxyz (same old-scan frame), vt convention rowHv_colu (selected by teacher-enrichment among 4 discrete candidates, disclosed; orientation verified visually)",
-    "median_residual": 7.852047148933354,
-    "p90_residual": 11.109021753967378,
-    "registered_ink_fraction": 0.1827358603477478,
-    "text_line_periodicity": 0.8711954249403211,
+    "method": "obj-exact: original.obj vt (427091 vertices), NN bridge via on-7.91um tifxyz (same old-scan frame), vt convention rowHv_colu",
+    "median_residual": 7.954442522127209,
+    "p90_residual": 11.224182231743686,
+    "registered_ink_fraction": 0.1842939853668213,
+    "text_line_periodicity": 0.8667507884043404,
+    "teacher_enrichment": 6.014411062207735,
+    "enrichment_all_candidates": {
+      "rowv_colu": 1.766419316525642,
+      "rowHv_colu": 6.014411062207735,
+      "rowv_colWu": 1.8439177579487251,
+      "rowHv_colWu": 1.6085908149201662
+    },
     "gate": {
       "mode": "teacher_free",
       "max_median_residual": 12.0,
       "min_periodicity": 0.6,
       "passed": true,
-      "note": "teacher-dependent enrichment is only a DIAGNOSTIC here (1.68); residual and periodicity are convention-blind"
+      "note": "Enrichment is reported as a diagnostic, but it is now DECISIVE (6.01 vs 1.77/1.84/1.61) and would clear a teacher-dependent gate too. On the pre-fix label it read 1.68 and failed that gate -- which we wrongly attributed to a weak teacher and worked around with this teacher-free gate. The gate was correct; the registration was broken."
     },
-    "validation_basis": "teacher-free: residual 7.85 ~= the enrichment-validated sibling target's 7.92; text-line periodicity 0.871 ~= 0.900; rowHv_colu export-convention prior; visual letterforms",
-    "caveat": "~8-voxel median correspondence residual smears stroke edges at 64px scale; scores are lower bounds on true agreement"
+    "caveat": "KNOWN RESIDUAL PLACEMENT ERROR (open): agreement with the canon prediction still peaks at roughly (dy=31, dx=-10) level-2 px (~130 level-0 voxels), not at zero. The dominant LEVEL0_SHAPE error is fixed; a smaller one remains and is not yet explained (a domain-vs-label UV flip was tested and falsified). Scores here remain mild lower bounds. Note the ~8-voxel median residual measures correspondence SCATTER, not absolute placement -- do not read it as a placement guarantee; that conflation is what hid the original bug."
   },
-  "role": "HELD-OUT flagship target: no public model we know of was trained on this segment; the released canon prediction itself scores near chance here (ROC ~0.56) — see baselines/",
+  "role": "HELD-OUT flagship target: no public model we know of was trained on this segment.",
   "provenance_repo": "https://github.com/jonmarrs/vesuvius-autoresearch (repro/sota_data/register_run.py, reports/detector/registered_gt_heldout_validation.md)"
 }

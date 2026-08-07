@@ -7,32 +7,49 @@
 targets, column-level reading targets, and fiber connectivity targets, each with anti-gaming
 floors and our own negative results published.**
 
-> ## ⚠ 2026-08-07 — the three `scroll1_*` pixel targets are misregistered; their leaderboard is withdrawn
+> ## ⚠ 2026-08-07 — the held-out target was misregistered. It is fixed, and the headline result REVERSES.
 >
-> Agreement between the registered GT and the canon prediction does **not** peak at zero
-> shift. It peaks ~190 level-0 voxels away on the train-exposed target and **~1766 voxels**
-> away on the held-out flagship. Correcting a pure translation takes the canon teacher on
-> the held-out target from roc_auc 0.582 to **0.718** — clearing the "> 0.60 would be news"
-> bar stated below with two free parameters.
+> **What was wrong.** The held-out label was built with a hardcoded `LEVEL0_SHAPE` belonging
+> to a *different segment*, so its region crop was scaled wrongly — emitting a label that was
+> displaced and stretched. Agreement with the canon prediction peaked ~1766 level-0 voxels
+> away from zero shift instead of at it.
 >
-> **The "everything published reads at chance held-out" headline is therefore not
-> established**, and neither is the GT-fine-tune negative that depends on it. Do not score
-> against the `scroll1_*` targets until this is root-caused; treat published pixel rows as
-> withdrawn rather than as a bar to beat.
+> **What that means for what this benchmark claimed.** The old headline — *"everything
+> published reads at chance on the held-out segment"* — was an artifact of our own broken
+> registration. It is **retracted**. On the corrected label, on the same segment, with the
+> same models:
 >
-> The ~8-voxel residual quoted throughout measured correspondence scatter, not absolute
-> placement — a registration can have tight residuals and still be bodily displaced. We
-> shipped the former as evidence for the latter, and the shipped `overlay_vs_canon.png`
-> could not have caught it: it paints GT over a prediction that is itself near chance there.
+> | model (clean held-out) | roc_auc, old (invalid) | roc_auc, corrected |
+> |---|---|---|
+> | canon teacher | 0.563 | **0.753** |
+> | arm B (2-scroll student) | 0.553 | **0.731** |
+> | arm C (3-scroll student) | 0.558 | **0.746** |
+> | legacy detector (all-positive floor) | 0.501 | 0.518 |
 >
-> **Unaffected:** the PHerc 1667 column targets and all six fiber targets — different
-> ground truth, no registration bridge.
+> AP-prevalence-lift moves from ~1.15 (chance) to **2.15–2.44**. These models were reading
+> held-out ink the whole time; the benchmark was measuring its own misalignment.
+>
+> **The gate caught this and we overrode it.** The 2026-07 run failed the teacher-enrichment
+> gate (1.68), and we attributed that to a weak teacher and built a teacher-free gate to get
+> past it. On the fixed pipeline the same convention scores enrichment **6.01**. The gate was
+> right; we explained away a true positive.
+>
+> **Also retracted:** the GT-fine-tune negative, which was fine-tuning on displaced labels.
+>
+> **Still open:** a smaller residual offset remains, ~130 level-0 voxels on this target
+> (peak at dy=31, dx=−10 rather than zero). Corrected scores are therefore mild lower
+> bounds. The train-exposed target `scroll1_20230702185753` has a separate ~190-voxel offset
+> **not** caused by this bug and **not yet fixed** — treat its rows as provisional.
+>
+> **Unaffected:** the PHerc 1667 column targets and all six fiber targets — different ground
+> truth, no registration bridge.
 >
 > Detail + reproduction:
-> [registration_offset_2026-08-07.md](https://github.com/jonmarrs/vesuvius-autoresearch/blob/main/reports/detector/registration_offset_2026-08-07.md).
+> [registration_offset_2026-08-07.md](https://github.com/jonmarrs/vesuvius-autoresearch/blob/main/reports/detector/registration_offset_2026-08-07.md)
+> · check any registration with `scripts/probe_registration_offset.py`.
 > Found because `erdpx` closed villa PR
 > [#1280](https://github.com/ScrollPrize/villa/pull/1280) saying the alignment example
-> didn't show alignment working. It didn't.
+> didn't show alignment working. It didn't, and this is why.
 
 The Vesuvius Challenge open-data bucket ships surface volumes and *model predictions* —
 but no human ground truth aligned to the new re-flattened geometry. That makes an
@@ -46,18 +63,27 @@ one-command harness.
 
 ## Why trust this eval?
 
-> **⚠ Withdrawn 2026-08-07** — all three bullets below are scored against the
-> misregistered pixel targets (see the banner above). The eval did have teeth; it bit its
-> authors for the wrong reason. What it caught was its own displaced labels, not weak models.
+Not because it produced a dramatic negative result — it did, and the negative result was
+**our own bug**. Trust it because that is documented rather than buried:
 
-Because it has teeth — demonstrated on its own authors. Scored against these targets:
+- the 2026-07 release claimed every published model reads the held-out segment at chance;
+- the actual cause was a hardcoded constant in our registration code, found only after an
+  external reviewer said our alignment example didn't show alignment working;
+- the retraction, the root cause, the corrected numbers, and the residual error we
+  *haven't* fixed are all in this README, `baselines/BASELINES.md`, and the linked report.
 
-- the **released canon prediction** itself reads a held-out segment at ROC-AUC **0.56** (near chance);
-- our **distilled students** (which score 0.79+ on a train-exposed segment) drop to **~0.55 held-out** — distillation reproduces the teacher *including its failures*;
-- **fine-tuning on the registered GT made it worse** (0.558 → 0.531, collapsing to the trivial all-positive predictor).
+The eval had teeth. It bit its authors — for the wrong reason first, and now for the right
+one. What it actually establishes today:
 
-Every one of those negatives is published in [`baselines/BASELINES.md`](baselines/BASELINES.md).
-This benchmark was built by catching our own over-reads; it will catch yours too.
+- the **released canon prediction** reads the held-out segment at ROC-AUC **0.753**;
+- our **distilled students**, never trained on it, read it at **0.731–0.746** (AP-lift
+  2.3–2.4) — genuine held-out generalization, not the chance result we published;
+- the **all-positive floor** sits at 0.518, so those numbers are above a real baseline;
+- **a tight registration residual is not a placement check** — the ~8-voxel residual we
+  cited as evidence of correct alignment coexisted with a ~1766-voxel displacement.
+
+The full record — the withdrawn rows, the corrected rows, and what is still broken — is in
+[`baselines/BASELINES.md`](baselines/BASELINES.md).
 
 ## Quickstart
 
@@ -83,43 +109,60 @@ scrollgt check --window-px 64 --scan-um 8.0 --regions-json regions.json
 
 | target | role | registration validation |
 |---|---|---|
-| `data/scroll1_20230702185753` | train-exposed for the published baselines (disclosed) | enrichment-gated (5.05), residual 7.92vx |
+| `data/scroll1_20230702185753` | train-exposed for the published baselines (disclosed) | enrichment-gated (5.05), residual 7.92vx — ⚠ carries a separate ~190vx offset, not yet fixed |
 | `data/scroll1_20230702185753_y7000_x4000` | second region of the train-exposed segment | direct 4-candidate orientation probe (3.13 vs ≤1.50), residual 8.07vx |
-| `data/scroll1_20231210121321` | **held-out flagship** — no public model we know of trained here | teacher-free (residual 7.85vx, text-line periodicity 0.871) |
+| `data/scroll1_20231210121321` | **held-out flagship** — no public model we know of trained here | **re-registered 2026-08-07**; enrichment 6.01 (decisive), residual 7.95vx, periodicity 0.867 |
 
 A fourth gate-passing region was **withheld** because its orientation is currently
 unverifiable (chance-quality teacher there defeats the enrichment check) — see
 `baselines/BASELINES.md`. Targets only ship when validation is real.
 
-## Leaderboard (held-out flagship `scroll1_20231210121321`) — WITHDRAWN 2026-08-07
+## Leaderboard (held-out flagship `scroll1_20231210121321`)
 
-> These rows measure agreement with a ground truth displaced ~1766 level-0 voxels. They are
-> kept visible for the correction record, not as a bar to beat. See the banner at the top.
-
-The number that matters — scored against human ground truth on a segment no listed model
-trained on. Everything published so far sits at chance; **an honest ROC-AUC > 0.60 here
-would be news.** Full tables + the train-region contrast in
+**Corrected 2026-08-07** — these replace the withdrawn 2026-07 rows, which were scored
+against a misregistered label (see the banner at the top). Scored against human ground
+truth on a segment no listed model trained on. Full tables + the train-region contrast in
 [`baselines/BASELINES.md`](baselines/BASELINES.md); submit a row via
 [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
-| model | exposure | ROC-AUC | AP-lift | val_f1 |
-|---|---|---|---|---|
-| canon teacher (released prediction) | — | 0.563 | 1.150 | 0.295 |
-| arm A (1-scroll student) | selection-set only | 0.563 | 1.203 | 0.311 |
-| arm B (2-scroll student) | **clean held-out** | 0.553 | 1.161 | 0.311 |
-| arm C (3-scroll student) | **clean held-out** | 0.558 | 1.165 | 0.310 |
-| arm C + GT fine-tune | **clean held-out** | 0.531 | 1.090 | 0.309 |
-| trivial all-positive | — | 0.500 | 1.000 | 0.309 |
+| model | exposure | ROC-AUC | AP-lift | val_f1 | *(withdrawn 2026-07 ROC)* |
+|---|---|---|---|---|---|
+| canon teacher (released prediction) | — | 0.753 | 2.154 | 0.572 | *0.563* |
+| arm A (1-scroll student) | selection-set only | 0.772 | 2.672 | 0.501 | *0.563* |
+| arm B (2-scroll student) | **clean held-out** | 0.731 | 2.338 | 0.440 | *0.553* |
+| arm C (3-scroll student) | **clean held-out** | 0.746 | 2.440 | 0.466 | *0.558* |
+| legacy detector (all-positive) | — | 0.518 | 1.009 | 0.311 | *0.501* |
 
-Note how close the `val_f1` column is to the trivial predictor (0.309) — at this ink
-prevalence F1 is near-degenerate, which is exactly why ScrollGT's headline is
-AP-prevalence-lift, not F1.
+The old table claimed every row sat at chance and that "an honest ROC-AUC > 0.60 would be
+news." The models were already there; our registration was hiding it. The all-positive
+floor at 0.518 / lift 1.009 is the comparison that makes the rest meaningful.
 
-Each target directory contains `gt_ink.png` (registered binary label), `meta.json`
-(exact predict-region spec + full registration provenance and caveats), and an
-`overlay_vs_canon.png` sanity visual. The ~8-voxel registration residual smears stroke
-edges at 64px scale: **scores are lower bounds on true agreement** — stated once here
-and in every meta.json, so nobody over-reads a low score either.
+`arm C + GT fine-tune` is **not listed**: it was fine-tuned on the displaced label, so its
+published 0.531 measured nothing. It needs retraining before it can be scored.
+
+Scores remain **mild lower bounds** — a residual ~130-voxel placement error is still open.
+
+Each target directory contains `gt_ink.png` (registered binary label) and `meta.json`
+(exact predict-region spec + full registration provenance and caveats).
+
+**Alignment evidence.** `data/scroll1_20231210121321/alignment_evidence.png` shows, at
+letterform scale: the canon prediction alone · the registered GT drawn as an *outline* over
+it · and a per-pixel agreement map (green = both, red = GT only, blue = prediction only).
+
+This replaces the old `overlay_vs_canon.png`, which painted the GT opaquely *on top of* the
+prediction — hiding the agreement it was supposed to demonstrate, and showing nothing at all
+on a segment where the prediction is weak. That visual is why a misregistration survived to
+release. Regenerate with
+[`scripts/make_alignment_evidence.py`](https://github.com/jonmarrs/vesuvius-autoresearch/blob/main/scripts/make_alignment_evidence.py).
+
+Read the agreement map for *systematic* colour fringing: red consistently on one edge of a
+stroke and blue on the opposite edge means a residual shift, which is exactly what this
+target still shows (~130 voxels). Symmetric fringing is just stroke-edge scatter.
+
+**Do not use the residual to judge placement.** The ~8-voxel median residual measures
+correspondence *scatter*; it was ~8 voxels while the label sat ~1766 voxels out of place.
+Use `scripts/probe_registration_offset.py`, which checks that agreement peaks at zero shift.
+Scores here remain **lower bounds on true agreement**.
 
 ## Honest-metrics contract
 

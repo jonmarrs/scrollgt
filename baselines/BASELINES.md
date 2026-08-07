@@ -1,33 +1,29 @@
 # ScrollGT baselines (v0.1)
 
-> ## ⚠ PIXEL-TARGET ROWS WITHDRAWN — 2026-08-07
+> ## ⚠ CORRECTED 2026-08-07 — the held-out table below is REPLACED; the old one was invalid
 >
-> **The registered ground truth on both Scroll-1 pixel targets is displaced.** Measured by
-> scanning Dice over pure translations against the canon prediction:
+> The held-out label was generated with a hardcoded `LEVEL0_SHAPE` belonging to a different
+> segment, so its region crop was scaled wrongly and the label came out displaced and
+> stretched (~1766 level-0 voxels off). The resulting "everything reads at chance held-out"
+> headline was an artifact of our own registration, and is **retracted**.
 >
-> | target | Dice @ 0 | Dice @ peak | offset (level-2 px) | ≈ level-0 vx |
-> |---|---|---|---|---|
-> | `scroll1_20230702185753` | 0.453 | 0.603 | (−18, −44) | ~190 |
-> | `scroll1_20231210121321` | 0.321 | 0.530 | (76, **435**) | ~1766 |
+> The held-out target has been re-registered and every row re-scored. Teacher-enrichment on
+> the same convention went 1.68 → **6.01**, and the corrected rows appear below. Note that
+> the enrichment gate *failed* on the bad label and we overrode it with a teacher-free gate,
+> attributing the failure to a weak teacher. The gate was right.
 >
-> Correcting a pure translation on the held-out flagship lifts the canon teacher from
-> roc_auc 0.582 to **0.718**, prevalence-lift 1.60 → 2.76 (binarised-predictor metric,
-> comparable between those two figures rather than to the tables below). The README calls
-> an honest ROC-AUC > 0.60 here newsworthy — a two-parameter translation clears it.
+> **`arm C + GT fine-tune` has been removed**, not re-scored: it was fine-tuned *on* the
+> displaced label, so its published 0.531 measured nothing. It must be retrained.
 >
-> **So the framing below — "on the held-out target everything collapses to near chance" —
-> is not established.** It is substantially an artifact of misregistration. The
-> `arm C + GT fine-tune` negative inherits this directly: a model fine-tuned on displaced
-> labels degrades toward the trivial predictor, which is precisely what was published as a
-> finding about ground truth.
+> **The train-exposed target is NOT fixed.** It carries a separate ~190-voxel offset that
+> this bug does not explain (its `LEVEL0_SHAPE` was correct). Its rows are **provisional**.
 >
-> The `meta.json` residual of ~8 voxels measured correspondence *scatter*; it never
-> constrained absolute placement, and the offset is 23–230× it. Root-cause is open —
-> either the registration bridge or the teacher-crop scaling misplaces its artifact.
-> **Column and fiber targets are unaffected**: different ground truth, no registration bridge.
+> A residual ~130-voxel offset also remains on the corrected held-out target, so those
+> scores are mild lower bounds. Column and fiber targets are unaffected — different ground
+> truth, no registration bridge.
 >
 > Evidence + reproduction:
-> [vesuvius-autoresearch `reports/detector/registration_offset_2026-08-07.md`](https://github.com/jonmarrs/vesuvius-autoresearch/blob/main/reports/detector/registration_offset_2026-08-07.md).
+> [registration_offset_2026-08-07.md](https://github.com/jonmarrs/vesuvius-autoresearch/blob/main/reports/detector/registration_offset_2026-08-07.md).
 > Surfaced by `erdpx` closing villa PR
 > [#1280](https://github.com/ScrollPrize/villa/pull/1280).
 
@@ -36,10 +32,11 @@ all-valid mask) against the registered ground truth. Sources: the vesuvius-autor
 reports `registered_gt_validation.json`, `registered_gt_heldout_validation.json`,
 `gt_finetune_heldout.json` (commit-tracked; see that repo for training details).
 
-**Read the two tables together — that is the benchmark's point.** On the train-exposed
-target every distilled model looks strong; on the held-out target everything collapses to
-near chance, including the released canon prediction itself. High scores on
-`scroll1_20230702185753` alone mean train-region fit, not reading.
+**Read the two tables together — that is the benchmark's point.** Train-exposed scores
+run higher than held-out ones for every model, so high scores on `scroll1_20230702185753`
+alone still mean train-region fit rather than reading. What the corrected numbers no longer
+support is the stronger claim we previously made — that held-out performance *collapses to
+chance*. It does not; it degrades.
 
 ## Target `scroll1_20230702185753` (TRAIN-EXPOSED for the distilled rows; disclosed)
 
@@ -57,20 +54,27 @@ comparison is `f1_at_0.5`.
 
 ## Target `scroll1_20231210121321` (HELD-OUT — the flagship)
 
+**Re-registered and re-scored 2026-08-07.** Registration: enrichment 6.01 (decisive vs
+1.77/1.84/1.61), residual 7.95vx, periodicity 0.867.
+
 | model | val_f1 | f1_at_0.5 | average_precision | ap_prevalence_lift | roc_auc |
 |---|---|---|---|---|---|
-| canon teacher (binarized release) | 0.2950 | 0.2950 | 0.2102 | 1.1501 | 0.5632 |
-| legacy detector | 0.3090 | 0.2668 | 0.1837 | 1.0052 | 0.5006 |
-| arm A (1-scroll student) | 0.3107 | 0.2578 | 0.2198 | 1.2027 | 0.5626 |
-| arm B (2-scroll student) | 0.3107 | 0.2431 | 0.2121 | 1.1609 | 0.5531 |
-| arm C (3-scroll student) | 0.3098 | 0.2304 | 0.2130 | 1.1654 | 0.5576 |
-| arm C + GT fine-tune (negative result) | 0.3090 | 0.1507 | 0.1991 | 1.0898 | 0.5308 |
+| canon teacher (binarized release) | 0.5718 | 0.5718 | 0.3970 | 2.1542 | 0.7526 |
+| legacy detector | 0.3112 | 0.2794 | 0.1859 | 1.0086 | 0.5176 |
+| arm A (1-scroll student) | 0.5014 | 0.5013 | 0.4924 | 2.6716 | 0.7716 |
+| arm B (2-scroll student) | 0.4404 | 0.4375 | 0.4309 | 2.3382 | 0.7305 |
+| arm C (3-scroll student) | 0.4656 | 0.4549 | 0.4496 | 2.4397 | 0.7462 |
+
+Withdrawn 2026-07 values, for the record: canon teacher 0.5632, arm A 0.5626,
+arm B 0.5531, arm C 0.5576, legacy 0.5006 roc_auc — all reported as chance.
+
+Arms B and C never saw this segment, and read it at roc_auc 0.73–0.75 with AP-lift
+2.3–2.4 against an all-positive floor of 0.518 / 1.009. That is genuine held-out
+generalization; the previous release said it was chance.
 
 Metric note: at this region's ink prevalence (~0.18) the trivial all-positive predictor
 already scores F1 ≈ 0.31, so `val_f1` is degenerate here; the robust reads are
-`ap_prevalence_lift` and `roc_auc` — all rows sit ≈ chance. The `arm C + GT fine-tune`
-row is a documented negative: fine-tuning on registered GT *reduced* discrimination and
-collapsed toward the trivial predictor.
+`ap_prevalence_lift` and `roc_auc`, where the all-positive floor sits at 1.009 / 0.518.
 
 ## Target `scroll1_20230702185753_y7000_x4000` (v0.1.1)
 
@@ -87,12 +91,14 @@ stated explicitly — read this table as a demonstration of what exposure does.*
 | arm C (3-scroll student) | teacher-supervised here | 0.4216 | 0.4204 | 0.3767 | 3.0752 | 0.7817 |
 | arm C + GT fine-tune | **GT-supervised here (its training region)** | 0.7343 | 0.7019 | 0.7919 | 6.4643 | **0.9538** |
 
-**The exhibit:** `arm C + GT fine-tune` scores **ROC 0.9538 on its own training region**
-and **0.5308 on the held-out target** (same model, table above). That 0.42-ROC gap is
-what train-region fit looks like when an eval has a held-out surface — and why scores on
-exposed regions must never be read as reading ability. (Secondary observations: the clean
-legacy row sits at chance, and the 0.95 also confirms this region's registered labels are
-learnable signal, not noise.)
+**The exhibit — ⚠ withdrawn 2026-08-07.** This previously read: `arm C + GT fine-tune`
+scores ROC 0.9538 on its own training region and 0.5308 on the held-out target, a
+0.42-ROC fit-vs-reading gap. The held-out half of that comparison was measured against the
+misregistered label, and the model itself was fine-tuned on a displaced label, so the gap
+is not interpretable. The model must be retrained on the corrected GT before the exhibit
+can be restated. The 0.9538 is retained only as evidence that this region's labels are
+learnable signal — note that a model can fit displaced labels perfectly well, so it says
+nothing about placement.
 
 ## A target we did NOT ship (and why)
 
