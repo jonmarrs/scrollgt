@@ -7,6 +7,33 @@
 targets, column-level reading targets, and fiber connectivity targets, each with anti-gaming
 floors and our own negative results published.**
 
+> ## ⚠ 2026-08-07 — the three `scroll1_*` pixel targets are misregistered; their leaderboard is withdrawn
+>
+> Agreement between the registered GT and the canon prediction does **not** peak at zero
+> shift. It peaks ~190 level-0 voxels away on the train-exposed target and **~1766 voxels**
+> away on the held-out flagship. Correcting a pure translation takes the canon teacher on
+> the held-out target from roc_auc 0.582 to **0.718** — clearing the "> 0.60 would be news"
+> bar stated below with two free parameters.
+>
+> **The "everything published reads at chance held-out" headline is therefore not
+> established**, and neither is the GT-fine-tune negative that depends on it. Do not score
+> against the `scroll1_*` targets until this is root-caused; treat published pixel rows as
+> withdrawn rather than as a bar to beat.
+>
+> The ~8-voxel residual quoted throughout measured correspondence scatter, not absolute
+> placement — a registration can have tight residuals and still be bodily displaced. We
+> shipped the former as evidence for the latter, and the shipped `overlay_vs_canon.png`
+> could not have caught it: it paints GT over a prediction that is itself near chance there.
+>
+> **Unaffected:** the PHerc 1667 column targets and all six fiber targets — different
+> ground truth, no registration bridge.
+>
+> Detail + reproduction:
+> [registration_offset_2026-08-07.md](https://github.com/jonmarrs/vesuvius-autoresearch/blob/main/reports/detector/registration_offset_2026-08-07.md).
+> Found because `erdpx` closed villa PR
+> [#1280](https://github.com/ScrollPrize/villa/pull/1280) saying the alignment example
+> didn't show alignment working. It didn't.
+
 The Vesuvius Challenge open-data bucket ships surface volumes and *model predictions* —
 but no human ground truth aligned to the new re-flattened geometry. That makes an
 uncomfortable question hard to answer: **does your ink model actually read, or does it
@@ -18,6 +45,10 @@ residual, gated alignment validation) and ships them as scoreable targets with a
 one-command harness.
 
 ## Why trust this eval?
+
+> **⚠ Withdrawn 2026-08-07** — all three bullets below are scored against the
+> misregistered pixel targets (see the banner above). The eval did have teeth; it bit its
+> authors for the wrong reason. What it caught was its own displaced labels, not weak models.
 
 Because it has teeth — demonstrated on its own authors. Scored against these targets:
 
@@ -60,7 +91,10 @@ A fourth gate-passing region was **withheld** because its orientation is current
 unverifiable (chance-quality teacher there defeats the enrichment check) — see
 `baselines/BASELINES.md`. Targets only ship when validation is real.
 
-## Leaderboard (held-out flagship `scroll1_20231210121321`)
+## Leaderboard (held-out flagship `scroll1_20231210121321`) — WITHDRAWN 2026-08-07
+
+> These rows measure agreement with a ground truth displaced ~1766 level-0 voxels. They are
+> kept visible for the correction record, not as a bar to beat. See the banner at the top.
 
 The number that matters — scored against human ground truth on a segment no listed model
 trained on. Everything published so far sits at chance; **an honest ROC-AUC > 0.60 here

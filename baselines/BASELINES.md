@@ -1,5 +1,36 @@
 # ScrollGT baselines (v0.1)
 
+> ## ⚠ PIXEL-TARGET ROWS WITHDRAWN — 2026-08-07
+>
+> **The registered ground truth on both Scroll-1 pixel targets is displaced.** Measured by
+> scanning Dice over pure translations against the canon prediction:
+>
+> | target | Dice @ 0 | Dice @ peak | offset (level-2 px) | ≈ level-0 vx |
+> |---|---|---|---|---|
+> | `scroll1_20230702185753` | 0.453 | 0.603 | (−18, −44) | ~190 |
+> | `scroll1_20231210121321` | 0.321 | 0.530 | (76, **435**) | ~1766 |
+>
+> Correcting a pure translation on the held-out flagship lifts the canon teacher from
+> roc_auc 0.582 to **0.718**, prevalence-lift 1.60 → 2.76 (binarised-predictor metric,
+> comparable between those two figures rather than to the tables below). The README calls
+> an honest ROC-AUC > 0.60 here newsworthy — a two-parameter translation clears it.
+>
+> **So the framing below — "on the held-out target everything collapses to near chance" —
+> is not established.** It is substantially an artifact of misregistration. The
+> `arm C + GT fine-tune` negative inherits this directly: a model fine-tuned on displaced
+> labels degrades toward the trivial predictor, which is precisely what was published as a
+> finding about ground truth.
+>
+> The `meta.json` residual of ~8 voxels measured correspondence *scatter*; it never
+> constrained absolute placement, and the offset is 23–230× it. Root-cause is open —
+> either the registration bridge or the teacher-crop scaling misplaces its artifact.
+> **Column and fiber targets are unaffected**: different ground truth, no registration bridge.
+>
+> Evidence + reproduction:
+> [vesuvius-autoresearch `reports/detector/registration_offset_2026-08-07.md`](https://github.com/jonmarrs/vesuvius-autoresearch/blob/main/reports/detector/registration_offset_2026-08-07.md).
+> Surfaced by `erdpx` closing villa PR
+> [#1280](https://github.com/ScrollPrize/villa/pull/1280).
+
 All rows scored with `scrollgt score` semantics (`scrollgt.metrics.segmentation_metrics`,
 all-valid mask) against the registered ground truth. Sources: the vesuvius-autoresearch
 reports `registered_gt_validation.json`, `registered_gt_heldout_validation.json`,
