@@ -43,9 +43,11 @@ floors and our own negative results published.**
 > meshes leaves p50 64 / p90 249 old-scan voxels). Two candidate fixes were tested and
 > falsified. **Features closer together than ~0.31 mm cannot be scored reliably here, and
 > all absolute scores are mild lower bounds.** A placement gate enforces this at 48 px —
-> 9× below the 435 px bug above. The train-exposed target `scroll1_20230702185753` carries a
-> separate ~190-voxel offset not caused by the `LEVEL0_SHAPE` bug — treat its rows as
-> provisional.
+> 9× below the 435 px bug above. Per-target: held-out **32.0 px / 0.31 mm**; train-exposed
+> `scroll1_20230702185753` **46.6 px / 0.45 mm**, which clears the gate by only 1.4 px — read
+> its rows with more caution. That target was not affected by the `LEVEL0_SHAPE` bug, so its
+> larger offset is either segment-varying floor or an unisolated defect; the threshold was
+> deliberately not raised to accommodate it.
 >
 > **Unaffected:** the PHerc 1667 column targets and all six fiber targets — different ground
 > truth, no registration bridge.
@@ -117,7 +119,7 @@ scrollgt check --window-px 64 --scan-um 8.0 --regions-json regions.json
 
 | target | role | registration validation |
 |---|---|---|
-| `data/scroll1_20230702185753` | train-exposed for the published baselines (disclosed) | enrichment-gated (5.05), residual 7.92vx — ⚠ carries a separate ~190vx offset, not yet fixed |
+| `data/scroll1_20230702185753` | train-exposed for the published baselines (disclosed) | enrichment-gated (5.05), residual 7.92vx; **placement 46.6px — passes the 48px gate by only 1.4px (~0.45mm)** |
 | `data/scroll1_20230702185753_y7000_x4000` | second region of the train-exposed segment | direct 4-candidate orientation probe (3.13 vs ≤1.50), residual 8.07vx |
 | `data/scroll1_20231210121321` | **held-out flagship** — no public model we know of trained here | **re-registered 2026-08-07**; placement 32.0px (gate 48), enrichment 6.01 (decisive), residual 7.95vx, periodicity 0.867 |
 

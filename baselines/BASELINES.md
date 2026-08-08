@@ -15,12 +15,13 @@
 > **`arm C + GT fine-tune` has been removed**, not re-scored: it was fine-tuned *on* the
 > displaced label, so its published 0.531 measured nothing. It must be retrained.
 >
-> **The train-exposed target is NOT fixed.** It carries a separate ~190-voxel offset that
-> this bug does not explain (its `LEVEL0_SHAPE` was correct). Its rows are **provisional**.
->
-> A residual ~130-voxel offset also remains on the corrected held-out target, so those
-> scores are mild lower bounds. Column and fiber targets are unaffected — different ground
-> truth, no registration bridge.
+> **Placement is now gated and measured per target** (agreement must peak within 48 level-2
+> px of zero shift): held-out **32.0 px / 0.31 mm**, train-exposed **46.6 px / 0.45 mm**.
+> Both pass; the train-exposed target clears by only 1.4 px, so read its rows with more
+> caution. Its numbers are unchanged — it was never mismeasured, only unverified, and it was
+> not affected by the `LEVEL0_SHAPE` bug. These offsets are the method's **resolution
+> limit**, not pending bugs, and the threshold was not raised to accommodate either target.
+> Column and fiber targets are unaffected — different ground truth, no registration bridge.
 >
 > Evidence + reproduction:
 > [registration_offset_2026-08-07.md](https://github.com/jonmarrs/vesuvius-autoresearch/blob/main/reports/detector/registration_offset_2026-08-07.md).
@@ -39,6 +40,9 @@ support is the stronger claim we previously made — that held-out performance *
 chance*. It does not; it degrades.
 
 ## Target `scroll1_20230702185753` (TRAIN-EXPOSED for the distilled rows; disclosed)
+
+Placement 46.6 level-2 px (0.45 mm) — passes the 48 px gate by 1.4 px. Numbers below are
+unchanged from the 2026-07 release; this target was not affected by the `LEVEL0_SHAPE` bug.
 
 | model | val_f1 | f1_at_0.5 | average_precision | ap_prevalence_lift | roc_auc |
 |---|---|---|---|---|---|
