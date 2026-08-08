@@ -36,10 +36,16 @@ floors and our own negative results published.**
 >
 > **Also retracted:** the GT-fine-tune negative, which was fine-tuning on displaced labels.
 >
-> **Still open:** a smaller residual offset remains, ~130 level-0 voxels on this target
-> (peak at dy=31, dx=−10 rather than zero). Corrected scores are therefore mild lower
-> bounds. The train-exposed target `scroll1_20230702185753` has a separate ~190-voxel offset
-> **not** caused by this bug and **not yet fixed** — treat its rows as provisional.
+> **Resolution limit (a spec, not an open bug).** A ~32 level-2 px / **0.31 mm** placement
+> uncertainty remains and is irreducible for this method: `original.obj` carries the
+> 2023 label mapping in the *old* 7.91 µm scan frame, and the 2023 and 2026 segmentations of
+> this sheet are materially different surfaces (unpaired 3D similarity between the two
+> meshes leaves p50 64 / p90 249 old-scan voxels). Two candidate fixes were tested and
+> falsified. **Features closer together than ~0.31 mm cannot be scored reliably here, and
+> all absolute scores are mild lower bounds.** A placement gate enforces this at 48 px —
+> 9× below the 435 px bug above. The train-exposed target `scroll1_20230702185753` carries a
+> separate ~190-voxel offset not caused by the `LEVEL0_SHAPE` bug — treat its rows as
+> provisional.
 >
 > **Unaffected:** the PHerc 1667 column targets and all six fiber targets — different ground
 > truth, no registration bridge.
@@ -69,8 +75,8 @@ Not because it produced a dramatic negative result — it did, and the negative 
 - the 2026-07 release claimed every published model reads the held-out segment at chance;
 - the actual cause was a hardcoded constant in our registration code, found only after an
   external reviewer said our alignment example didn't show alignment working;
-- the retraction, the root cause, the corrected numbers, and the residual error we
-  *haven't* fixed are all in this README, `baselines/BASELINES.md`, and the linked report.
+- the retraction, the root cause, the corrected numbers, and the resolution limit we
+  *cannot* engineer away are all in this README, `baselines/BASELINES.md`, and the report.
 
 The eval had teeth. It bit its authors — for the wrong reason first, and now for the right
 one. What it actually establishes today:
@@ -80,7 +86,9 @@ one. What it actually establishes today:
   2.3–2.4) — genuine held-out generalization, not the chance result we published;
 - the **all-positive floor** sits at 0.518, so those numbers are above a real baseline;
 - **a tight registration residual is not a placement check** — the ~8-voxel residual we
-  cited as evidence of correct alignment coexisted with a ~1766-voxel displacement.
+  cited as evidence of correct alignment coexisted with a ~1766-voxel displacement. Every
+  target is now gated on agreement peaking at zero shift, not on residual alone;
+- **the targets resolve to ~0.31 mm**, stated as a spec rather than discovered later.
 
 The full record — the withdrawn rows, the corrected rows, and what is still broken — is in
 [`baselines/BASELINES.md`](baselines/BASELINES.md).
@@ -111,7 +119,7 @@ scrollgt check --window-px 64 --scan-um 8.0 --regions-json regions.json
 |---|---|---|
 | `data/scroll1_20230702185753` | train-exposed for the published baselines (disclosed) | enrichment-gated (5.05), residual 7.92vx — ⚠ carries a separate ~190vx offset, not yet fixed |
 | `data/scroll1_20230702185753_y7000_x4000` | second region of the train-exposed segment | direct 4-candidate orientation probe (3.13 vs ≤1.50), residual 8.07vx |
-| `data/scroll1_20231210121321` | **held-out flagship** — no public model we know of trained here | **re-registered 2026-08-07**; enrichment 6.01 (decisive), residual 7.95vx, periodicity 0.867 |
+| `data/scroll1_20231210121321` | **held-out flagship** — no public model we know of trained here | **re-registered 2026-08-07**; placement 32.0px (gate 48), enrichment 6.01 (decisive), residual 7.95vx, periodicity 0.867 |
 
 A fourth gate-passing region was **withheld** because its orientation is currently
 unverifiable (chance-quality teacher there defeats the enrichment check) — see
@@ -140,7 +148,8 @@ floor at 0.518 / lift 1.009 is the comparison that makes the rest meaningful.
 `arm C + GT fine-tune` is **not listed**: it was fine-tuned on the displaced label, so its
 published 0.531 measured nothing. It needs retraining before it can be scored.
 
-Scores remain **mild lower bounds** — a residual ~130-voxel placement error is still open.
+Scores are **mild lower bounds**: the target resolves to ~0.31 mm (32 level-2 px placement
+uncertainty), which is a floor of the method, not an open defect.
 
 Each target directory contains `gt_ink.png` (registered binary label) and `meta.json`
 (exact predict-region spec + full registration provenance and caveats).

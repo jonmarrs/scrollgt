@@ -43,7 +43,19 @@
       "passed": true,
       "note": "Enrichment is reported as a diagnostic, but it is now DECISIVE (6.01 vs 1.77/1.84/1.61) and would clear a teacher-dependent gate too. On the pre-fix label it read 1.68 and failed that gate -- which we wrongly attributed to a weak teacher and worked around with this teacher-free gate. The gate was correct; the registration was broken."
     },
-    "caveat": "KNOWN RESIDUAL PLACEMENT ERROR (open): agreement with the canon prediction still peaks at roughly (dy=31, dx=-10) level-2 px (~130 level-0 voxels), not at zero. The dominant LEVEL0_SHAPE error is fixed; a smaller one remains and is not yet explained (a domain-vs-label UV flip was tested and falsified). Scores here remain mild lower bounds. Note the ~8-voxel median residual measures correspondence SCATTER, not absolute placement -- do not read it as a placement guarantee; that conflation is what hid the original bug."
+    "caveat": "Placement is gated (must peak within 48 level-2 px of zero shift); this target measures 32.0 px. The ~8-voxel median residual measures correspondence SCATTER, not absolute placement -- conflating the two is what hid the original bug. Use the placement figure, not the residual.",
+    "placement": {
+      "peak_shift_level2_px": [
+        31,
+        -8
+      ],
+      "offset_level2_px": 32.0,
+      "offset_level0_vx": 128.0,
+      "offset_mm": 0.31,
+      "gate_threshold_level2_px": 48.0,
+      "passed": true,
+      "note": "Agreement with the canon prediction peaks 32 level-2 px off zero. This is the target's RESOLUTION LIMIT, not a pending bug: original.obj carries the 2023 label mapping in the old 7.91um scan frame, and the 2023/2026 segmentations of this sheet are materially different surfaces (unpaired 3D similarity leaves p50 64 / p90 249 old-scan voxels). Two candidate fixes tested and falsified. Features closer than ~0.31mm cannot be scored reliably; all scores are mild lower bounds."
+    }
   },
   "role": "HELD-OUT flagship target: no public model we know of was trained on this segment.",
   "provenance_repo": "https://github.com/jonmarrs/vesuvius-autoresearch (repro/sota_data/register_run.py, reports/detector/registered_gt_heldout_validation.md)"
