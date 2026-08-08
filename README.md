@@ -43,11 +43,17 @@ floors and our own negative results published.**
 > meshes leaves p50 64 / p90 249 old-scan voxels). Two candidate fixes were tested and
 > falsified. **Features closer together than ~0.31 mm cannot be scored reliably here, and
 > all absolute scores are mild lower bounds.** A placement gate enforces this at 48 px —
-> 9× below the 435 px bug above. Per-target: held-out **32.0 px / 0.31 mm**; train-exposed
-> `scroll1_20230702185753` **46.6 px / 0.45 mm**, which clears the gate by only 1.4 px — read
-> its rows with more caution. That target was not affected by the `LEVEL0_SHAPE` bug, so its
-> larger offset is either segment-varying floor or an unisolated defect; the threshold was
-> deliberately not raised to accommodate it.
+> 9× below the 435 px bug above. Per-target, and the **global figure is optimistic** —
+> placement varies across the region, so per-768px-tile scatter is quoted too:
+>
+> | target | global | per-tile sd (dy/dx) | worst tile | verdict |
+> |---|---|---|---|---|
+> | held-out `20231210121321` | 32.0 px / 0.31 mm | 8.2 / 9.5 | ~50 px | usable |
+> | train-exposed `20230702185753` | 46.6 px / 0.45 mm | **26.8 / 33.0** | **~100 px / 0.96 mm** | **indicative only** |
+>
+> The field is **non-rigid** — a fitted plane leaves scatter equal to the raw scatter, so it
+> is neither a constant offset nor a scale error, and there is no convention bug left to
+> find. The threshold was not raised to accommodate the train-exposed target.
 >
 > **Unaffected:** the PHerc 1667 column targets and all six fiber targets — different ground
 > truth, no registration bridge.

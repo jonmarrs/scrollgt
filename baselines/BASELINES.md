@@ -41,8 +41,12 @@ chance*. It does not; it degrades.
 
 ## Target `scroll1_20230702185753` (TRAIN-EXPOSED for the distilled rows; disclosed)
 
-Placement 46.6 level-2 px (0.45 mm) — passes the 48 px gate by 1.4 px. Numbers below are
-unchanged from the 2026-07 release; this target was not affected by the `LEVEL0_SHAPE` bug.
+**⚠ Placement 46.6 level-2 px (0.45 mm) — passes the 48 px gate by only 1.4 px, and the
+global figure is optimistic: per-768px-tile scatter is sd 26.8 (dy) / 33.0 (dx) with the
+worst tile ~100 px (~0.96 mm).** The field is non-rigid, so no correction fixes it. **Treat
+these rows as indicative only.** Numbers are unchanged from the 2026-07 release; this
+target was not affected by the `LEVEL0_SHAPE` bug — it was never mismeasured, only
+unverified.
 
 | model | val_f1 | f1_at_0.5 | average_precision | ap_prevalence_lift | roc_auc |
 |---|---|---|---|---|---|
