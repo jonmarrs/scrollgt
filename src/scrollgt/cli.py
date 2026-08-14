@@ -23,6 +23,10 @@ def main(argv=None):
     p_score.add_argument("prediction", help="probability map (.png 8-bit or .npy in [0,1])")
     p_score.add_argument("target", help="target directory (contains gt_ink.png + meta.json)")
     p_score.add_argument("--json-out", default=None, help="write the scorecard JSON here")
+    p_score.add_argument("--allow-non-scoring", action="store_true",
+                         help="score a target explicitly marked non-scoring. Kept so the "
+                              "historical published rows stay reproducible; the result is "
+                              "not comparable to scoring targets.")
     p_score.add_argument("--allow-failing-placement", action="store_true",
                          help="score even if the target's ground truth fails its placement "
                               "check. The resulting number measures misalignment as much as "
@@ -68,7 +72,8 @@ def main(argv=None):
 
     if args.cmd == "score":
         result = score_prediction(args.prediction, args.target,
-                                  allow_failing_placement=args.allow_failing_placement)
+                                  allow_failing_placement=args.allow_failing_placement,
+                                  allow_non_scoring=args.allow_non_scoring)
         print(markdown_report([result]))
         print()
         m = result["metrics"]

@@ -123,3 +123,87 @@ def test_score_surfaces_placement_on_passing_target(tmp_path):
     card = score_prediction(str(pred), str(d))
     assert card["registration"]["placement_passed"] is True
     assert card["registration"]["placement_mm"] == 0.51
+
+
+# --- non-scoring targets (2026-08-14) ---------------------------------------------------
+# Distinct from a placement failure: a target can pass its gates and still be a poor thing
+# to evaluate against. Both 20230702185753 regions are marked non-scoring because local
+# placement error there reaches ~1.9x the 512um prize analysis window, so a model can be
+# scored against ground truth from a different part of the sheet.
+
+def _target(tmp_path, scoring=None, placement_passed=True, size=64):
+    import json as _json
+    import numpy as _np
+    from PIL import Image as _Image
+    d = tmp_path / "tgt"
+    d.mkdir()
+    gt = _np.zeros((size, size), _np.uint8)
+    gt[16:48, 16:48] = 255
+    _Image.fromarray(gt).save(d / "gt_ink.png")
+    meta = {"target_id": "unit_test_target",
+            "registration": {"placement": {
+                "offset_level2_px": 46.6, "offset_mm": 0.45,
+                "gate_threshold_level2_px": 48.0, "passed": placement_passed,
+                "note": "unit test"}}}
+    if scoring is not None:
+        meta["scoring"] = scoring
+    _json.dump(meta, open(d / "meta.json", "w"))
+    return d
+
+
+def _pred(tmp_path):
+    p = tmp_path / "pred.png"
+    Image.fromarray(np.full((64, 64), 200, np.uint8)).save(p)
+    return str(p)
+
+
+def test_non_scoring_target_is_refused_even_though_placement_passes(tmp_path):
+    d = _target(tmp_path, scoring={"enabled": False, "reason": "local error ~1.9 windows"})
+    with pytest.raises(ValueError, match="NON-SCORING"):
+        score_prediction(_pred(tmp_path), str(d))
+
+
+def test_non_scoring_refusal_states_the_reason(tmp_path):
+    d = _target(tmp_path, scoring={"enabled": False, "reason": "SENTINEL-REASON"})
+    with pytest.raises(ValueError, match="SENTINEL-REASON"):
+        score_prediction(_pred(tmp_path), str(d))
+
+
+def test_non_scoring_can_be_overridden_to_reproduce_the_record(tmp_path):
+    d = _target(tmp_path, scoring={"enabled": False, "reason": "r"})
+    card = score_prediction(_pred(tmp_path), str(d), allow_non_scoring=True)
+    assert card["scoring_enabled"] is False
+    assert "metrics" in card
+
+
+def test_the_two_refusals_are_independent(tmp_path):
+    """A non-scoring target that ALSO fails placement needs both overrides."""
+    d = _target(tmp_path, scoring={"enabled": False, "reason": "r"}, placement_passed=False)
+    with pytest.raises(ValueError, match="NON-SCORING"):
+        score_prediction(_pred(tmp_path), str(d))
+    with pytest.raises(ValueError, match="FAILS its placement check"):
+        score_prediction(_pred(tmp_path), str(d), allow_non_scoring=True)
+    card = score_prediction(_pred(tmp_path), str(d),
+                            allow_non_scoring=True, allow_failing_placement=True)
+    assert card["scoring_enabled"] is False
+
+
+def test_targets_without_a_scoring_block_still_score(tmp_path):
+    """Absence of the flag must mean scoreable, not refused."""
+    d = _target(tmp_path)
+    card = score_prediction(_pred(tmp_path), str(d))
+    assert card["scoring_enabled"] is True
+
+
+def test_shipped_targets_declare_their_scoring_status_consistently():
+    """Every shipped pixel target's flag must match what BASELINES says about it."""
+    import json as _json
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1] / "data"
+    expected = {"scroll1_20230702185753": False,
+                "scroll1_20230702185753_y7000_x4000": False,
+                "scroll1_20231210121321": True}
+    for name, should_score in expected.items():
+        meta = _json.loads((root / name / "meta.json").read_text())
+        got = (meta.get("scoring") or {}).get("enabled", True)
+        assert got is should_score, f"{name}: scoring.enabled={got}, expected {should_score}"

@@ -52,11 +52,21 @@ def load_target(target_dir):
     return gt_bin, mask, meta
 
 
-def score_prediction(pred_path, target_dir, allow_failing_placement=False):
+def score_prediction(pred_path, target_dir, allow_failing_placement=False,
+                     allow_non_scoring=False):
     """Score one prediction file against one target directory. Returns the scorecard.
 
-    Refuses targets whose registered ground truth fails its placement check, unless
-    `allow_failing_placement` is set. Such a score measures misalignment, not reading.
+    Two independent refusals, each with its own override:
+
+    * `scoring.enabled: false` -- a deliberate policy decision that this target should not
+      be scored against, even if it passes its gates. Overridable with `allow_non_scoring`,
+      which exists so the historical published rows stay reproducible.
+    * `registration.placement.passed: false` -- a measured gate failure. Overridable with
+      `allow_failing_placement`.
+
+    They are separate because the reasons are separate: one is a judgement about what the
+    target is good for, the other is a measurement about whether the label is in the right
+    place. A target can be both.
     """
     gt, mask, meta = load_target(target_dir)
     prob = load_probability_map(pred_path)
@@ -65,6 +75,17 @@ def score_prediction(pred_path, target_dir, allow_failing_placement=False):
             f"prediction shape {prob.shape} != ground-truth shape {gt.shape}; "
             f"predict exactly the region in meta.json: {meta.get('region', {})}"
         )
+    scoring = meta.get("scoring") or {}
+    if scoring.get("enabled") is False and not allow_non_scoring:
+        raise ValueError(
+            f"target {meta.get('target_id', target_dir)} is marked NON-SCORING and should "
+            "not be used to evaluate a model.\n"
+            f"{scoring.get('reason', '')}\n"
+            "It is kept in the repo as a record, not as a benchmark target. Pass "
+            "--allow-non-scoring to reproduce the historical published rows anyway; the "
+            "result is not comparable to scoring targets."
+        )
+
     placement = meta.get("registration", {}).get("placement") or {}
     if placement.get("passed") is False and not allow_failing_placement:
         raise ValueError(
@@ -92,6 +113,7 @@ def score_prediction(pred_path, target_dir, allow_failing_placement=False):
             "placement_mm": placement.get("offset_mm"),
             "placement_passed": placement.get("passed"),
         },
+        "scoring_enabled": scoring.get("enabled", True),
         "metrics": card,
     }
     if placement.get("offset_mm"):

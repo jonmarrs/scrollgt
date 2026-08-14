@@ -123,16 +123,25 @@ scrollgt check --window-px 64 --scan-um 8.0 --regions-json regions.json
 
 ## Targets (v0.1)
 
-**Placement is now enforced.** `scrollgt score` refuses a target whose ground truth fails
-its placement check, because such a score measures misalignment as much as reading. Pass
-`--allow-failing-placement` to override, knowing the number is not comparable to other
-targets. Every scorecard reports placement, not just the residual.
+**One scoreable pixel target, plus a documented contrast.** As of 2026-08-14 both
+`20230702185753` regions are marked **non-scoring**: local placement error there reaches
+~1.9x the 512 um prize analysis window (64 px at 8 um), so within a single window a model
+can be scored against ground truth from a different part of the sheet. `20231210121321`
+stays scoreable, with worst-case local error at 0.94 windows. Their published rows remain in
+[`baselines/BASELINES.md`](baselines/BASELINES.md) as the train-region contrast that shows
+why held-out evaluation matters -- a record, not a bar to beat.
 
-| target | role | placement (gate 48 px) | registration validation |
-|---|---|---|---|
-| `data/scroll1_20230702185753` | train-exposed for the published baselines (disclosed) | **46.6 px / 0.45 mm — passes by 1.4 px; worst tile ~0.98 mm. Indicative only.** | enrichment-gated (5.05), residual 7.92vx |
-| `data/scroll1_20230702185753_y7000_x4000` | second region of the train-exposed segment | **53.3 px / 0.51 mm — FAILS. `score` refuses it.** | direct 4-candidate orientation probe (3.13 vs ≤1.50), residual 8.07vx |
-| `data/scroll1_20231210121321` | **held-out flagship** — no public model we know of trained here | **32.0 px / 0.31 mm — passes. The one solid pixel target.** | re-registered 2026-08-07; enrichment 6.01 (decisive), residual 7.95vx, periodicity 0.867 |
+`scrollgt score` refuses a non-scoring target (`--allow-non-scoring` reproduces the
+historical rows) and separately refuses one that fails its placement check
+(`--allow-failing-placement`). The two are independent, because "should you evaluate against
+this" and "is the label in the right place" are different questions. Every scorecard reports
+placement, not just the residual.
+
+| target | role | scoreable? | placement (gate 48 px) | registration validation |
+|---|---|---|---|---|
+| `data/scroll1_20230702185753` | train-region contrast (record only) | **no** | 46.6 px / 0.45 mm — passes by 1.4 px; worst tile ~0.98 mm = 1.9 windows | enrichment-gated (5.05), residual 7.92vx |
+| `data/scroll1_20230702185753_y7000_x4000` | second region, same segment (record only) | **no** | **53.3 px / 0.51 mm — FAILS the gate** | direct 4-candidate orientation probe (3.13 vs ≤1.50), residual 8.07vx |
+| `data/scroll1_20231210121321` | **held-out flagship** — no public model we know of trained here | **yes** | **32.0 px / 0.31 mm — passes; worst tile 0.94 windows** | re-registered 2026-08-07; enrichment 6.01 (decisive), residual 7.95vx, periodicity 0.867 |
 
 **The problem is segment-wide, not region-wide.** Both regions of `20230702185753` are
 poorly placed (46.6 px and 53.3 px, local error to ~1 mm) while `20231210121321` is 3–4×

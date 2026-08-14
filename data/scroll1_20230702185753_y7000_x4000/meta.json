@@ -57,5 +57,11 @@
     }
   },
   "role": "second region of the train-exposed segment; TRAIN-EXPOSED for the distilled and GT-fine-tuned baseline models (disclosed); clean for any model not trained on this segment",
-  "provenance_repo": "https://github.com/jonmarrs/vesuvius-autoresearch (repro/sota_data/gt_register.py, reports/detector/gt_finetune_prep.json)"
+  "provenance_repo": "https://github.com/jonmarrs/vesuvius-autoresearch (repro/sota_data/gt_register.py, reports/detector/gt_finetune_prep.json)",
+  "scoring": {
+    "enabled": false,
+    "reason": "Marked non-scoring 2026-08-14. Local placement error on this segment reaches ~102 level-2 px (~0.98 mm), which is ~1.9x the 512 um prize analysis window (64 px at 8 um) -- so within a single window a model can be scored against ground truth from a different part of the sheet. Both regions of 20230702185753 are affected; 20231210121321 stays scoreable at 0.94 windows worst-case. Published rows for this target remain in baselines/BASELINES.md as the train-region contrast that shows why held-out evaluation matters; they are a record, not a bar to beat. This region also FAILS the placement gate outright (53.3 px), indistinguishable from the 55.1 px 20231005123336 region that was withheld.",
+    "record_only": true,
+    "see": "baselines/BASELINES.md"
+  }
 }

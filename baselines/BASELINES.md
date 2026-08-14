@@ -39,7 +39,13 @@ alone still mean train-region fit rather than reading. What the corrected number
 support is the stronger claim we previously made — that held-out performance *collapses to
 chance*. It does not; it degrades.
 
-## Target `scroll1_20230702185753` (TRAIN-EXPOSED for the distilled rows; disclosed)
+## Target `scroll1_20230702185753` (TRAIN-EXPOSED; **NON-SCORING as of 2026-08-14**)
+
+> **Record, not a bar to beat.** `scrollgt score` refuses this target. Local placement error
+> on this segment reaches ~1.9x the 512 um prize analysis window, so a model can be scored
+> against ground truth from a different part of the sheet. The rows below are retained
+> because the train-vs-held-out contrast is the point they demonstrate; they are not a
+> leaderboard. `--allow-non-scoring` reproduces them.
 
 **⚠ Placement 46.6 level-2 px (0.45 mm) — passes the 48 px gate by only 1.4 px, and the
 global figure is optimistic: per-768px-tile scatter is sd 26.8 (dy) / 33.0 (dx) with the
