@@ -52,8 +52,12 @@ def load_target(target_dir):
     return gt_bin, mask, meta
 
 
-def score_prediction(pred_path, target_dir):
-    """Score one prediction file against one target directory. Returns the scorecard."""
+def score_prediction(pred_path, target_dir, allow_failing_placement=False):
+    """Score one prediction file against one target directory. Returns the scorecard.
+
+    Refuses targets whose registered ground truth fails its placement check, unless
+    `allow_failing_placement` is set. Such a score measures misalignment, not reading.
+    """
     gt, mask, meta = load_target(target_dir)
     prob = load_probability_map(pred_path)
     if prob.shape != gt.shape:
@@ -61,17 +65,40 @@ def score_prediction(pred_path, target_dir):
             f"prediction shape {prob.shape} != ground-truth shape {gt.shape}; "
             f"predict exactly the region in meta.json: {meta.get('region', {})}"
         )
+    placement = meta.get("registration", {}).get("placement") or {}
+    if placement.get("passed") is False and not allow_failing_placement:
+        raise ValueError(
+            f"target {meta.get('target_id', target_dir)} FAILS its placement check: "
+            f"the registered ground truth peaks {placement.get('offset_level2_px')} level-2 px "
+            f"({placement.get('offset_mm')} mm) away from zero shift, over the "
+            f"{placement.get('gate_threshold_level2_px')} px limit. Scores against it would "
+            "measure misalignment, not reading. Use --allow-failing-placement only if you "
+            "understand that the number is not comparable to other targets.\n"
+            f"{placement.get('note', '')}"
+        )
+
     card = segmentation_metrics(prob, gt, mask)
     card.pop("metrics_by_threshold", None)
-    return {
+    out = {
         "target": meta.get("target_id", os.path.basename(os.path.normpath(target_dir))),
         "prediction": os.path.basename(pred_path),
         "registration": {
             "median_residual_voxels": meta.get("registration", {}).get("median_residual"),
             "validation": meta.get("registration", {}).get("validation_basis"),
+            # Placement, not residual, is the property that says the label is in the right
+            # PLACE. A residual measures scatter; ScrollGT shipped an ~8-voxel residual
+            # alongside a ~1766-voxel displacement in 2026-07. Always surface both.
+            "placement_offset_level2_px": placement.get("offset_level2_px"),
+            "placement_mm": placement.get("offset_mm"),
+            "placement_passed": placement.get("passed"),
         },
         "metrics": card,
     }
+    if placement.get("offset_mm"):
+        out["registration"]["resolution_note"] = (
+            f"scores are lower bounds; this target resolves to ~{placement['offset_mm']} mm"
+        )
+    return out
 
 
 def format_row(name, card):

@@ -123,15 +123,26 @@ scrollgt check --window-px 64 --scan-um 8.0 --regions-json regions.json
 
 ## Targets (v0.1)
 
-| target | role | registration validation |
-|---|---|---|
-| `data/scroll1_20230702185753` | train-exposed for the published baselines (disclosed) | enrichment-gated (5.05), residual 7.92vx; **placement 46.6px — passes the 48px gate by only 1.4px (~0.45mm)** |
-| `data/scroll1_20230702185753_y7000_x4000` | second region of the train-exposed segment | direct 4-candidate orientation probe (3.13 vs ≤1.50), residual 8.07vx |
-| `data/scroll1_20231210121321` | **held-out flagship** — no public model we know of trained here | **re-registered 2026-08-07**; placement 32.0px (gate 48), enrichment 6.01 (decisive), residual 7.95vx, periodicity 0.867 |
+**Placement is now enforced.** `scrollgt score` refuses a target whose ground truth fails
+its placement check, because such a score measures misalignment as much as reading. Pass
+`--allow-failing-placement` to override, knowing the number is not comparable to other
+targets. Every scorecard reports placement, not just the residual.
 
-A fourth gate-passing region was **withheld** because its orientation is currently
-unverifiable (chance-quality teacher there defeats the enrichment check) — see
-`baselines/BASELINES.md`. Targets only ship when validation is real.
+| target | role | placement (gate 48 px) | registration validation |
+|---|---|---|---|
+| `data/scroll1_20230702185753` | train-exposed for the published baselines (disclosed) | **46.6 px / 0.45 mm — passes by 1.4 px; worst tile ~0.98 mm. Indicative only.** | enrichment-gated (5.05), residual 7.92vx |
+| `data/scroll1_20230702185753_y7000_x4000` | second region of the train-exposed segment | **53.3 px / 0.51 mm — FAILS. `score` refuses it.** | direct 4-candidate orientation probe (3.13 vs ≤1.50), residual 8.07vx |
+| `data/scroll1_20231210121321` | **held-out flagship** — no public model we know of trained here | **32.0 px / 0.31 mm — passes. The one solid pixel target.** | re-registered 2026-08-07; enrichment 6.01 (decisive), residual 7.95vx, periodicity 0.867 |
+
+**The problem is segment-wide, not region-wide.** Both regions of `20230702185753` are
+poorly placed (46.6 px and 53.3 px, local error to ~1 mm) while `20231210121321` is 3–4×
+tighter. This is cross-scan disagreement between the 2023 and 2026 segmentations of that
+sheet, not a correctable offset — so `20231210121321` is currently the only pixel target we
+would stand behind.
+
+A fourth region was **withheld** because its orientation is unverifiable (chance-quality
+teacher there defeats the enrichment check) — see `baselines/BASELINES.md`. Targets only ship
+when validation is real.
 
 ## Leaderboard (held-out flagship `scroll1_20231210121321`)
 

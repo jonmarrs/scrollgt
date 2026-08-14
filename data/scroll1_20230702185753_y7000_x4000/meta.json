@@ -19,11 +19,42 @@
     "method": "obj-exact: original.obj vt NN bridge via on-7.91um tifxyz (same pipeline as the segment's y4000_x2500 target), vt convention rowHv_colu",
     "median_residual": 8.0685,
     "text_line_periodicity": 0.856,
-    "gate": {"max_median_residual": 12.0, "min_periodicity": 0.6, "passed": true},
-    "teacher_enrichment_all_candidates": {"rowv_colu": 0.809, "rowHv_colu": 3.134, "rowv_colWu": 1.496, "rowHv_colWu": 1.103},
-    "surface_ncc_all_candidates": {"rowv_colu": 0.016, "rowHv_colu": 0.280, "rowv_colWu": -0.002, "rowHv_colWu": -0.013},
-    "validation_basis": "DOUBLE-validated: (1) 4-candidate teacher-enrichment probe (rowHv_colu 3.13 vs 0.81/1.50/1.10) AND (2) independent teacher-free surface-texture NCC (rowHv_colu 0.280 raw / 0.231 tile-median vs <=0.016 for alternatives, ~15x runner-up) — two orthogonal checks agree; plus residual + periodicity gates",
-    "caveat": "~8-voxel median correspondence residual smears stroke edges at 64px scale; scores are lower bounds on true agreement"
+    "gate": {
+      "max_median_residual": 12.0,
+      "min_periodicity": 0.6,
+      "passed": true
+    },
+    "teacher_enrichment_all_candidates": {
+      "rowv_colu": 0.809,
+      "rowHv_colu": 3.134,
+      "rowv_colWu": 1.496,
+      "rowHv_colWu": 1.103
+    },
+    "surface_ncc_all_candidates": {
+      "rowv_colu": 0.016,
+      "rowHv_colu": 0.28,
+      "rowv_colWu": -0.002,
+      "rowHv_colWu": -0.013
+    },
+    "validation_basis": "DOUBLE-validated: (1) 4-candidate teacher-enrichment probe (rowHv_colu 3.13 vs 0.81/1.50/1.10) AND (2) independent teacher-free surface-texture NCC (rowHv_colu 0.280 raw / 0.231 tile-median vs <=0.016 for alternatives, ~15x runner-up) \u2014 two orthogonal checks agree; plus residual + periodicity gates",
+    "caveat": "PLACEMENT FAILED (53.3px > 48px gate). scrollgt score refuses this target unless --allow-failing-placement is passed. The ~8-voxel median residual measures correspondence SCATTER, not placement; do not read it as a placement guarantee.",
+    "placement": {
+      "peak_shift_level2_px": [
+        -21,
+        -49
+      ],
+      "offset_level2_px": 53.3,
+      "offset_level0_vx": 213.0,
+      "offset_mm": 0.51,
+      "gate_threshold_level2_px": 48.0,
+      "passed": false,
+      "per_tile_sd_level2_px": {
+        "dy": 21.9,
+        "dx": 13.2
+      },
+      "worst_tile_level2_px": 102,
+      "note": "FAILS the placement gate. Agreement with the canon prediction peaks 53.3 level-2 px (0.51mm) from zero shift, over the 48px limit, with per-768px-tile scatter sd 21.9/13.2 and the worst tile ~102px (~0.98mm). Both regions of segment 20230702185753 are affected (the y4000_x2500 region measures 46.6px); segment 20231210121321 is 3-4x tighter at 32.0px. This is cross-scan surface disagreement between the 2023 and 2026 segmentations, not a correctable offset. Scoring against this target measures misalignment as much as reading."
+    }
   },
   "role": "second region of the train-exposed segment; TRAIN-EXPOSED for the distilled and GT-fine-tuned baseline models (disclosed); clean for any model not trained on this segment",
   "provenance_repo": "https://github.com/jonmarrs/vesuvius-autoresearch (repro/sota_data/gt_register.py, reports/detector/gt_finetune_prep.json)"

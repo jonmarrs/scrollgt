@@ -23,6 +23,10 @@ def main(argv=None):
     p_score.add_argument("prediction", help="probability map (.png 8-bit or .npy in [0,1])")
     p_score.add_argument("target", help="target directory (contains gt_ink.png + meta.json)")
     p_score.add_argument("--json-out", default=None, help="write the scorecard JSON here")
+    p_score.add_argument("--allow-failing-placement", action="store_true",
+                         help="score even if the target's ground truth fails its placement "
+                              "check. The resulting number measures misalignment as much as "
+                              "reading, and is not comparable to other targets.")
 
     p_cols = sub.add_parser(
         "score-columns",
@@ -63,7 +67,8 @@ def main(argv=None):
     args = parser.parse_args(argv)
 
     if args.cmd == "score":
-        result = score_prediction(args.prediction, args.target)
+        result = score_prediction(args.prediction, args.target,
+                                  allow_failing_placement=args.allow_failing_placement)
         print(markdown_report([result]))
         print()
         m = result["metrics"]
