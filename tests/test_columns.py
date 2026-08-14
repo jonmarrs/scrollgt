@@ -118,3 +118,45 @@ def test_cli_score_columns_wires(tmp_path, capsys):
     card = json.loads(out.read_text())
     assert card["metrics"]["col_gutter_auc"] == 1.0
     assert "col_gutter_auc" in capsys.readouterr().out
+
+
+# --- anti-gaming floors the README publishes but nothing pinned (audit, 2026-08) --------
+# BASELINES.md and the README state that a papyrus-mask copy scores EXACTLY 0.5, because
+# the gutters between columns are papyrus too. That is the column target's most
+# distinctive anti-gaming property, and it was a documented measurement rather than an
+# enforced one: if the metric drifted so that "predict papyrus everywhere" earned credit,
+# no test would have caught it.
+
+def test_papyrus_mask_copy_scores_exactly_chance(tmp_path):
+    """Predicting the papyrus mask must earn nothing: gutters are papyrus too."""
+    d, _ = _make_target(tmp_path)
+    valid = np.array(Image.open(d / "valid_mask.png")).astype(np.float32) / 255.0
+    card = score_columns(_save_pred(tmp_path, valid), str(d))
+    m = card["metrics"]
+    assert abs(m["col_gutter_auc"] - 0.5) < 1e-9, (
+        "a papyrus-mask copy scored above chance; the anti-gaming floor is broken")
+    assert abs(m["col_gutter_pixel_auc"] - 0.5) < 1e-6
+
+
+def test_partial_papyrus_mask_still_scores_chance(tmp_path):
+    """Same, with a mask that excludes some of the grid, as a real valid_mask does."""
+    d, _ = _make_target(tmp_path)
+    valid = np.array(Image.open(d / "valid_mask.png")).astype(np.uint8)
+    valid[:, :100] = 0          # a genuinely masked-off strip
+    valid[:20, :] = 0
+    Image.fromarray(valid).save(d / "valid_mask.png")
+    card = score_columns(_save_pred(tmp_path, valid.astype(np.float32) / 255.0), str(d))
+    assert abs(card["metrics"]["col_gutter_auc"] - 0.5) < 1e-9
+
+
+def test_inverted_prediction_scores_below_chance_not_above(tmp_path):
+    """Sanity on the metric's orientation: predicting gutters must not look like reading."""
+    d, cols = _make_target(tmp_path)
+    pred = np.zeros((200, 1200), np.float32)
+    for c in cols:
+        if c["transcription"] == "text":
+            pred[40:160, c["gx0"]:c["gx1"]] = 0.9
+    inverted = 0.9 - pred
+    card = score_columns(_save_pred(tmp_path, inverted), str(d))
+    assert card["metrics"]["col_gutter_auc"] < 0.5, (
+        "an inverted prediction scored at or above chance; the metric is not orientated")
