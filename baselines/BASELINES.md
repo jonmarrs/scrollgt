@@ -110,13 +110,25 @@ nothing about placement.
 
 ## A target we did NOT ship (and why)
 
-A fourth registered region (`20231005123336_y4000_x2500`) passed the residual and
-periodicity gates but was **withheld**: the canon teacher is chance-quality on that
-segment (enrichment ≈ 1 for ALL four orientation candidates: 0.79–1.02), so its 2D
-orientation cannot currently be verified by any teacher-based or teacher-free check we
-have (periodicity is flip-invariant). A benchmark target whose label orientation is
-unverifiable is not a target. It will ship if/when an independent orientation check
-exists. This is what the gates are for.
+A fourth registered region (`20231005123336_y4000_x2500`) is **withheld** — still the right
+call, but **the reason we published was wrong**.
+
+We said the canon teacher was chance-quality on that segment (enrichment ≈ 1 for all four
+orientation candidates, 0.79–1.02) so the label's orientation could not be verified. That
+enrichment collapse was **our own bug**: `gt_register.py` carried a second hardcoded
+level-0 shape, and this segment's true shape is 34880×97280 against the assumed
+50600×36400 — a 167% x-scale error that scattered the label. Re-registered with the fix,
+**teacher-enrichment is 4.88**, decisively orientating the label. The teacher was never
+chance-quality here; our registration was broken.
+
+It stays withheld on a properly measured criterion instead: **placement 55.1 level-2 px
+(0.53 mm), over the 48 px gate.** Its sibling region `20231005123336_y7000_x4000` is
+dropped earlier still, at prep — periodicity 0.556 and a registered ink fraction of
+0.0005, i.e. essentially no ink lands in it.
+
+The correction matters beyond this one target: three separate times now, a gate or
+diagnostic fired correctly and we attributed the failure to the data rather than to our
+code. See the upstream report for the pattern.
 
 ## Column-level target `pherc1667_merged_columns` (v0.2) — anti-gaming floor
 
