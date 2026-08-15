@@ -28,7 +28,12 @@
   "convention_check": {
     "claim": "NML nodes are x,y,z in absolute scroll space; volumes index z,y,x; the cube origin is encoded in the filename as <scroll>_<z>_<y>_<x>_<size>",
     "measured_node_landing_rate_on_semantic_label": 1.0,
-    "verified_against": "labelsTr/s1_00497_01497_03997_256.tif (shipped semantic label)"
+    "verified_against": "labelsTr/s1_00497_01497_03997_256.tif (shipped semantic label)",
+    "measured_node_landing_rate_on_scoring_mask": 0.8157,
+    "scoring_mask_density": 0.0599,
+    "landing_enrichment_vs_chance": 13.6,
+    "in_bounds_node_fraction": 0.858,
+    "note_on_the_two_rates": "measured_node_landing_rate_on_semantic_label is against labelsTr, villa's shipped semantic mask, and is 1.0. That artifact is NOT what scoring uses. The figure that matters for scoring is measured_node_landing_rate_on_scoring_mask, against the fiber_hz_vt reference mask: lower, because the mask is a thresholded model output rather than a hand label, but ~15x chance, which is what establishes that skeleton and mask share a coordinate frame. Recomputed from shipped data by tests/test_fiber_target.py rather than trusted from this file."
   },
   "mask": {
     "model": "scrollprize/fiber_hz_vt (Apache-2.0)",

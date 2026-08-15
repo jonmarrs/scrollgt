@@ -5,6 +5,7 @@ import sys
 from pathlib import Path
 
 import numpy as np
+import pytest
 from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
@@ -160,3 +161,79 @@ def test_inverted_prediction_scores_below_chance_not_above(tmp_path):
     card = score_columns(_save_pred(tmp_path, inverted), str(d))
     assert card["metrics"]["col_gutter_auc"] < 0.5, (
         "an inverted prediction scored at or above chance; the metric is not orientated")
+
+
+# --- the SHIPPED column geometry (audit, 2026-08-14) ------------------------------------
+# Every test above builds a synthetic target in tmp_path. Nothing touched the shipped
+# pherc1667_merged_columns geometry, which is the actual product: its registration claims
+# ("exactly 22 bracket intervals", "tiling closure 3 px over 30097", cols 9 and 16 flagged)
+# lived only as prose in meta.json, measured once in another repo. These re-check them.
+
+COLTGT = Path(__file__).resolve().parents[1] / "data" / "pherc1667_merged_columns"
+pytestmark_col = pytest.mark.skipif(not COLTGT.exists(), reason="column target not present")
+
+
+def _col_target():
+    cols = json.loads((COLTGT / "columns.json").read_text())["columns"]
+    meta = json.loads((COLTGT / "meta.json").read_text())
+    return cols, meta
+
+
+@pytestmark_col
+def test_shipped_columns_match_the_registration_claims():
+    cols, meta = _col_target()
+    assert len(cols) == 22, meta["registration"]["method"]
+    assert sorted(c["col"] for c in cols if c.get("cross_strip")) == [9, 16], (
+        "meta flags cols 9 and 16 as spanning strip-crop gaps; the data must agree")
+
+
+@pytestmark_col
+def test_valid_mask_matches_the_declared_grid_shape():
+    """A regenerated mask at a different size would silently rescale every column box."""
+    _, meta = _col_target()
+    h, w = meta["geometry"]["grid_shape"]
+    vm = np.array(Image.open(COLTGT / "valid_mask.png"))
+    if vm.ndim == 3:
+        vm = vm[..., 0]
+    assert vm.shape == (h, w), f"valid_mask {vm.shape} != declared grid {(h, w)}"
+
+
+@pytestmark_col
+def test_shipped_columns_are_ordered_disjoint_and_in_bounds():
+    cols, meta = _col_target()
+    h, w = meta["geometry"]["grid_shape"]
+    xs = [(c["col"], c["gx0"], c["gx1"]) for c in cols]
+    for name, a, b in xs:
+        assert 0 <= a < b <= w, f"col {name} bounds {a},{b} outside grid width {w}"
+    for c in cols:
+        t0, t1 = c["text_band"]
+        assert 0 <= t0 < t1 <= h, f"col {c['col']} text_band {t0},{t1} outside grid height"
+    for i in range(len(xs) - 1):
+        assert xs[i][1] < xs[i + 1][1], "columns must be left-to-right ordered"
+        assert xs[i][2] <= xs[i + 1][1], f"cols {xs[i][0]} and {xs[i+1][0]} overlap"
+
+
+@pytestmark_col
+def test_registered_columns_land_on_papyrus():
+    """Column boxes should sit on valid surface, not off the edge of the sheet.
+
+    WEAK CHECK, deliberately stated as such: the valid mask is ~75% of the grid, so the
+    achievable enrichment is small (measured median 0.98 vs 0.755 overall, ~1.3x). This
+    catches a grossly misplaced registration, not a subtle one. The column family has no
+    cross-scan bridge and so no placement gate equivalent; do not read this as one.
+    """
+    cols, meta = _col_target()
+    h, w = meta["geometry"]["grid_shape"]
+    vm = np.array(Image.open(COLTGT / "valid_mask.png"))
+    if vm.ndim == 3:
+        vm = vm[..., 0]
+    vm = vm > 127
+    fracs = []
+    for c in cols:
+        t0, t1 = c["text_band"]
+        fracs.append(vm[t0:t1, c["gx0"]:c["gx1"]].mean())
+    med = float(np.median(fracs))
+    assert med > vm.mean(), (
+        f"median column-box valid fraction {med:.3f} is not above the overall mask density "
+        f"{vm.mean():.3f}; columns may not be landing on papyrus")
+    assert med > 0.90, f"median column-box valid fraction {med:.3f} is implausibly low"

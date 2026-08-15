@@ -108,3 +108,61 @@ def test_below_baseline_flag_is_set_when_entry_trails_connected_components(tmp_p
     np.save(p, labels)
     card = score_fiber_prediction(p, target)
     assert card["below_baseline"] is True
+
+
+# --- skeleton/mask alignment, RECOMPUTED (audit, 2026-08-14) ----------------------------
+# test_convention_proof_is_recorded reads measured_node_landing_rate_on_semantic_label out
+# of meta.json and asserts it is >= 0.999. That is self-certifying: a misaligned skeleton
+# would still carry 1.0 in its own metadata and pass. It is also measured against
+# labelsTr, villa's semantic label, which is NOT the reference mask that scoring uses.
+#
+# This recomputes alignment from the shipped skeleton and mask, so a coordinate-convention
+# error (axis order, origin, flip) fails here instead of silently becoming everyone's
+# coverage and ERL numbers.
+
+def _mask_and_nodes(target):
+    sk = np.load(target / "skeleton.npz")
+    mk = np.load(target / "mask.npz")
+    shape = tuple(int(v) for v in mk["shape"])
+    mask = np.unpackbits(mk["packed"])[: int(np.prod(shape))].reshape(shape).astype(bool)
+    idx = np.round(sk["coords"]).astype(int)
+    inb = ((idx >= 0) & (idx < np.array(shape))).all(1)
+    return mask, idx[inb]
+
+
+@pytest.mark.parametrize("target", TARGETS, ids=lambda p: p.name)
+def test_skeleton_lands_on_the_scoring_mask_far_above_chance(target):
+    """Hand-traced nodes must fall on the reference mask much more often than chance.
+
+    Chance is the mask density (~5%). Measured is 73-85%, about 15x. A frame error would
+    collapse this toward density, which is exactly what the assertion catches.
+    """
+    mask, nodes = _mask_and_nodes(target)
+    assert len(nodes) > 100, f"{target.name}: too few in-bounds nodes to judge"
+    rate = mask[nodes[:, 0], nodes[:, 1], nodes[:, 2]].mean()
+    density = mask.mean()
+    enrichment = rate / density
+    assert enrichment > 5.0, (
+        f"{target.name}: nodes land on the scoring mask at {rate:.3f} vs density "
+        f"{density:.4f} (enrichment {enrichment:.1f}x). Below 5x suggests the skeleton and "
+        "mask are not in the same coordinate frame.")
+
+
+@pytest.mark.parametrize("target", TARGETS, ids=lambda p: p.name)
+def test_a_permuted_axis_convention_would_be_detected(target):
+    """The alignment check must actually discriminate, not pass on anything.
+
+    Swapping two axes is the most likely convention error (nml is x,y,z; volumes are
+    z,y,x). If a swapped skeleton still cleared the bar, the test above would be decoration.
+    """
+    mask, nodes = _mask_and_nodes(target)
+    density = mask.mean()
+    swapped = nodes[:, [1, 0, 2]]
+    keep = ((swapped >= 0) & (swapped < np.array(mask.shape))).all(1)
+    if keep.sum() < 100:
+        pytest.skip("too few nodes survive the swap to judge")
+    s = swapped[keep]
+    bogus = mask[s[:, 0], s[:, 1], s[:, 2]].mean() / density
+    assert bogus < 5.0, (
+        f"{target.name}: an axis-swapped skeleton also scores {bogus:.1f}x enrichment, so "
+        "the alignment check cannot tell a correct convention from a wrong one")
