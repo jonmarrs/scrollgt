@@ -136,6 +136,16 @@ The correction matters beyond this one target: three separate times now, a gate 
 diagnostic fired correctly and we attributed the failure to the data rather than to our
 code. See the upstream report for the pattern.
 
+**This region cannot be replaced.** Withholding it leaves the pixel family at one scoreable
+target, and as of 2026-08-15 there is no fourth candidate. Six Scroll-1 segments carry a
+2023 hand ink label. Three — `20230820203112`, `20230826170124`, `20230903193206` — are
+absent from the open data entirely, so there is no geometry to register a label onto. The
+three that remain are accounted for one by one: `20230702185753` is poorly placed in both
+of its regions, `20231005123336` is the segment withheld here, at 55.1 px over the gate,
+and `20231210121321` is the held-out flagship already in service. The family is capped by
+data availability, not by processing effort. See the
+[availability survey](https://github.com/jonmarrs/vesuvius-autoresearch/blob/main/reports/detector/gt_training_data_exhaustion_2026-08-15.md).
+
 ## Column-level target `pherc1667_merged_columns` (v0.2) — anti-gaming floor
 
 The first non-training-scroll target scores at COLUMN granularity (no pixel GT exists —

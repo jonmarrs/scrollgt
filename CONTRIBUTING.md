@@ -73,13 +73,29 @@ is involved.
 
 ## Add a target
 
-New registered-GT targets are welcome but must clear the integrity bar: an **independent,
-teacher-free** validation of the label's 2D orientation (teacher-enrichment is not enough
-where the released prediction is weak). See the withheld-target discussion in
-`baselines/BASELINES.md` and the orientation-validation methods in the source repo
-([vesuvius-autoresearch](https://github.com/jonmarrs/vesuvius-autoresearch),
-`reports/detector/orientation_probe_2026-07-11.md`). A gate-passing residual/periodicity is
-necessary but not sufficient; a flat orientation profile means the target is withheld.
+New registered-GT targets are welcome but must clear **two independent bars**, and both are
+binding — a target that clears one and fails the other does not ship.
+
+1. **Orientation.** An **independent, teacher-free** validation of the label's 2D
+   orientation (teacher-enrichment is not enough where the released prediction is weak).
+   See the orientation-validation methods in the source repo
+   ([vesuvius-autoresearch](https://github.com/jonmarrs/vesuvius-autoresearch),
+   `reports/detector/orientation_probe_2026-07-11.md`). A gate-passing
+   residual/periodicity is necessary but not sufficient; a flat orientation profile means
+   the target is withheld.
+2. **Placement.** Global placement error at or under the **48 px** gate (level-2 px,
+   ~0.46 mm) is **necessary but not sufficient** — `20230702185753_y4000_x2500` clears the
+   gate at 46.6 px and is still non-scoring, because local error within a single 64 px
+   window reaches ~1.9 windows. So report placement per-target alongside per-768px-tile
+   scatter: the field is non-rigid and the global figure is optimistic. This is the
+   criterion that currently binds: `20231005123336_y4000_x2500` is withheld at 55.1 px
+   despite a decisively validated orientation, and both `20230702185753` regions are
+   non-scoring on local error. On `20230702185753` the cause is measured — cross-scan
+   disagreement between the 2023 and 2026 segmentations of that sheet, which re-running the
+   registration does not fix. Expect to have to rule that out for a new target rather than
+   assume a correctable offset.
+
+See the withheld-target discussion in `baselines/BASELINES.md` for a worked example of each.
 
 ## Development
 

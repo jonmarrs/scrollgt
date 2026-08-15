@@ -139,19 +139,46 @@ placement, not just the residual.
 
 | target | role | scoreable? | placement (gate 48 px) | registration validation |
 |---|---|---|---|---|
-| `data/scroll1_20230702185753` | train-region contrast (record only) | **no** | 46.6 px / 0.45 mm — passes by 1.4 px; worst tile ~0.98 mm = 1.9 windows | enrichment-gated (5.05), residual 7.92vx |
+| `data/scroll1_20230702185753` | train-region contrast (record only) | **no** | 46.6 px / 0.45 mm — passes by 1.4 px; worst tile ~0.96 mm = 1.9 windows | enrichment-gated (5.05), residual 7.92vx |
 | `data/scroll1_20230702185753_y7000_x4000` | second region, same segment (record only) | **no** | **53.3 px / 0.51 mm — FAILS the gate** | direct 4-candidate orientation probe (3.13 vs ≤1.50), residual 8.07vx |
 | `data/scroll1_20231210121321` | **held-out flagship** — no public model we know of trained here | **yes** | **32.0 px / 0.31 mm — passes; worst tile 0.94 windows** | re-registered 2026-08-07; enrichment 6.01 (decisive), residual 7.95vx, periodicity 0.867 |
 
 **The problem is segment-wide, not region-wide.** Both regions of `20230702185753` are
 poorly placed (46.6 px and 53.3 px, local error to ~1 mm) while `20231210121321` is 3–4×
 tighter. This is cross-scan disagreement between the 2023 and 2026 segmentations of that
-sheet, not a correctable offset — so `20231210121321` is currently the only pixel target we
-would stand behind.
+sheet, not a correctable offset — so `20231210121321` is the only pixel target we would
+stand behind.
 
-A fourth region was **withheld** because its orientation is unverifiable (chance-quality
-teacher there defeats the enrichment check) — see `baselines/BASELINES.md`. Targets only ship
-when validation is real.
+**And the pool is exhausted, not merely unprocessed.** Six Scroll-1 segments carry a 2023
+hand ink label. Three of them (`20230820203112`, `20230826170124`, `20230903193206`) are
+absent from the open data entirely — neither `ink-detection/` nor `surface-volumes/`
+resolves — so there is no geometry to register a label onto. Of the three that remain,
+`20230702185753` is poorly placed in both of its regions and `20231005123336` sits at 55.1
+level-2 px against the 48 px gate (the withheld region discussed below), which leaves
+`20231210121321`. Measured 2026-08-15; the open data changes, so this is a
+[re-runnable probe][probe] rather than a claim.
+
+**What this costs you as a user.** A single-target pixel family cannot separate model
+quality from segment idiosyncrasy: a score here is a score on one sheet. Read the pixel
+leaderboard accordingly, and prefer the column and fiber families when you need more than
+one point of comparison. Expanding it needs new upstream data — either a re-flattening of
+one of the three absent labelled segments, or a hand label on one of the eight 2023-era
+segments that are re-flattened but unlabelled. Neither is sufficient on its own: a fresh
+segment still has to place well enough to score, and clearing the gate is necessary rather
+than sufficient. Of the three labelled segments present in the open data, two clear the
+48 px placement gate in at least one region — the table above scores regions, and
+`20230702185753` clears it in one region while failing in the other — and only one of those
+two is usable as a target.
+
+[probe]: https://github.com/jonmarrs/vesuvius-autoresearch/blob/main/reports/detector/gt_training_data_exhaustion_2026-08-15.md
+
+A fourth region (`20231005123336_y4000_x2500`) is **withheld**, but not for the reason this
+README used to give. We said its orientation was unverifiable because the canon teacher was
+chance-quality there; that collapse was our own second hardcoded level-0 shape, and
+re-registered with the fix, teacher-enrichment is 4.88 and the orientation is decisively
+determined. It stays withheld on a properly measured criterion instead: placement 55.1
+level-2 px, over the 48 px gate — see `baselines/BASELINES.md`. Targets only ship when
+validation is real, and so do the reasons we give for holding them back.
 
 ## Leaderboard (held-out flagship `scroll1_20231210121321`)
 
@@ -289,8 +316,18 @@ scorecard differences come from the labelling rather than the segmentation.
   artifacts propagate to the bucket. (Scrolls 2–3 are not extendable today: a 2026-07-17
   bucket survey found Scroll 2 ships no segments and Scroll 3 no labels — both scrolls
   are unread, which is exactly why the First Letters prizes are open.)
-- Converting the three **withheld** v0.1 regions into targets as independent orientation
-  validation becomes available.
+- **The v0.1 pixel family will not grow, and this item is closed rather than pending.** An
+  earlier version of this roadmap promised to convert three withheld regions into targets
+  "as independent orientation validation becomes available". That was wrong twice over.
+  There is one withheld region (`20231005123336_y4000_x2500`), plus its sibling
+  `20231005123336_y7000_x4000` dropped earlier at prep for near-zero registered ink — and
+  orientation is not what holds either of them back. The withheld region is placed at 55.1
+  level-2 px against a 48 px gate. We have not isolated a cause for that figure — no
+  per-tile field was measured there — but it is consistent with the cross-scan disagreement
+  measured on `20230702185753`, where re-registration demonstrably does not close the gap.
+  What we can say without a cause is that nothing in our processing queue is known to clear
+  it. The labelled-segment pool behind the family is exhausted — see the disclosure under
+  **Targets** above.
 - Leaderboard: submit a scorecard via PR/issue (see `baselines/BASELINES.md`).
 
 ## Provenance & method
