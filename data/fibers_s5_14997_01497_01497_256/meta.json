@@ -34,7 +34,7 @@
     "scoring_mask_density": 0.04874,
     "landing_enrichment_vs_chance": 15.511784,
     "in_bounds_node_fraction": 0.557942,
-    "note_on_the_two_rates": "measured_node_landing_rate_on_semantic_label is against labelsTr, villa's shipped semantic mask, and is 1.0. That artifact is NOT what scoring uses. The figure that matters for scoring is measured_node_landing_rate_on_scoring_mask, against the fiber_hz_vt reference mask: lower, because the mask is a thresholded model output rather than a hand label, but many times chance, which is what establishes that skeleton and mask share a coordinate frame. Recomputed from shipped data by tests/test_fiber_target.py rather than trusted from this file."
+    "note_on_the_two_rates": "measured_node_landing_rate_on_semantic_label is against labelsTr, villa's shipped semantic mask, and is at or above 0.999 on every shipped cube \u2014 the exporter refuses to ship one below that; the value measured for this cube is recorded above. That artifact is NOT what scoring uses. The figure that matters for scoring is measured_node_landing_rate_on_scoring_mask, against the fiber_hz_vt reference mask: lower, because the mask is a thresholded model output rather than a hand label, but many times chance, which is what establishes that skeleton and mask share a coordinate frame. Recomputed from shipped data by tests/test_fiber_target.py rather than trusted from this file."
   },
   "mask": {
     "model": "scrollprize/fiber_hz_vt (Apache-2.0)",
