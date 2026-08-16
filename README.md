@@ -153,7 +153,7 @@ stand behind.
 hand ink label. Three of them (`20230820203112`, `20230826170124`, `20230903193206`) are
 absent from the open data entirely — neither `ink-detection/` nor `surface-volumes/`
 resolves — so there is no geometry to register a label onto. Of the three that remain,
-`20230702185753` is poorly placed in both of its regions and `20231005123336` sits at 55.1
+`20230702185753` is poorly placed in both of its regions and `20231005123336` sits at 57.5
 level-2 px against the 48 px gate (the withheld region discussed below), which leaves
 `20231210121321`. Measured 2026-08-15; the open data changes, so this is a
 [re-runnable probe][probe] rather than a claim.
@@ -176,8 +176,9 @@ A fourth region (`20231005123336_y4000_x2500`) is **withheld**, but not for the 
 README used to give. We said its orientation was unverifiable because the canon teacher was
 chance-quality there; that collapse was our own second hardcoded level-0 shape, and
 re-registered with the fix, teacher-enrichment is 4.88 and the orientation is decisively
-determined. It stays withheld on a properly measured criterion instead: placement 55.1
-level-2 px, over the 48 px gate — see `baselines/BASELINES.md`. Targets only ship when
+determined. It stays withheld on a properly measured criterion instead: placement 57.5
+level-2 px, over the 48 px gate — see `baselines/BASELINES.md`, which also records why that
+figure is quoted to ±1 px rather than more finely. Targets only ship when
 validation is real, and so do the reasons we give for holding them back.
 
 ## Leaderboard (held-out flagship `scroll1_20231210121321`)
@@ -321,9 +322,9 @@ scorecard differences come from the labelling rather than the segmentation.
   "as independent orientation validation becomes available". That was wrong twice over.
   There is one withheld region (`20231005123336_y4000_x2500`), plus its sibling
   `20231005123336_y7000_x4000` dropped earlier at prep for near-zero registered ink — and
-  orientation is not what holds either of them back. The withheld region is placed at 55.1
-  level-2 px against a 48 px gate. We have not isolated a cause for that figure — no
-  per-tile field was measured there — but it is consistent with the cross-scan disagreement
+  orientation is not what holds either of them back. The withheld region is placed at 57.5
+  level-2 px against a 48 px gate, a figure determined to about ±1 px. We have not isolated
+  a cause for it — no per-tile field was measured there — but it is consistent with the cross-scan disagreement
   measured on `20230702185753`, where re-registration demonstrably does not close the gap.
   What we can say without a cause is that nothing in our processing queue is known to clear
   it. The labelled-segment pool behind the family is exhausted — see the disclosure under

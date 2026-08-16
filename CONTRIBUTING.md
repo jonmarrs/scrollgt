@@ -88,8 +88,8 @@ binding — a target that clears one and fails the other does not ship.
    gate at 46.6 px and is still non-scoring, because local error within a single 64 px
    window reaches ~1.9 windows. So report placement per-target alongside per-768px-tile
    scatter: the field is non-rigid and the global figure is optimistic. This is the
-   criterion that currently binds: `20231005123336_y4000_x2500` is withheld at 55.1 px
-   despite a decisively validated orientation, and both `20230702185753` regions are
+   criterion that currently binds: `20231005123336_y4000_x2500` is withheld at 57.5 px
+   (±1 px — the peak is broad) despite a decisively validated orientation, and both `20230702185753` regions are
    non-scoring on local error. On `20230702185753` the cause is measured — cross-scan
    disagreement between the 2023 and 2026 segmentations of that sheet, which re-running the
    registration does not fix. Expect to have to rule that out for a new target rather than

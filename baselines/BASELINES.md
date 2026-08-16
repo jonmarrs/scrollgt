@@ -127,10 +127,19 @@ level-0 shape, and this segment's true shape is 34880×97280 against the assumed
 **teacher-enrichment is 4.88**, decisively orientating the label. The teacher was never
 chance-quality here; our registration was broken.
 
-It stays withheld on a properly measured criterion instead: **placement 55.1 level-2 px
-(0.53 mm), over the 48 px gate.** Its sibling region `20231005123336_y7000_x4000` is
+It stays withheld on a properly measured criterion instead: **placement 57.5 level-2 px
+(0.55 mm), over the 48 px gate.** Its sibling region `20231005123336_y7000_x4000` is
 dropped earlier still, at prep — periodicity 0.556 and a registered ink fraction of
 0.0005, i.e. essentially no ink lands in it.
+
+That placement figure was corrected on 2026-08-15 from the 55.1 px first published here.
+The original was a hand-run measurement that no committed code reproduces; the reproducible
+figure, at the default search parameters, is 57.5 px. The agreement peak is broad — it sits
+anywhere between roughly 56.5 and 57.5 px depending on the search window — so the offset is
+determined to about ±1 px rather than to three significant figures, and should be quoted
+that way. A broad peak is itself what a poorly placed label looks like; a correctly placed
+one peaks sharply at zero. Every value in that range clears the 48 px gate by more than
+eight px, so the decision to withhold is unchanged — only the number is.
 
 The correction matters beyond this one target: three separate times now, a gate or
 diagnostic fired correctly and we attributed the failure to the data rather than to our
@@ -141,7 +150,7 @@ target, and as of 2026-08-15 there is no fourth candidate. Six Scroll-1 segments
 2023 hand ink label. Three — `20230820203112`, `20230826170124`, `20230903193206` — are
 absent from the open data entirely, so there is no geometry to register a label onto. The
 three that remain are accounted for one by one: `20230702185753` is poorly placed in both
-of its regions, `20231005123336` is the segment withheld here, at 55.1 px over the gate,
+of its regions, `20231005123336` is the segment withheld here, at 57.5 px over the gate,
 and `20231210121321` is the held-out flagship already in service. The family is capped by
 data availability, not by processing effort. See the
 [availability survey](https://github.com/jonmarrs/vesuvius-autoresearch/blob/main/reports/detector/gt_training_data_exhaustion_2026-08-15.md).
