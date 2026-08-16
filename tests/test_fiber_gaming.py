@@ -62,3 +62,72 @@ def test_merges_are_never_summed_into_splits(rows):
     for name, r in rows.items():
         assert "splits" in r and "merges" in r, name
         assert r["splits"] >= 0 and r["merges"] >= 0
+
+
+def test_aggregating_across_size_classes_is_refused():
+    """A mean over mixed cube sizes is meaningless, so it must raise, not compute.
+
+    Without this, a tracer scoring 60 on a 512 cube outranks one scoring 45 on a 256 cube
+    for reasons of geometry rather than quality -- the same confound class as the
+    n_fibers / n_fibers_scored conflation this benchmark already had to fix.
+    """
+    from scrollgt.fibers.target import aggregate_fiber_scores
+
+    mixed = [
+        {"size_class": 256, "metrics": {"erl": 45.0, "erl_merge_penalized": 30.0}},
+        {"size_class": 512, "metrics": {"erl": 60.0, "erl_merge_penalized": 40.0}},
+    ]
+    with pytest.raises(ValueError, match="size class"):
+        aggregate_fiber_scores(mixed)
+
+
+def test_aggregating_within_one_size_class_works():
+    from scrollgt.fibers.target import aggregate_fiber_scores
+
+    same = [
+        {"size_class": 256, "metrics": {"erl": 40.0, "erl_merge_penalized": 30.0}},
+        {"size_class": 256, "metrics": {"erl": 50.0, "erl_merge_penalized": 20.0}},
+    ]
+    out = aggregate_fiber_scores(same)
+    assert out["size_class"] == 256
+    assert out["n"] == 2
+    assert out["erl_mean"] == pytest.approx(45.0)
+    assert out["erl_merge_penalized_mean"] == pytest.approx(25.0)
+
+
+def test_aggregating_nothing_is_refused():
+    from scrollgt.fibers.target import aggregate_fiber_scores
+
+    with pytest.raises(ValueError):
+        aggregate_fiber_scores([])
+
+
+def test_it_accepts_a_real_scorecard_not_just_a_hand_built_dict(tmp_path):
+    """Guard the card shape itself.
+
+    `score_fiber_prediction` returns ERL under `card["metrics"]`, while `size_class` sits at
+    the top level. A version of this function reading `card["erl"]` passes every synthetic
+    test above and raises KeyError on every real card. Score one and aggregate it.
+    """
+    import pathlib
+
+    import numpy as np
+
+    from scrollgt.fibers.target import (
+        aggregate_fiber_scores,
+        load_fiber_target,
+        score_fiber_prediction,
+    )
+
+    data = pathlib.Path(__file__).resolve().parents[1] / "data"
+    target = sorted(data.glob("fibers_*"))[0]
+    _, mask, _ = load_fiber_target(str(target))
+
+    pred = tmp_path / "empty.npy"
+    np.save(pred, np.zeros(mask.shape, dtype=np.int32))
+    card = score_fiber_prediction(str(pred), str(target))
+
+    out = aggregate_fiber_scores([card])
+    assert out["n"] == 1
+    assert out["size_class"] == card["size_class"]
+    assert out["erl_mean"] == pytest.approx(card["metrics"]["erl"])

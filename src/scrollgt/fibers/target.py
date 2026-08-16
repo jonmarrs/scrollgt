@@ -161,3 +161,35 @@ def score_fiber_prediction(labels_path, target_dir, recompute_floors: bool = Fal
         "floors_source": floors_source,
         "below_baseline": below,
     }
+
+
+def aggregate_fiber_scores(cards) -> dict:
+    """Mean ERL over cards of ONE size class. Raises on a mixed or empty set.
+
+    Provided so that summarising several cubes has a correct implementation to reach for.
+    Without one, a reader averages by hand across whatever cubes are in front of them, and
+    ERL -- expected run length in voxels -- is not comparable between a 256 cube and a 512
+    cube: the larger admits longer fibers and scores higher for geometric reasons.
+    """
+    cards = list(cards)
+    if not cards:
+        raise ValueError("aggregate_fiber_scores: no scorecards given")
+    classes = {int(c["size_class"]) for c in cards}
+    if len(classes) > 1:
+        raise ValueError(
+            f"refusing to aggregate across size class {sorted(classes)}: ERL is a length "
+            "statistic and does not compare between cube sizes; aggregate each class "
+            "separately"
+        )
+    # `size_class` is a top-level card key; the ERL figures live under `metrics`, which is
+    # where `score_tracing(...).as_row()` is wrapped. Reading `card["erl"]` instead would
+    # pass any hand-built test fixture and fail on every real card.
+    n = len(cards)
+    return {
+        "size_class": classes.pop(),
+        "n": n,
+        "erl_mean": float(sum(float(c["metrics"]["erl"]) for c in cards) / n),
+        "erl_merge_penalized_mean": float(
+            sum(float(c["metrics"]["erl_merge_penalized"]) for c in cards) / n
+        ),
+    }
