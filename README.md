@@ -55,8 +55,9 @@ floors and our own negative results published.**
 > is neither a constant offset nor a scale error, and there is no convention bug left to
 > find. The threshold was not raised to accommodate the train-exposed target.
 >
-> **Unaffected:** the PHerc 1667 column targets and all six fiber targets — different ground
-> truth, no registration bridge.
+> **Unaffected:** the PHerc 1667 column targets and every fiber target — different ground
+> truth, no registration bridge. (Fiber targets numbered six at the time of this note;
+> the family has since grown to eleven — see the Fiber connectivity section below.)
 >
 > Detail + reproduction:
 > [registration_offset_2026-08-07.md](https://github.com/jonmarrs/vesuvius-autoresearch/blob/main/reports/detector/registration_offset_2026-08-07.md)
@@ -267,6 +268,16 @@ region-AUC granularity (~0.58 at n=18 vs 17); the disclosed geometry-oracle ceil
 [gate-validated renderer](https://github.com/jonmarrs/vesuvius-autoresearch/blob/main/docs/SURFACE_RENDERER.md)
 (clean-triple NCC 0.78 on this very scroll).
 
+**What this costs you as a user.** The column family has exactly one target,
+`pherc1667_merged_columns`. Like the single target the pixel family is down to above, a
+single target cannot separate model quality from target idiosyncrasy — this scroll's
+preservation, column count, and gutter geometry are baked into every score, and there is no
+second target to check whether a high or low score generalizes. Expanding it needs another
+scroll with a published column-level reading whose geometry can be registered onto the open
+data the way PHerc 1667's was; no second candidate is in view today. This is a limitation of
+the benchmark, not a complaint about the upstream reading, which is exactly what makes this
+target scoreable at all.
+
 ## Fiber connectivity targets (v0.3): can your tracer hold one fiber's identity?
 
 Papyrus fibers physically define the U and V axes of a sheet, so tracing them helps both
@@ -295,9 +306,14 @@ reference fiber mask (~250 KB/cube), so the published floors reproduce from the 
 test enforces exactly that. Pass `--recompute-floors` to verify them yourself from the shipped
 mask (~50 s per cube) instead of reading the published values.
 
-Six cubes: five from Scroll 1, plus `s5_03997_01497_03997_256` designated the **cross-scroll**
-reporting split. The ground truth is a public villa dataset and cannot be hidden, so that is a
-labelled convention for reporting transfer — not a claim of held-out secrecy.
+Eleven cubes, in two size classes: **eight at 256³** and **three at 512³**. The five `s1_*`
+cubes are the `primary` split; the six `s5_*` cubes — three at each size — are the
+**cross-scroll** reporting split, up from the single `s5_03997_01497_03997_256` cube this
+family shipped with. The ground truth is a public villa dataset and cannot be hidden, so that
+split is a labelled convention for reporting transfer — not a claim of held-out secrecy. ERL is
+a length statistic and is never averaged across the two size classes; `aggregate_fiber_scores`
+raises rather than doing so. Full per-class tables, including oracle ceilings for every cube,
+are in [`baselines/BASELINES.md`](baselines/BASELINES.md).
 
 Ground truth: villa's `fiber-skeletons` dataset (`dl.ash2txt.org/datasets/fiber-skeletons/`),
 every fiber in each cube hand-traced in WEBKNOSSOS at 7.91 µm. Only the `nml/` files carry fiber
@@ -305,8 +321,10 @@ identity; the shipped `labelsTr/*.tif` are semantic and cannot support connectiv
 Reference mask: `scrollprize/fiber_hz_vt` (Apache-2.0) at P ≥ 0.5, identical for every entrant so
 scorecard differences come from the labelling rather than the segmentation.
 
-**Our own tracer loses to connected components on both metrics, on all six cubes** — published in
-[`baselines/BASELINES.md`](baselines/BASELINES.md) rather than hidden. That is the bar to clear.
+**Our own tracer loses to connected components on both metrics, on all six cubes it has been
+scored against** — published in [`baselines/BASELINES.md`](baselines/BASELINES.md) rather than
+hidden. That is the bar to clear. The five cubes added since ship with ground truth, mask, and
+oracle/floor scores; the tracer has not yet been re-run against them.
 
 ## Roadmap
 
@@ -348,7 +366,7 @@ surface volumes: `s3://vesuvius-challenge-open-data/` (anonymous).
 
 - The three pixel-level Scroll-1 targets (`scroll1_*`) register 2023 Grand-Prize-era human ink
   annotations from the Vesuvius Challenge open data release; see the challenge's data terms.
-- The six fiber targets (`fibers_*`) carry hand-traced skeletons from villa's `fiber-skeletons`
+- The eleven fiber targets (`fibers_*`) carry hand-traced skeletons from villa's `fiber-skeletons`
   dataset (`dl.ash2txt.org/datasets/fiber-skeletons/`), also a Vesuvius Challenge release — see
   the challenge's data terms. Each target's `mask.npz` is derived from `scrollprize/fiber_hz_vt`
   (Apache-2.0). Provenance for both is recorded in the target's `meta.json`.

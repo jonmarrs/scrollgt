@@ -207,27 +207,69 @@ supporting diagnostic only: the prediction map is a required part of any submiss
 
 ## Fiber connectivity targets (v0.3)
 
-Six 256³ cubes from villa's `fiber-skeletons` dataset, tolerance 2.0 voxels, every row scored
-against the identical `fiber_hz_vt` mask shipped with each target. Source:
+Eleven cubes from villa's `fiber-skeletons` dataset, tolerance 2.0 voxels, every row scored
+against the identical `fiber_hz_vt` mask shipped with each target: **eight at 256³** and
+**three at 512³**. Splits: the five `s1_*` cubes are `primary`; the six `s5_*` cubes are
+`cross_scroll` — three at each size class. Cross-scroll started this benchmark as a single
+cube (`s5_03997_01497_03997`) and is now six. No cube in this expansion failed to export;
+all eleven shipped with ground truth, a reference mask, and oracle/floor scores. Source:
 `reports/fiber_benchmark_all_cubes.json` in vesuvius-autoresearch.
 
+Every target's `meta.json` records `convention_check.landing_enrichment_vs_chance`: how many
+times more often a ground-truth skeleton node lands on the scoring mask than chance density
+would predict, which is what establishes that the skeleton and the mask share a coordinate
+frame. Across the original six that enrichment sits at 13.6×–16.4×; across all eleven
+targets it spans **9.9×–21.5×** (low: `s5_06994_00994_04994`; high:
+`s5_07997_02997_05497`) — wider than the original six but every target still many times
+chance, so the expansion did not introduce one with a silently broken registration.
+
+**ERL does not compare across cube sizes and is never averaged across them.** ERL is
+expected run length in voxels (`Σr²/Σr`): a 512³ cube admits fibers up to twice as long per
+axis as a 256³ cube, so its ERL runs roughly double for purely geometric reasons, not
+because the tracer or the fibers are different. `aggregate_fiber_scores` in
+`src/scrollgt/fibers/target.py` raises on a mixed size-class input rather than silently
+producing a misleading mean. The tables below are split the same way, each with its own
+oracle row so the ceiling sits beside the scores.
+
+Tracer and connected-components rows below exist only for the six cubes scored in the
+original v0.3 release (five `primary` + `s5_03997_01497_03997`). The five cubes added by
+this expansion (`s5_07997_02997_05497`, `s5_14997_01497_01497`, and the three 512³ cubes)
+ship ground truth, mask, and oracle/floor scores — the tracer itself was not re-run against
+them, so their tracer/cc columns are marked `—` rather than guessed at.
+
 **Connected components is a strong baseline, and our own tracer does not beat it** — losing on
-raw ERL and on merge-penalized ERL, on every cube.
+raw ERL and on merge-penalized ERL, on every cube it has been scored against.
 
-| cube | tracer ERL | cc ERL | tracer ERLpen | cc ERLpen | tracer coverage |
-|---|---|---|---|---|---|
-| s1_00497_01497_03997 | 26.6 | 197.1 | 23.2 | 37.1 | 0.623 |
-| s1_00497_02497_02997 | 45.8 | 207.5 | 33.6 | 64.3 | 0.704 |
-| s1_00997_02497_02997 | 36.3 | 195.8 | 29.8 | 56.5 | 0.605 |
-| s1_08997_02997_02497 | 34.1 | 186.5 | 30.8 | 106.1 | 0.671 |
-| s1_10997_02997_02997 | 37.4 | 194.1 | 34.2 | 57.7 | 0.616 |
-| s5_03997_01497_03997 (cross-scroll) | 31.5 | 182.2 | 25.4 | 51.1 | 0.623 |
+### 256³ cubes (n=8)
 
-Fragmentation is the cause. The tracer finds the fibers — coverage 0.605–0.704 of ground-truth
-length is claimed by *something* — but it cannot hold one identity along them, so its runs are
-short and ERL is low. An earlier reading that the tracer was marginally ahead on the penalized
-metric came from a 128³ sub-volume and **does not survive at full-cube scale**; it should not be
-cited.
+| cube | split | oracle ERL | tracer ERL | cc ERL | tracer ERLpen | cc ERLpen | tracer coverage |
+|---|---|---|---|---|---|---|---|
+| s1_00497_01497_03997 | primary | 258.27 | 26.6 | 197.1 | 23.2 | 37.1 | 0.623 |
+| s1_00497_02497_02997 | primary | 222.06 | 45.8 | 207.5 | 33.6 | 64.3 | 0.704 |
+| s1_00997_02497_02997 | primary | 243.82 | 36.3 | 195.8 | 29.8 | 56.5 | 0.605 |
+| s1_08997_02997_02497 | primary | 261.63 | 34.1 | 186.5 | 30.8 | 106.1 | 0.671 |
+| s1_10997_02997_02997 | primary | 245.23 | 37.4 | 194.1 | 34.2 | 57.7 | 0.616 |
+| s5_03997_01497_03997 | cross_scroll | 255.78 | 31.5 | 182.2 | 25.4 | 51.1 | 0.623 |
+| s5_07997_02997_05497 | cross_scroll | 254.69 | — | — | — | — | — |
+| s5_14997_01497_01497 | cross_scroll | 248.95 | — | — | — | — | — |
+
+### 512³ cubes (n=3)
+
+| cube | split | oracle ERL | tracer ERL | cc ERL | tracer ERLpen | cc ERLpen | tracer coverage |
+|---|---|---|---|---|---|---|---|
+| s5_06494_01994_03994 | cross_scroll | 507.01 | — | — | — | — | — |
+| s5_06994_00994_04994 | cross_scroll | 513.32 | — | — | — | — | — |
+| s5_07994_01994_05494 | cross_scroll | 497.52 | — | — | — | — | — |
+
+Note the 512³ oracle ERLs (497.52–513.32) against the 256³ oracle ERLs (222.06–261.63): almost
+exactly double, which is the geometric effect above, not a difference in fiber quality between
+cubes.
+
+Fragmentation is the cause of the tracer's loss on the six scored cubes. The tracer finds the
+fibers — coverage 0.605–0.704 of ground-truth length is claimed by *something* — but it cannot
+hold one identity along them, so its runs are short and ERL is low. An earlier reading that the
+tracer was marginally ahead on the penalized metric came from a 128³ sub-volume and **does not
+survive at full-cube scale**; it should not be cited.
 
 ### What the floors establish
 

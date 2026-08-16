@@ -40,7 +40,8 @@
     "model": "scrollprize/fiber_hz_vt (Apache-2.0)",
     "threshold": 0.5,
     "density": 0.03691,
-    "note": "Every entrant is scored against this identical mask, so scorecard differences come from the instance labelling rather than from a better or worse segmentation."
+    "note": "Every entrant is scored against this identical mask, so scorecard differences come from the instance labelling rather than from a better or worse segmentation.",
+    "generated": "probability volume produced locally by running scrollprize/fiber_hz_vt over the cube, not downloaded from the villa dataset; thresholded at 0.5 to give the shipped mask"
   },
   "floors": {
     "oracle": {
