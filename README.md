@@ -161,8 +161,10 @@ level-2 px against the 48 px gate (the withheld region discussed below), which l
 
 **What this costs you as a user.** A single-target pixel family cannot separate model
 quality from segment idiosyncrasy: a score here is a score on one sheet. Read the pixel
-leaderboard accordingly, and prefer the column and fiber families when you need more than
-one point of comparison. Expanding it needs new upstream data — either a re-flattening of
+leaderboard accordingly, and prefer the fiber family when you need more than one point of
+comparison — it is the only family here with more than one target; the column family has
+exactly one and carries the same caveat, disclosed under it below. Expanding it needs new
+upstream data — either a re-flattening of
 one of the three absent labelled segments, or a hand label on one of the eight 2023-era
 segments that are re-flattened but unlabelled. Neither is sufficient on its own: a fresh
 segment still has to place well enough to score, and clearing the gate is necessary rather
@@ -302,9 +304,11 @@ scrollgt score-fibers labels.npy data/fibers_s1_00497_01497_03997_256 --json-out
 ```
 
 **No GPU, no model download, no network.** Each target ships the hand-traced ground truth and the
-reference fiber mask (~250 KB/cube), so the published floors reproduce from the repo alone — a
-test enforces exactly that. Pass `--recompute-floors` to verify them yourself from the shipped
-mask (~50 s per cube) instead of reading the published values.
+reference fiber mask — ~210–350 KB for a 256³ cube and 2.1–2.9 MB for a 512³ one, 12 MB for all
+of `data/` — so the published floors reproduce from the repo alone, and a test enforces exactly
+that. Pass `--recompute-floors` to verify them yourself from the shipped mask instead of reading
+the published values: ~50 s for a 256³ cube, several minutes for a 512³ one (its
+connected-components floor alone is ~70 s, at ~8 GB peak RSS).
 
 Eleven cubes, in two size classes: **eight at 256³** and **three at 512³**. The five `s1_*`
 cubes are the `primary` split; the six `s5_*` cubes — three at each size — are the
@@ -312,8 +316,11 @@ cubes are the `primary` split; the six `s5_*` cubes — three at each size — a
 family shipped with. The ground truth is a public villa dataset and cannot be hidden, so that
 split is a labelled convention for reporting transfer — not a claim of held-out secrecy. ERL is
 a length statistic and is never averaged across the two size classes; `aggregate_fiber_scores`
-raises rather than doing so. Full per-class tables, including oracle ceilings for every cube,
-are in [`baselines/BASELINES.md`](baselines/BASELINES.md).
+raises rather than doing so. That has a cost worth stating up front: the 512³ class is 3
+cross-scroll and **0 primary**, so it carries no same-scroll counterpart to transfer from, and
+the usable same-vs-cross comparison is n=3 against n=5 inside the 256³ class alone. Full
+per-class tables, including oracle ceilings for every cube, are in
+[`baselines/BASELINES.md`](baselines/BASELINES.md).
 
 Ground truth: villa's `fiber-skeletons` dataset (`dl.ash2txt.org/datasets/fiber-skeletons/`),
 every fiber in each cube hand-traced in WEBKNOSSOS at 7.91 µm. Only the `nml/` files carry fiber

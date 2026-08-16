@@ -53,23 +53,44 @@ These targets score an **instance labelling**, not a probability map: which voxe
 which fiber. Everything needed ships in the repo, so no GPU, model download, or network access
 is involved.
 
-1. Produce `labels.npy` — a cube-shaped integer array (256³), `0` = background, one distinct id
-   per predicted fiber instance. The reference fiber mask is in the target's `mask.npz` if you
-   want to label that rather than segment your own; every published row is scored against that
-   same mask, so differences come from the labelling.
+**Eleven cubes in two size classes: eight at 256³ and three at 512³.** Take the array shape
+from the target's own `meta.json["shape"]` — never assume 256³, since `score-fibers` rejects a
+mismatched shape with a `ValueError`, and three of the targets are 512³.
+
+1. Produce `labels.npy` — an integer array of exactly `meta.json["shape"]`, `0` = background,
+   one distinct id per predicted fiber instance:
+   ```python
+   import json, numpy as np
+   shape = tuple(json.load(open(f"{target}/meta.json"))["shape"])   # 256³ or 512³
+   labels = np.zeros(shape, np.int32)
+   ```
+   The reference fiber mask is in the target's `mask.npz` if you want to label that rather
+   than segment your own; every published row is scored against that same mask, so
+   differences come from the labelling.
 2. Score it:
    ```bash
    scrollgt score-fibers labels.npy data/fibers_<cube> --json-out card.json
    ```
    Add `--recompute-floors` to verify the published floors from the shipped mask yourself
-   (~50 s per cube) rather than reading them from `meta.json`.
+   rather than reading them from `meta.json`. Budget ~50 s for a 256³ cube and several
+   minutes for a 512³ one — its connected-components floor alone measures ~70 s, at ~8 GB
+   peak RSS.
 3. **Report both ERL variants together, with the tolerance.** Raw ERL alone is gameable — a
    single instance covering the whole cube scores within 23% of the oracle while its
    merge-penalized ERL is exactly 0.00 — so a row quoting one number without the other will be
    sent back. Splits and merges are reported separately and must never be summed.
-4. Score all six cubes, and report `s5_03997_01497_03997_256` separately as the cross-scroll
-   split. Beating connected components on **both** metrics is the bar; our own tracer does not
-   clear it (see `baselines/BASELINES.md`).
+4. **Never average ERL across size classes, and never compare a score to the other class's
+   ceiling.** ERL is expected run length in voxels (`Σr²/Σr`), a length statistic: a 512³ cube
+   admits fibers up to twice as long per axis, so its ERL runs roughly double for purely
+   geometric reasons — shipped oracles are 222–262 at 256³ and 498–513 at 512³. Every
+   scorecard prints its own class and that class's oracle for this reason, and
+   `aggregate_fiber_scores` raises on a mixed-class input rather than returning a misleading
+   mean. Report the two classes as separate tables.
+5. Score as many cubes as you can and say which. The cross-scroll split is **all six `s5_*`
+   cubes** — three at each size class — not one cube; the five `s1_*` cubes are the `primary`
+   split. Both are labelled reporting conventions rather than withheld data: the ground truth
+   is a public villa dataset and cannot be hidden. Beating connected components on **both**
+   metrics is the bar; our own tracer does not clear it (see `baselines/BASELINES.md`).
 
 ## Add a target
 
@@ -101,10 +122,22 @@ See the withheld-target discussion in `baselines/BASELINES.md` for a worked exam
 
 ```bash
 pip install -e ".[dev]"
-pytest -q
+pytest -q            # default suite
+pytest -m heavy      # plus the two opt-in 512³ floor reproductions
 ```
 
-CI runs the suite on Python 3.10–3.12 plus a CLI smoke on every push (see
-`.github/workflows/ci.yml`). Keep `src/scrollgt/metrics.py` byte-identical to the source
+**The `heavy` marker.** `test_published_floors_reproduce_from_shipped_data` recomputes a
+cube's connected-components floor from the shipped mask and checks it against the published
+value — the regression that keeps the no-GPU reproduction guarantee real. On a 512³ cube that
+costs ~70 s and ~8 GB peak RSS. The default run therefore covers all eight 256³ targets **plus
+one** 512³ target, so both size classes stay covered; the remaining two 512³ parametrizations
+are marked `heavy` and deselected by `addopts = ["-m", "not heavy"]` in `pyproject.toml`. Run
+them before changing anything that touches fiber packaging or the ERL implementation. A test
+asserts that the default run still includes a 512³ target, so the coverage cannot quietly
+collapse to one class.
+
+CI runs the default suite on Python 3.10–3.12 plus a CLI smoke on every push (see
+`.github/workflows/ci.yml`); it does not run `heavy`, because an 8 GB working set is at the
+edge of a hosted runner. Keep `src/scrollgt/metrics.py` byte-identical to the source
 repo's `detector/metrics.py` — the metric contract is the product, and the two must not
 drift.

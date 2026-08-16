@@ -231,6 +231,15 @@ because the tracer or the fibers are different. `aggregate_fiber_scores` in
 producing a misleading mean. The tables below are split the same way, each with its own
 oracle row so the ceiling sits beside the scores.
 
+**What that costs the cross-scroll axis, stated plainly.** Six cross-scroll cubes are not six
+comparable cross-scroll points. Per class the split is 5 primary + 3 cross_scroll at 256³ and
+**0 primary + 3 cross_scroll at 512³** — and since scores are never compared across classes,
+the three 512³ cross-scroll cubes have no same-scroll counterpart *in their own class* to
+transfer from. The usable same-vs-cross comparison is therefore n=3 cross-scroll against n=5
+primary, inside the 256³ class only; the 512³ cubes are absolute scores against their own
+oracles, not a transfer measurement. Closing that gap needs 512³ Scroll-1 cubes, which the
+villa dataset does not currently offer.
+
 Tracer and connected-components rows below exist only for the six cubes scored in the
 original v0.3 release (five `primary` + `s5_03997_01497_03997`). The five cubes added by
 this expansion (`s5_07997_02997_05497`, `s5_14997_01497_01497`, and the three 512³ cubes)
