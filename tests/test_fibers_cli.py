@@ -34,6 +34,51 @@ def test_report_prints_both_erl_variants_and_tolerance(cc_labels):
     assert "splits" in text.lower() and "merges" in text.lower()
 
 
+def _meta(target):
+    return json.loads((pathlib.Path(target) / "meta.json").read_text())
+
+
+def test_report_prints_the_size_class_and_its_oracle_ceiling(cc_labels):
+    """The promise is that a score never appears without the ceiling for its own class.
+
+    The card has carried `size_class` and `class_oracle_erl` since size class became
+    first-class, but the markdown report rendered neither, so the guarantee held only for
+    `--json-out` readers. The terminal reader is exactly the one who would otherwise
+    compare a 512 cube's ERL against a 256 cube's ceiling by eye.
+    """
+    from scrollgt.fibers.target import score_fiber_prediction
+
+    text = fiber_markdown_report(score_fiber_prediction(cc_labels, TARGET))
+    assert "size class 256" in text
+    oracle = _meta(TARGET)["floors"]["oracle"]["erl"]
+    assert f"{oracle:.2f}" in text, "the class ceiling must be printed, not just carried"
+    assert "does not compare across size classes" in text
+
+
+def test_cli_json_carries_the_size_class_and_ceiling(tmp_path, cc_labels):
+    """Neither field was asserted in the JSON either, in the CLI's own test file."""
+    out = tmp_path / "card.json"
+    main(["score-fibers", str(cc_labels), TARGET, "--json-out", str(out)])
+    card = json.loads(out.read_text())
+    meta = _meta(TARGET)
+    assert card["size_class"] == meta["size_class"] == 256
+    assert card["class_oracle_erl"] == pytest.approx(meta["floors"]["oracle"]["erl"])
+
+
+def test_cli_stdout_prints_the_class_line(cc_labels, capsys):
+    """The report reaches stdout, not just the return value.
+
+    The 512 side of this -- that a 512 card renders a 512 ceiling -- is covered by
+    test_fiber_size_class.py::test_a_512_target_reports_a_512_ceiling, which scores a real
+    512 cube. It is not repeated here: scoring a 512 cube costs ~45 s and the branch under
+    test is the same one.
+    """
+    main(["score-fibers", str(cc_labels), TARGET])
+    out = capsys.readouterr().out
+    assert "size class 256" in out
+    assert f"{_meta(TARGET)['floors']['oracle']['erl']:.2f}" in out
+
+
 def test_report_lists_all_four_floors(cc_labels):
     from scrollgt.fibers.target import score_fiber_prediction
 

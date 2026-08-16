@@ -19,6 +19,11 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install
         run: pip install -e ".[dev]"
+      # Runs the default selection: everything except the `heavy` marker, which is two of
+      # the three 512-cube floor reproductions (~70 s and ~8 GB peak RSS each). The third
+      # 512 cube and all eight 256 cubes DO run here, so the no-GPU reproduction guarantee
+      # is exercised on both size classes on every push. See CONTRIBUTING.md ("The `heavy`
+      # marker") and the FLOOR_TARGETS comment in tests/test_fiber_target.py.
       - name: Run tests
         run: pytest -q
       - name: Smoke the CLI against a shipped target (constant predictor)

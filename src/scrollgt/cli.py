@@ -56,7 +56,8 @@ def main(argv=None):
     p_fib.add_argument("target", help="fiber target directory (data/fibers_<cube>)")
     p_fib.add_argument("--recompute-floors", action="store_true",
                        help="recompute the floors from the shipped mask instead of "
-                            "reading the published values (~50 s per cube)")
+                            "reading the published values (~50 s for a 256 cube, "
+                            "several minutes for a 512 cube)")
     p_fib.add_argument("--json-out", default=None, help="write the scorecard JSON here")
 
     p_check = sub.add_parser("check", help="prize-compliance pre-check (window + overlap)")

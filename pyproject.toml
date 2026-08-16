@@ -30,3 +30,11 @@ packages = ["src/scrollgt"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# `heavy` is opt-in: reproducing a 512 fiber cube's floors costs ~70 s and ~8 GB peak
+# RSS. One 512 cube runs by default so both size classes stay covered (see
+# tests/test_fiber_target.py::FLOOR_TARGETS); the other two are deselected here and run
+# with `pytest -m heavy`, which wins because a command-line -m overrides addopts.
+addopts = ["-m", "not heavy"]
+markers = [
+    "heavy: multi-GB, minute-scale reproduction of a 512 cube's floors; opt in with -m heavy",
+]

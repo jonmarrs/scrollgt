@@ -11,9 +11,44 @@ from scrollgt.fibers.target import load_fiber_target, score_fiber_prediction
 
 TARGETS = sorted(pathlib.Path("data").glob("fibers_*"))
 
+# --- which targets pay the floor-recomputation cost by default -------------------------
+# Recomputing the connected-components floor is the guarantee that the published numbers
+# reproduce from the repo with no GPU. It is also the expensive test: a 512 cube measures
+# ~70 s and ~8 GB peak RSS against a few seconds and well under 1 GB for a 256 cube.
+# Running all three 512 cubes by default puts that load on a CI runner that has never
+# once executed against this data, and OOMs a 7 GB runner outright.
+#
+# The call: every 256 target plus ONE 512 target runs by default, so the reproduction
+# guarantee still covers both size classes and a 512-specific packaging mistake is still
+# caught. The other two 512 targets are marked `heavy` and deselected by the
+# `-m "not heavy"` in pyproject.toml; run them with `pytest -m heavy` (see CONTRIBUTING).
+# Dropping 512 coverage entirely would have been cheaper and dishonest.
+_512_TARGETS = [t for t in TARGETS if t.name.endswith("_512")]
+DEFAULT_512 = _512_TARGETS[0] if _512_TARGETS else None
+HEAVY_512 = _512_TARGETS[1:]
+FLOOR_TARGETS = [
+    pytest.param(t, marks=pytest.mark.heavy) if t in HEAVY_512 else t for t in TARGETS
+]
+
 
 def test_eleven_targets_are_shipped():
     assert len(TARGETS) == 11, [t.name for t in TARGETS]
+
+
+def test_the_default_floor_run_still_covers_both_size_classes():
+    """The opt-in split above is a compute budget, not a way to stop testing 512 cubes.
+
+    If a future edit marked the last 512 target heavy, the default suite would reproduce
+    floors for one size class only -- and would still pass, silently. That is precisely
+    the pattern this repo keeps getting caught by: a property measured once and never
+    re-checked.
+    """
+    assert DEFAULT_512 is not None, "no 512 target runs floors by default"
+    assert len(HEAVY_512) == len(_512_TARGETS) - 1
+    assert DEFAULT_512 not in HEAVY_512
+    default_names = {t.name for t in TARGETS if t not in HEAVY_512}
+    assert sum(n.endswith("_256") for n in default_names) == 8
+    assert sum(n.endswith("_512") for n in default_names) == 1
 
 
 @pytest.mark.parametrize("target", TARGETS, ids=lambda p: p.name)
@@ -32,13 +67,16 @@ def test_convention_proof_is_recorded(target):
     assert rate >= 0.999, f"{target.name}: landing rate {rate}"
 
 
-@pytest.mark.parametrize("target", TARGETS, ids=lambda p: p.name)
+@pytest.mark.parametrize("target", FLOOR_TARGETS, ids=lambda p: p.name)
 def test_published_floors_reproduce_from_shipped_data(target):
     """The regression that keeps the zero-GPU path real.
 
     Recomputes the connected-components floor from the shipped mask alone and
     requires it to match the number published in meta.json. A data packaging
     mistake would otherwise be silent.
+
+    Two of the three 512 cubes are `heavy` and deselected by default -- see the
+    FLOOR_TARGETS comment above for why, and CONTRIBUTING.md for how to run them.
     """
     from scrollgt.fibers import floor_connected_components
 
@@ -80,7 +118,11 @@ def test_probability_input_is_rejected_with_a_useful_message(tmp_path):
 
 
 def test_floors_default_to_published_and_can_be_recomputed(tmp_path):
-    """The default path must not pay the ~50 s recomputation cost."""
+    """The default path must not pay the floor-recomputation cost.
+
+    That cost is ~50 s for the 256 cube used here and minutes for a 512 cube, whose
+    connected-components floor alone measures ~70 s.
+    """
     target = TARGETS[0]
     _, mask, _ = load_fiber_target(target)
     p = tmp_path / "empty.npy"
@@ -134,8 +176,11 @@ def _mask_and_nodes(target):
 def test_skeleton_lands_on_the_scoring_mask_far_above_chance(target):
     """Hand-traced nodes must fall on the reference mask much more often than chance.
 
-    Chance is the mask density (~5%). Measured is 73-85%, about 15x. A frame error would
-    collapse this toward density, which is exactly what the assertion catches.
+    Chance is the mask density (~5%). Measured across the eleven shipped targets is
+    63.7-85.4%, an enrichment of 9.9-21.5x (lowest s5_06994_00994_04994_512, highest
+    s5_07997_02997_05497_256). A frame error would collapse this toward density, which is
+    exactly what the assertion catches; the 5x threshold is left where it is, well below
+    the measured minimum and well above the ~1x an axis swap produces.
     """
     mask, nodes = _mask_and_nodes(target)
     assert len(nodes) > 100, f"{target.name}: too few in-bounds nodes to judge"

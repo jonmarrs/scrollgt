@@ -1,10 +1,12 @@
 """Scorecard formatting for fiber connectivity.
 
-Two rules are enforced by construction rather than left to the caller: both
-ERL variants always appear together, and the tolerance always appears. Raw ERL
-alone is gameable -- labelling an entire cube as one instance scores within
-23% of the oracle -- so a card showing one number without the other would be
-actively misleading.
+Three rules are enforced by construction rather than left to the caller: both ERL
+variants always appear together, the tolerance always appears, and the cube's size class
+appears with that class's oracle ERL. Raw ERL alone is gameable -- labelling an entire
+cube as one instance scores within 23% of the oracle -- so a card showing one number
+without the other would be actively misleading. The class matters for the same reason:
+ERL is expected run length in voxels, so a 512 cube scores roughly double a 256 cube for
+purely geometric reasons, and a score read against the wrong ceiling is read wrong.
 """
 
 from __future__ import annotations
@@ -27,6 +29,27 @@ def _row(name: str, r: dict) -> str:
     )
 
 
+def _class_line(card: dict) -> str:
+    """`size_class` and `class_oracle_erl` rendered, not just carried on the JSON.
+
+    Both have been on the card since size class became first-class, but only
+    `--json-out` readers ever saw them; the terminal reader -- the one most likely to
+    compare a 512 score against a 256 ceiling by eye -- got neither.
+    """
+    size = card.get("size_class")
+    oracle = card.get("class_oracle_erl")
+    cls = f"size class {size}³" if size is not None else "size class unknown"
+    if oracle is None:
+        return (
+            f"{cls}; class oracle ERL unavailable — this target's meta.json carries no "
+            f"floors.oracle.erl, so there is no ceiling to read the score against."
+        )
+    return (
+        f"{cls}; class oracle ERL {float(oracle):.2f} — ERL is a length statistic and "
+        f"does not compare across size classes."
+    )
+
+
 def fiber_markdown_report(card: dict) -> str:
     lines = [
         f"| {card['prediction']} vs {card['target']} | " + " | ".join(COLUMNS) + " |",
@@ -41,6 +64,7 @@ def fiber_markdown_report(card: dict) -> str:
     source = card.get("floors_source", "published")
     lines += [
         "",
+        _class_line(card),
         f"tolerance {card['tolerance']} voxels ({split}); floors {source}"
         + (" — rerun with --recompute-floors to verify them from the shipped mask."
            if source == "published" else "."),

@@ -114,9 +114,11 @@ def score_fiber_prediction(labels_path, target_dir, recompute_floors: bool = Fal
     """Score an instance labelling (.npy of ints, 0 = background) against a target.
 
     Floors come from the target's published meta.json by default. Recomputing
-    them from the shipped mask costs ~45-50 s per cube and is what
-    `recompute_floors=True` is for; the test suite already enforces that the
-    published values reproduce, so users do not pay that cost on every run.
+    them from the shipped mask is what `recompute_floors=True` is for, and costs
+    ~45-50 s for a 256 cube and several times that for a 512 cube, whose
+    connected-components floor alone measures ~70 s. The test suite already
+    enforces that the published values reproduce, so users do not pay that cost
+    on every run.
     """
     skeleton, mask, meta = load_fiber_target(target_dir)
     labels = np.load(str(labels_path))
