@@ -151,6 +151,11 @@ def score_fiber_prediction(labels_path, target_dir, recompute_floors: bool = Fal
         "prediction": os.path.basename(str(labels_path)),
         "split": meta.get("split", "primary"),
         "tolerance": tolerance,
+        # ERL is a length statistic, so a score means nothing without the ceiling for
+        # its own cube size. Carry both on the card rather than leaving the reader to
+        # look them up.
+        "size_class": int(meta["size_class"]),
+        "class_oracle_erl": meta.get("floors", {}).get("oracle", {}).get("erl"),
         "metrics": row,
         "floors": floors,
         "floors_source": floors_source,

@@ -126,5 +126,6 @@
       "pred_length": 181948.0,
       "tolerance": 2.0
     }
-  }
+  },
+  "size_class": 256
 }
