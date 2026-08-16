@@ -12,8 +12,8 @@ from scrollgt.fibers.target import load_fiber_target, score_fiber_prediction
 TARGETS = sorted(pathlib.Path("data").glob("fibers_*"))
 
 
-def test_six_targets_are_shipped():
-    assert len(TARGETS) == 6, [t.name for t in TARGETS]
+def test_eleven_targets_are_shipped():
+    assert len(TARGETS) == 11, [t.name for t in TARGETS]
 
 
 @pytest.mark.parametrize("target", TARGETS, ids=lambda p: p.name)
