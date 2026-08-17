@@ -86,9 +86,12 @@ mismatched shape with a `ValueError`, and three of the targets are 512³.
    scorecard prints its own class and that class's oracle for this reason, and
    `aggregate_fiber_scores` raises on a mixed-class input rather than returning a misleading
    mean. Report the two classes as separate tables.
-5. Score as many cubes as you can and say which. The cross-scroll split is **all six `s5_*`
-   cubes** — three at each size class — not one cube; the five `s1_*` cubes are the `primary`
-   split. Both are labelled reporting conventions rather than withheld data: the ground truth
+5. **Score at least all eight 256³ cubes**, and say which you ran. The three 512³ cubes are
+   optional — they cost substantially more — but a row covering only some of the 256³ class
+   is not a submission: a leaderboard assembled from whichever cubes went well says nothing
+   about a tracer, which is the whole reason this family stopped being one cube. The
+   cross-scroll split is **all six `s5_*` cubes** — three at each size class — not one cube;
+   the five `s1_*` cubes are the `primary` split. Both are labelled reporting conventions rather than withheld data: the ground truth
    is a public villa dataset and cannot be hidden. Beating connected components on **both**
    metrics is the bar; our own tracer does not clear it (see `baselines/BASELINES.md`).
 
