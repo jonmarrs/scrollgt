@@ -139,7 +139,7 @@
    ],
    "transcription": "text",
    "max_attested_line": 10,
-   "note": "cross-strip bbox refined 2026-07-19 by local junction-window registration (edge windows re-fit at fine step; corrections +47/-33 close the inter-strip gap to <35 px and land the width on the neighbor trend); uncertainty MEASURED at \u00b190 grid px (local correlation plateau width) \u2014 flag retained, adjacent gutters stay excluded",
+   "note": "cross-strip bbox refined 2026-07-19 by local junction-window registration (edge windows re-fit at fine step; corrections +47/-33 close the inter-strip gap to <35 px and land the width on the neighbor trend); uncertainty MEASURED at ±90 grid px (local correlation plateau width) — flag retained, adjacent gutters stay excluded",
    "measured_line_pitch": {
     "pitch_grid_px": 131.6,
     "autocorr": 0.394
@@ -254,7 +254,7 @@
    ],
    "transcription": "text",
    "max_attested_line": 10,
-   "note": "cross-strip bbox refined 2026-07-19 by local junction-window registration (edge windows re-fit at fine step; corrections +66/-94 close the inter-strip gap to <35 px and land the width on the neighbor trend); uncertainty MEASURED at \u00b190 grid px (local correlation plateau width) \u2014 flag retained, adjacent gutters stay excluded",
+   "note": "cross-strip bbox refined 2026-07-19 by local junction-window registration (edge windows re-fit at fine step; corrections +66/-94 close the inter-strip gap to <35 px and land the width on the neighbor trend); uncertainty MEASURED at ±90 grid px (local correlation plateau width) — flag retained, adjacent gutters stay excluded",
    "measured_line_pitch": {
     "pitch_grid_px": 131.6,
     "autocorr": 0.48
@@ -362,7 +362,7 @@
  ],
  "coordinate_frame": "merged tifxyz grid (2061x30097), scale 0.05 of the full-resolution flattening; multiply by 20 for full-res px",
  "derivation": "column brackets from Angelotti et al. preprint p.3 figure strips (CC BY-NC 4.0), shape-registered to the merged tifxyz grid (strip tiling closure 3px/30097)",
- "uncertainty": "registration: template step 1 fig px ~ 4.7 grid px; same scale+dy recovered independently on all 3 strips; tiling closure 3 px over 30097. Cross-strip cols (9, 16) carry crop-gap slack, flagged. text_band derived from ink-pixel row distribution (2-98 pctile) in the source strip per column; for cross-strip cols it uses the first strip only; traces cols have sparse ink so their bands are weak evidence. 2026-07-19: cols 9/16 refined by local junction-window registration; control windows show the registration's intrinsic local wobble is \u00b140-90 grid px (broad plateaus), so per-column edges carry ~\u00b190 even where unflagged-adjacent; the GLOBAL frame stays anchored by the 3-px tiling closure.",
+ "uncertainty": "registration: template step 1 fig px ~ 4.7 grid px; same scale+dy recovered independently on all 3 strips (BUT SEE the per-strip scale discrepancy noted below, 2026-08-27); tiling closure 3 px over 30097. Cross-strip cols (9, 16) carry crop-gap slack, flagged. text_band derived from ink-pixel row distribution (2-98 pctile) in the source strip per column; for cross-strip cols it uses the first strip only; traces cols have sparse ink so their bands are weak evidence. 2026-07-19: cols 9/16 refined by local junction-window registration; control windows show the registration's intrinsic local wobble is ±40-90 grid px (broad plateaus), so per-column edges carry ~±90 even where unflagged-adjacent; the GLOBAL frame stays anchored by the 3-px tiling closure. 2026-08-27 PER-STRIP SCALE DISCREPANCY, unresolved: registered column width is flat inside each strip and steps at the boundaries -- 51.3 +/- 0.4 mm (cols 2-8), 52.9 +/- 0.1 mm (10-15), 58.6 +/- 1.4 mm (17-22), so strip 3 is 1.14x strip 1 (permutation p < 0.0001; a per-strip-constant model fits 3x better than a linear trend, RSS 12.2 vs 38.5). A scribe's column width can drift along a roll but cannot step at exactly the two points where a modern figure was cropped, so the step is ours. Likely cause: the three strips are not at one magnification (strips 1 and 2 carry 8 columns each, strip 3 carries 6; equal page widths would imply 8/6 = 1.33x). NOTE the tiling closure cited above CANNOT rule this out -- it constrains total length, so per-strip errors in opposite directions cancel. TREAT PER-COLUMN BOUNDARIES IN COLS 17-22 AS SUSPECT at the ~14% level. The GLOBAL transform is unaffected: the valid mask inside the 22 boxes totals 867 cm2 against the ~860 cm2 of preserved writing surface in the published reading, a 1.01x match on a constraint that is quadratic in scale. Analysis: github.com/jonmarrs/vesuvius-autoresearch reports/column_width_by_strip.txt and reports/column_registration_external_audit.md",
  "transcription_provenance": "Angelotti et al. preprint transcription pp. 22-27 (scrollprize.org/pdf/main.pdf), CC BY-NC 4.0; parsed 2026-07-18; max_attested_line is a LOWER BOUND on preserved lines (from printed line-number markers; only every 5th line is numbered), not an exact count",
  "line_pitch_note": "measured_line_pitch derives from the ink row-profile of the preprint figure strips (same CC BY-NC provenance as the bboxes); well-preserved text columns cluster at 108-132 grid px (median ~120); values on low-ink/fragmentary columns are unreliable"
 }

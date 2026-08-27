@@ -289,6 +289,33 @@ region-AUC granularity (~0.58 at n=18 vs 17); the disclosed geometry-oracle ceil
 [gate-validated renderer](https://github.com/jonmarrs/vesuvius-autoresearch/blob/main/docs/SURFACE_RENDERER.md)
 (clean-triple NCC 0.78 on this very scroll).
 
+> ### ⚠ 2026-08-27 — per-column boundaries in cols 17-22 are suspect (the global transform is not)
+>
+> Registered column width is flat inside each figure strip and steps at the boundaries:
+> **51.3 ± 0.4 mm** (cols 2-8), **52.9 ± 0.1 mm** (10-15), **58.6 ± 1.4 mm** (17-22). Strip 3 is
+> **1.14×** strip 1, permutation p < 0.0001, and a per-strip-constant model fits three times better
+> than a single linear trend. A scribe's column width can drift along a roll, but it cannot step at
+> exactly the two points where a modern figure was cropped into rows, so the step is ours.
+>
+> Likely cause: the three strips are not at one magnification. Strips 1 and 2 carry 8 columns each
+> and strip 3 carries 6, so equal page widths would imply 8/6 = 1.33×; the observed 1.14× sits
+> between that and unity.
+>
+> **The tiling closure this target cites (3 px over 30,097) cannot rule this out.** Closure
+> constrains total length, so per-strip scale errors in opposite directions cancel and leave it
+> intact. It is blind to exactly this.
+>
+> **What still holds.** The global scale and placement are corroborated by a figure the fit never
+> saw: the valid mask inside the 22 boxes totals **867 cm²** against the **~860 cm²** of preserved
+> writing surface in the published reading — a 1.01× match, on a constraint that is quadratic in
+> scale. The 22-column count matches exactly. `col_gutter_auc` is also unaffected as a *metric*: a
+> separate calibration shows it detects a column-concentrated signal at 0.25× the background noise.
+>
+> **What to do with it.** Region-level scores over the whole target remain usable. Do not rely on
+> individual column boundaries in cols 17-22, and treat per-column comparisons there as carrying a
+> ~14% width uncertainty. Unresolved; it needs either the preprint figure re-measured per strip or
+> a per-strip refit.
+
 **What this costs you as a user.** The column family has exactly one target,
 `pherc1667_merged_columns`. Like the single target the pixel family is down to above, a
 single target cannot separate model quality from target idiosyncrasy — this scroll's

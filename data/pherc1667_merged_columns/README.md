@@ -53,3 +53,21 @@ uv run python -m repro.sota_data.render_cli \
 column's periodicity but no gutters (n too small for `col_gutter_auc`) — meaningful
 rows need multi-column extents; the full band is the definitive protocol. Include your
 prediction map with any submitted row.
+
+## ⚠ 2026-08-27 — per-strip scale discrepancy, unresolved
+
+Column width steps at the figure-strip boundaries: 51.3 ± 0.4 mm (cols 2-8), 52.9 ± 0.1 mm
+(10-15), 58.6 ± 1.4 mm (17-22). Strip 3 is 1.14x strip 1, permutation p < 0.0001. The step aligns
+with where the source figure was cropped, not with anything the scribe did, so per-column
+boundaries in cols 17-22 carry roughly 14% width uncertainty.
+
+The tiling closure quoted in `meta.json` cannot rule this out: it constrains total length, so
+per-strip errors in opposite directions cancel.
+
+The global transform is unaffected. The valid mask inside the 22 boxes totals 867 cm2 against the
+~860 cm2 of preserved writing surface in the published reading, a 1.01x match on a constraint that
+is quadratic in scale, and the 22-column count matches exactly.
+
+Region-level scoring over the whole target remains usable. Per-column comparisons in cols 17-22 do
+not. Analysis: github.com/jonmarrs/vesuvius-autoresearch, `reports/column_width_by_strip.txt`.
+
