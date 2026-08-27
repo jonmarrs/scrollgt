@@ -14,8 +14,9 @@ from .score import markdown_report, score_prediction
 def main(argv=None):
     parser = argparse.ArgumentParser(
         prog="scrollgt",
-        description="Score ink predictions against registered human ground truth "
-        "on the open Vesuvius SOTA scroll data.",
+        description="Score predictions against human ground truth on the open Vesuvius "
+        "scroll data: ink targets, column-level reading targets, and fiber "
+        "connectivity targets.",
     )
     sub = parser.add_subparsers(dest="cmd", required=True)
 

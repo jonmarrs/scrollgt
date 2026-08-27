@@ -7,6 +7,25 @@
 targets, column-level reading targets, and fiber connectivity targets, each with anti-gaming
 floors and our own negative results published.**
 
+**Jump to what you came for.** Three independent target families; you probably want one of them:
+
+| you want to score | command | jump to | needs |
+|---|---|---|---|
+| a **fiber tracer**'s instance labelling | `scrollgt score-fibers` | [Fiber connectivity targets](#fiber-connectivity-targets-v03-can-your-tracer-hold-one-fibers-identity) | nothing but this repo |
+| an **ink** probability map | `scrollgt score` | [Quickstart](#quickstart) | a prediction over the target region |
+| **column-level** reading on PHerc 1667 | `scrollgt score-columns` | [Column-level targets](#column-level-targets-v02-preview-pherc-1667-merged-geometry) | a prediction at grid resolution |
+
+Cold clone to a scored fiber cube is about a minute, most of it `pip install`:
+
+```bash
+git clone https://github.com/jonmarrs/scrollgt && cd scrollgt
+python3 -m venv .venv && .venv/bin/pip install -e .
+.venv/bin/scrollgt score-fibers labels.npy data/fibers_s1_00497_01497_03997_256
+```
+
+No GPU, no model download, no network: every target ships its own ground truth. The retraction
+notice below concerns the **ink** family only and does not touch the fiber or column targets.
+
 > ## ⚠ 2026-08-07 — the held-out target was misregistered. It is fixed, and the headline result REVERSES.
 >
 > **What was wrong.** The held-out label was built with a hardcoded `LEVEL0_SHAPE` belonging
