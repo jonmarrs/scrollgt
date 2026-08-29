@@ -31,8 +31,8 @@ floors and our own negative results published.**
 | an **ink** probability map | `scrollgt score` | [Quickstart](#quickstart) | a prediction over the target region |
 | **column-level** reading on PHerc 1667 | `scrollgt score-columns` | [Column-level targets](#column-level-targets-v02-preview-pherc-1667-merged-geometry) | a prediction at grid resolution |
 
-Cold clone to a scored fiber cube is about **30 seconds**, measured end to end (21s clone plus
-install, the rest scoring).
+Cold clone to a scored fiber cube is **30 to 40 seconds**, measured end to end over three runs
+(clone plus install is ~22s of it; the spread is network).
 No inputs of your own required:
 
 ```bash
