@@ -7,6 +7,22 @@
 targets, column-level reading targets, and fiber connectivity targets, each with anti-gaming
 floors and our own negative results published.**
 
+> **v0.3.1 — floors now ship with every score, in all three families.** `score`, `score-columns`
+> and `score-fibers` each compute the trivial predictors against the target you are scoring and
+> return them in a `floors` block, so a number never travels without the bar it has to clear.
+> Previously only the fiber family did this. Computed at scoring time from the target itself,
+> never hardcoded, so a floor cannot drift away from the target it belongs to.
+>
+> | family | floors reported |
+> |---|---|
+> | ink (`score`) | all-positive, constant 0.5, uniform random |
+> | columns (`score-columns`) | constant 0.5, papyrus mask, uniform random |
+> | fibers (`score-fibers`) | single instance, one-per-voxel, connected components, 50 random |
+>
+> Writing this caught an error in our own README, corrected below: 0.518 was described as the
+> all-positive floor. The computed floor is **0.5000**, exactly, because an all-positive
+> prediction is constant and a constant predictor's ROC-AUC is 0.5 by definition.
+
 **Jump to what you came for.** Three independent target families; you probably want one of them:
 
 | you want to score | command | jump to | needs |
@@ -112,7 +128,12 @@ one. What it actually establishes today:
 - the **released canon prediction** reads the held-out segment at ROC-AUC **0.753**;
 - our **distilled students**, never trained on it, read it at **0.731–0.746** (AP-lift
   2.3–2.4) — genuine held-out generalization, not the chance result we published;
-- the **all-positive floor** sits at 0.518, so those numbers are above a real baseline;
+- the **legacy detector**, which behaves near-constantly, sits at 0.518, so those numbers are
+  above a real baseline. (Corrected 2026-08-29: this line previously called 0.518 "the
+  all-positive floor". A genuinely all-positive prediction is *constant*, and a constant
+  predictor's ROC-AUC is exactly 0.5 by definition. `scrollgt score` now computes and
+  reports that floor with every score, and it is **0.5000**. The 0.518 belongs to a real
+  near-constant model, not to the trivial floor.);
 - **a tight registration residual is not a placement check** — the ~8-voxel residual we
   cited as evidence of correct alignment coexisted with a ~1766-voxel displacement. Every
   target is now gated on agreement peaking at zero shift, not on residual alone;
