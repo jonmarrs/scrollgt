@@ -7,7 +7,7 @@ import sys
 from .columns import score_columns
 from .compliance import check_submission
 from .fibers.report import fiber_markdown_report
-from .fibers.target import score_fiber_prediction
+from .fibers.target import DEMO_FLOORS, score_fiber_prediction
 from .score import markdown_report, score_prediction
 
 
@@ -52,13 +52,19 @@ def main(argv=None):
         help="score a fiber instance labelling against hand-traced ground truth "
              "(ERL, splits, merges, and the anti-gaming floors)",
     )
-    p_fib.add_argument("prediction",
-                       help="instance labels (.npy of ints, 0 = background, cube-shaped)")
+    p_fib.add_argument("prediction", nargs="?", default=None,
+                       help="instance labels (.npy of ints, 0 = background, cube-shaped); "
+                            "omit it and pass --floor to run with no inputs")
     p_fib.add_argument("target", help="fiber target directory (data/fibers_<cube>)")
     p_fib.add_argument("--recompute-floors", action="store_true",
                        help="recompute the floors from the shipped mask instead of "
                             "reading the published values (~50 s for a 256 cube, "
                             "several minutes for a 512 cube)")
+    p_fib.add_argument("--floor", default=None,
+                       choices=sorted(DEMO_FLOORS),
+                       help="score a built-in floor synthesised from the target's own "
+                            "mask instead of a prediction file. Requires no inputs, so "
+                            "it is what the quickstart runs.")
     p_fib.add_argument("--json-out", default=None, help="write the scorecard JSON here")
 
     p_check = sub.add_parser("check", help="prize-compliance pre-check (window + overlap)")
@@ -105,8 +111,12 @@ def main(argv=None):
         return 0
 
     if args.cmd == "score-fibers":
+        if (args.prediction is None) == (args.floor is None):
+            parser.error("give exactly one of: a prediction file, or --floor "
+                         f"{{{','.join(sorted(DEMO_FLOORS))}}}")
         card = score_fiber_prediction(args.prediction, args.target,
-                                      recompute_floors=args.recompute_floors)
+                                      recompute_floors=args.recompute_floors,
+                                      floor=args.floor)
         print(fiber_markdown_report(card))
         if args.json_out:
             with open(args.json_out, "w") as f:

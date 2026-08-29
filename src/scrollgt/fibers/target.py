@@ -110,7 +110,21 @@ def _floor_rows(skeleton, mask, tolerance) -> dict:
     }
 
 
-def score_fiber_prediction(labels_path, target_dir, recompute_floors: bool = False) -> dict:
+# The floors double as a zero-input demo. A cold reader following the quickstart
+# had no `labels.npy` and hit a numpy traceback on their first command, which is
+# the worst possible place for one: the front door of a tool whose whole purpose
+# is that other people run it. `--floor` synthesises a prediction from the
+# target's own mask so there is always something runnable with no inputs at all.
+DEMO_FLOORS = {
+    "connected_components": floor_connected_components,
+    "single_instance": floor_single_instance,
+    "voxel_instances": floor_voxel_instances,
+    "random_instances": floor_random_instances,
+}
+
+
+def score_fiber_prediction(labels_path, target_dir, recompute_floors: bool = False,
+                           floor: str | None = None) -> dict:
     """Score an instance labelling (.npy of ints, 0 = background) against a target.
 
     Floors come from the target's published meta.json by default. Recomputing
@@ -121,7 +135,22 @@ def score_fiber_prediction(labels_path, target_dir, recompute_floors: bool = Fal
     on every run.
     """
     skeleton, mask, meta = load_fiber_target(target_dir)
-    labels = np.load(str(labels_path))
+    if floor is not None:
+        if floor not in DEMO_FLOORS:
+            raise ValueError(
+                f"unknown floor {floor!r}; choose one of {sorted(DEMO_FLOORS)}")
+        labels = DEMO_FLOORS[floor](mask)
+    else:
+        if not os.path.exists(str(labels_path)):
+            raise FileNotFoundError(
+                f"no prediction file at {labels_path!r}.\n"
+                "score-fibers scores YOUR tracer's instance labelling: a .npy of "
+                "integer instance ids (0 = background) shaped exactly like the cube "
+                f"in meta.json (shape={meta.get('shape')}).\n"
+                "To see the tool run with no inputs at all, score a built-in floor:\n"
+                f"    scrollgt score-fibers --floor connected_components {target_dir}"
+            )
+        labels = np.load(str(labels_path))
     if labels.shape != mask.shape:
         raise ValueError(
             f"prediction shape {labels.shape} != cube shape {mask.shape}; "
@@ -150,7 +179,10 @@ def score_fiber_prediction(labels_path, target_dir, recompute_floors: bool = Fal
 
     return {
         "target": meta.get("target_id", os.path.basename(os.path.normpath(target_dir))),
-        "prediction": os.path.basename(str(labels_path)),
+        # Name the floor when there is no file, so a demo run does not report
+        # its prediction as "None".
+        "prediction": (f"floor:{floor} (demo, no prediction file)" if floor is not None
+                       else os.path.basename(str(labels_path))),
         "split": meta.get("split", "primary"),
         "tolerance": tolerance,
         # ERL is a length statistic, so a score means nothing without the ceiling for

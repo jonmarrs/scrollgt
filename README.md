@@ -31,13 +31,30 @@ floors and our own negative results published.**
 | an **ink** probability map | `scrollgt score` | [Quickstart](#quickstart) | a prediction over the target region |
 | **column-level** reading on PHerc 1667 | `scrollgt score-columns` | [Column-level targets](#column-level-targets-v02-preview-pherc-1667-merged-geometry) | a prediction at grid resolution |
 
-Cold clone to a scored fiber cube is about a minute, most of it `pip install`:
+Cold clone to a scored fiber cube is about **30 seconds**, measured end to end (21s clone plus
+install, the rest scoring).
+No inputs of your own required:
 
 ```bash
 git clone https://github.com/jonmarrs/scrollgt && cd scrollgt
 python3 -m venv .venv && .venv/bin/pip install -e .
+.venv/bin/scrollgt score-fibers --floor connected_components data/fibers_s1_00497_01497_03997_256
+```
+
+That scores a built-in floor synthesised from the target's own mask, so it runs with nothing
+but the repo and prints a full scorecard. To score **your** tracer, pass its labelling instead
+of `--floor`: a `.npy` of integer instance ids, 0 = background, shaped exactly like the cube in
+the target's `meta.json`.
+
+```bash
 .venv/bin/scrollgt score-fibers labels.npy data/fibers_s1_00497_01497_03997_256
 ```
+
+> Corrected 2026-08-29. The quickstart previously showed only the second command, which fails
+> with a `FileNotFoundError` on a cold clone because `labels.npy` is a file *you* supply and the
+> text never said so. The claim "cold clone to a scored fiber cube is about a minute" was
+> therefore untestable as written: clone and install worked, the scoring command could not. Found
+> by running the quickstart literally in a clean directory, which had never been done.
 
 No GPU, no model download, no network: every target ships its own ground truth. The retraction
 notice below concerns the **ink** family only and does not touch the fiber or column targets.
