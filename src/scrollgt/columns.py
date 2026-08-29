@@ -90,10 +90,10 @@ def _line_period_peak(prob, valid, origin, y0, y1, x0, x1, pitch_lo, pitch_hi):
     return best
 
 
-def score_columns(pred_path, target_dir, origin=(0, 0)):
-    """Score a prediction against a column-level target. Returns the scorecard."""
-    meta, columns, valid = load_column_target(target_dir)
-    prob = load_probability_map(pred_path)
+def score_columns_array(prob, meta, columns, valid, origin=(0, 0)):
+    """Score an in-memory prediction. Split out from `score_columns` so the floors
+    below can be scored by the same code path as a real submission, rather than by
+    a reimplementation that could drift from it."""
     pitch_lo, pitch_hi = meta.get("line_pitch_range", [60, 220])
 
     scored = []          # columns fully inside the extent, with region stats
@@ -172,10 +172,58 @@ def score_columns(pred_path, target_dir, origin=(0, 0)):
     per_col = [{k: c[k] for k in ("col", "status", "mean", "line_period_peak")}
                for c in scored]
     return {
-        "target": meta.get("target_id", os.path.basename(os.path.normpath(target_dir))),
-        "prediction": os.path.basename(pred_path),
-        "granularity": "column (no pixel GT exists for this target — see meta.json)",
         "metrics": metrics,
         "per_column": per_col,
         "gutters": [{"between": g["between"], "mean": g["mean"]} for g in gutters],
     }
+
+
+# Floors: what a column prediction must beat before its number means anything.
+#
+# The fiber family has shipped floors since v0.3 and it is the one part of this
+# repository an outside reader has said they would copy. Column scoring published
+# a bare AUC, so a reader had to find the README to learn that the papyrus mask
+# already scores 0.5 because gutters are papyrus too.
+#
+# Scored through `score_columns_array`, the same path a real submission takes.
+COLUMN_FLOOR_LABELS = {
+    "floor_constant": "predict 0.5 everywhere",
+    "floor_papyrus_mask": "predict the target's own valid mask",
+    "floor_uniform_random": "uniform random, seed 0",
+}
+
+
+def column_floors(meta, columns, valid, origin=(0, 0), seed=0):
+    """Score the trivial predictors against this target, at scoring time."""
+    shape = np.asarray(valid).shape
+    preds = {
+        "floor_constant": np.full(shape, 0.5, dtype=np.float32),
+        "floor_papyrus_mask": np.asarray(valid).astype(np.float32),
+        "floor_uniform_random": np.random.default_rng(seed).random(shape).astype(np.float32),
+    }
+    out = {}
+    for name, pred in preds.items():
+        m = score_columns_array(pred, meta, columns, valid, origin)["metrics"]
+        out[name] = {
+            "what": COLUMN_FLOOR_LABELS[name],
+            "col_gutter_auc": m.get("col_gutter_auc"),
+            "col_gutter_pixel_auc": m.get("col_gutter_pixel_auc"),
+        }
+    return out
+
+
+def score_columns(pred_path, target_dir, origin=(0, 0), with_floors=True):
+    """Score a prediction file against a column-level target. Returns the scorecard."""
+    meta, columns, valid = load_column_target(target_dir)
+    prob = load_probability_map(pred_path)
+    core = score_columns_array(prob, meta, columns, valid, origin)
+    out = {
+        "target": meta.get("target_id", os.path.basename(os.path.normpath(target_dir))),
+        "prediction": os.path.basename(pred_path),
+        "granularity": "column (no pixel GT exists for this target — see meta.json)",
+        **core,
+    }
+    if with_floors:
+        # Always beside the score, never only in the README.
+        out["floors"] = column_floors(meta, columns, valid, origin)
+    return out

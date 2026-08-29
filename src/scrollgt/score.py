@@ -52,6 +52,49 @@ def load_target(target_dir):
     return gt_bin, mask, meta
 
 
+
+# Floors: what a model must beat before a number means anything.
+#
+# The fiber family has shipped these since v0.3 and it is the one piece of this
+# repository an outside reader has said they would copy. Ink and column scoring
+# published a bare number, so a reader had to find the README to learn that an
+# all-positive prediction already scores 0.518 here. A score that travels
+# without its floor invites exactly the over-reading this benchmark exists to
+# prevent, and we have made that mistake ourselves.
+#
+# Computed from the target at scoring time, never hardcoded, so a floor cannot
+# drift away from the target it belongs to.
+FLOOR_LABELS = {
+    "floor_all_positive": "predict 1.0 everywhere",
+    "floor_constant": "predict 0.5 everywhere",
+    "floor_uniform_random": "uniform random, seed 0",
+}
+
+
+def ink_floors(gt, mask, seed=0):
+    """Score the trivial predictors against this target's own ground truth."""
+    out = {}
+    shape = np.asarray(gt).shape
+    preds = {
+        "floor_all_positive": np.ones(shape, dtype=np.float32),
+        "floor_constant": np.full(shape, 0.5, dtype=np.float32),
+        "floor_uniform_random": np.random.default_rng(seed)
+        .random(shape)
+        .astype(np.float32),
+    }
+    for name, pred in preds.items():
+        card = segmentation_metrics(pred, gt, mask)
+        card.pop("metrics_by_threshold", None)
+        out[name] = {
+            "what": FLOOR_LABELS[name],
+            "roc_auc": card.get("roc_auc"),
+            "average_precision": card.get("average_precision"),
+            "ap_prevalence_lift": card.get("ap_prevalence_lift"),
+            "val_f1": card.get("val_f1"),
+        }
+    return out
+
+
 def score_prediction(pred_path, target_dir, allow_failing_placement=False,
                      allow_non_scoring=False):
     """Score one prediction file against one target directory. Returns the scorecard.
@@ -115,6 +158,8 @@ def score_prediction(pred_path, target_dir, allow_failing_placement=False,
         },
         "scoring_enabled": scoring.get("enabled", True),
         "metrics": card,
+        # Always beside the score, never only in the README.
+        "floors": ink_floors(gt, mask),
     }
     if placement.get("offset_mm"):
         out["registration"]["resolution_note"] = (
