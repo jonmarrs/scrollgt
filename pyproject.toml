@@ -1,6 +1,6 @@
 [project]
 name = "scrollgt"
-version = "0.3.1"
+version = "0.3.2"
 description = "ScrollGT: registered human ground-truth ink evaluation for the open Vesuvius Challenge SOTA scroll data"
 readme = "README.md"
 license = { text = "MIT" }

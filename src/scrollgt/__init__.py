@@ -5,7 +5,7 @@ from .compliance import check_submission, window_compliant
 from .metrics import segmentation_metrics
 from .score import load_probability_map, load_target, score_prediction
 
-__version__ = "0.3.1"
+__version__ = "0.3.2"
 __all__ = [
     "segmentation_metrics",
     "score_prediction",
