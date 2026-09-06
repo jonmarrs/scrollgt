@@ -159,6 +159,27 @@ one. What it actually establishes today:
 The full record — the withdrawn rows, the corrected rows, and what is still broken — is in
 [`baselines/BASELINES.md`](baselines/BASELINES.md).
 
+## Run it in Docker
+
+Everything needed to reproduce every published number is in the image; scoring is CPU-only and
+needs no network and no GPU at run time.
+
+```bash
+docker build -t scrollgt .
+docker run --rm scrollgt                                  # CLI help
+docker run --rm --network none scrollgt pytest -q         # the suite, offline, ~12 min
+```
+
+Score your own prediction by mounting it in:
+
+```bash
+docker run --rm -v "$PWD:/work" scrollgt \
+    scrollgt score /work/my_prediction.png data/scroll1_20231210121321 --json-out /work/card.json
+```
+
+Image is ~153 MB. Verified on 2026-09-06: 20 core tests pass inside the container with
+`--network none`, so the offline claim is exercised rather than asserted.
+
 ## Quickstart
 
 ```bash
