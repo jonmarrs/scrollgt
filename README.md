@@ -177,8 +177,14 @@ docker run --rm -v "$PWD:/work" scrollgt \
     scrollgt score /work/my_prediction.png data/scroll1_20231210121321 --json-out /work/card.json
 ```
 
-Image is ~153 MB. Verified on 2026-09-06: 20 core tests pass inside the container with
-`--network none`, so the offline claim is exercised rather than asserted.
+Image is **~660 MB**. Verified 2026-09-13: **all 206 tests pass inside the container with
+`--network none`** in 8m02s, so the offline claim is exercised rather than asserted.
+
+*Both figures here were wrong until 2026-09-13.* The size read ~153 MB, which is what
+`docker image inspect .Size` reports; `docker images` and `docker history` both say ~660 MB, and
+660 MB is what someone following the build command above actually sees. And the offline check cited
+20 core tests from an earlier spot-check while sitting directly beneath a command that runs the whole
+suite — understating what is verifiable. Measured, not inferred, both times.
 
 ## Quickstart
 
