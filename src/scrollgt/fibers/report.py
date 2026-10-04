@@ -3,7 +3,7 @@
 Three rules are enforced by construction rather than left to the caller: both ERL
 variants always appear together, the tolerance always appears, and the cube's size class
 appears with that class's oracle ERL. Raw ERL alone is gameable -- labelling an entire
-cube as one instance scores within 23% of the oracle -- so a card showing one number
+cube as one instance scores within 20% of the oracle -- so a card showing one number
 without the other would be actively misleading. The class matters for the same reason:
 ERL is expected run length in voxels, so a 512 cube scores roughly double a 256 cube for
 purely geometric reasons, and a score read against the wrong ceiling is read wrong.

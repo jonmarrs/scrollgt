@@ -249,29 +249,33 @@ them, so their tracer/cc columns are marked `—` rather than guessed at.
 **Connected components is a strong baseline, and our own tracer does not beat it** — losing on
 raw ERL and on merge-penalized ERL, on every cube it has been scored against.
 
+Oracle, floor and cc numbers were rescored after the scorer started walking each fiber's edges
+in path order (stored edge rows are not in path order, which used to count spurious splits).
+The tracer columns are from before that change and have not been rescored yet.
+
 ### 256³ cubes (n=8)
 
 | cube | split | oracle ERL | tracer ERL | cc ERL | tracer ERLpen | cc ERLpen | tracer coverage |
 |---|---|---|---|---|---|---|---|
-| s1_00497_01497_03997 | primary | 258.27 | 26.6 | 197.1 | 23.2 | 37.1 | 0.623 |
-| s1_00497_02497_02997 | primary | 222.06 | 45.8 | 207.5 | 33.6 | 64.3 | 0.704 |
-| s1_00997_02497_02997 | primary | 243.82 | 36.3 | 195.8 | 29.8 | 56.5 | 0.605 |
-| s1_08997_02997_02497 | primary | 261.63 | 34.1 | 186.5 | 30.8 | 106.1 | 0.671 |
-| s1_10997_02997_02997 | primary | 245.23 | 37.4 | 194.1 | 34.2 | 57.7 | 0.616 |
-| s5_03997_01497_03997 | cross_scroll | 255.78 | 31.5 | 182.2 | 25.4 | 51.1 | 0.623 |
-| s5_07997_02997_05497 | cross_scroll | 254.69 | — | — | — | — | — |
-| s5_14997_01497_01497 | cross_scroll | 248.95 | — | — | — | — | — |
+| s1_00497_01497_03997 | primary | 247.84 | 26.6 | 200.5 | 23.2 | 37.1 | 0.623 |
+| s1_00497_02497_02997 | primary | 219.38 | 45.8 | 213.4 | 33.6 | 65.4 | 0.704 |
+| s1_00997_02497_02997 | primary | 243.56 | 36.3 | 205.9 | 29.8 | 60.8 | 0.605 |
+| s1_08997_02997_02497 | primary | 257.43 | 34.1 | 201.5 | 30.8 | 112.2 | 0.671 |
+| s1_10997_02997_02997 | primary | 244.10 | 37.4 | 200.8 | 34.2 | 58.2 | 0.616 |
+| s5_03997_01497_03997 | cross_scroll | 236.56 | 31.5 | 182.3 | 25.4 | 54.2 | 0.623 |
+| s5_07997_02997_05497 | cross_scroll | 250.55 | — | — | — | — | — |
+| s5_14997_01497_01497 | cross_scroll | 242.23 | — | — | — | — | — |
 
 ### 512³ cubes (n=3)
 
 | cube | split | oracle ERL | tracer ERL | cc ERL | tracer ERLpen | cc ERLpen | tracer coverage |
 |---|---|---|---|---|---|---|---|
-| s5_06494_01994_03994 | cross_scroll | 507.01 | — | — | — | — | — |
-| s5_06994_00994_04994 | cross_scroll | 513.32 | — | — | — | — | — |
-| s5_07994_01994_05494 | cross_scroll | 497.52 | — | — | — | — | — |
+| s5_06494_01994_03994 | cross_scroll | 499.86 | — | — | — | — | — |
+| s5_06994_00994_04994 | cross_scroll | 507.25 | — | — | — | — | — |
+| s5_07994_01994_05494 | cross_scroll | 491.18 | — | — | — | — | — |
 
-Note the 512³ oracle ERLs (497.52–513.32) against the 256³ oracle ERLs (222.06–261.63): almost
-exactly double, which is the geometric effect above, not a difference in fiber quality between
+Note the 512³ oracle ERLs (491.18–507.25) against the 256³ oracle ERLs (219.38–257.43): roughly
+double, which is the geometric effect above, not a difference in fiber quality between
 cubes.
 
 Fragmentation is the cause of the tracer's loss on the six scored cubes. The tracer finds the
@@ -288,15 +292,15 @@ separate them. On `s1_00497_01497_03997`:
 
 | labelling | ERL | ERLpen | coverage | precision | splits | merges | n inst |
 |---|---|---|---|---|---|---|---|
-| *oracle (disclosed)* | *258.27* | *239.46* | *1.0000* | *1.0000* | *14* | *7* | *87* |
-| floor: one instance for everything | 199.18 | **0.00** | 0.9177 | 0.2194 | 243 | 86 | 1 |
-| floor: connected components | 197.11 | 37.13 | 0.9177 | 0.2194 | 265 | 66 | 299 |
-| floor: one instance per voxel | 0.94 | 0.94 | 0.9177 | 0.2194 | 23406 | 7 | 1005366 |
-| floor: 50 random instances | 0.98 | **0.00** | 0.9177 | 0.2194 | 22937 | 4125 | 50 |
+| *oracle (disclosed)* | *247.84* | *229.29* | *1.0000* | *1.0000* | *14* | *7* | *87* |
+| floor: one instance for everything | 200.52 | **0.00** | 0.9177 | 0.2194 | 130 | 86 | 1 |
+| floor: connected components | 200.47 | 37.09 | 0.9177 | 0.2194 | 131 | 66 | 299 |
+| floor: one instance per voxel | 1.07 | 1.06 | 0.9177 | 0.2194 | 20984 | 7 | 1005366 |
+| floor: 50 random instances | 1.10 | **0.00** | 0.9177 | 0.2194 | 20568 | 4125 | 50 |
 
 A benchmark reporting coverage and precision alone cannot distinguish a correct tracer from
-`numpy.random`. Raw ERL alone is gameable too: labelling everything once scores 199.18 against an
-oracle's 258.27 — within 23% — while its merge-penalized ERL is exactly 0.00. **Both ERL and the
+`numpy.random`. Raw ERL alone is gameable too: labelling everything once scores 200.52 against an
+oracle's 247.84 — within 20% — while its merge-penalized ERL is exactly 0.00. **Both ERL and the
 merge count are required**, which is why `scrollgt score-fibers` never prints one without the
 other. The claim is pinned by `tests/test_fiber_gaming.py`, so a change that breaks it fails CI.
 
