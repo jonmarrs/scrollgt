@@ -45,6 +45,7 @@
   },
   "floors": {
     "oracle": {
+      "scoring_version": 2,
       "erl": 491.18,
       "erl_merge_penalized": 466.0,
       "coverage": 1.0,
@@ -59,6 +60,7 @@
       "tolerance": 2.0
     },
     "floor_single_instance": {
+      "scoring_version": 2,
       "erl": 259.07,
       "erl_merge_penalized": 0.0,
       "coverage": 0.8223,
@@ -73,6 +75,7 @@
       "tolerance": 2.0
     },
     "floor_connected_components": {
+      "scoring_version": 2,
       "erl": 258.83,
       "erl_merge_penalized": 17.02,
       "coverage": 0.8223,
@@ -87,6 +90,7 @@
       "tolerance": 2.0
     },
     "floor_voxel_instances": {
+      "scoring_version": 2,
       "erl": 1.1,
       "erl_merge_penalized": 1.1,
       "coverage": 0.8223,
@@ -101,6 +105,7 @@
       "tolerance": 2.0
     },
     "floor_random_instances": {
+      "scoring_version": 2,
       "erl": 1.13,
       "erl_merge_penalized": 0.0,
       "coverage": 0.8223,
@@ -114,5 +119,7 @@
       "pred_length": 7503023.0,
       "tolerance": 2.0
     }
-  }
+  },
+  "floors_scoring_version": 2,
+  "floors_not_recomputed": []
 }
