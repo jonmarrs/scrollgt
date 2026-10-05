@@ -38,6 +38,18 @@ import numpy as np
 
 from .skeleton_io import Skeleton
 
+# Bump whenever a score can change for the same input. Each target's meta.json records the
+# version its published floors were computed with, and scoring refuses to compare a score
+# with floors from another version.
+# 1: runs read in stored edge-row order (ScrollGT <= 0.3.2). One reshuffle of a shipped
+#    ground truth's rows moved a published floor by up to 25%.
+# 2: edges walked in path order, runs ending at stretch boundaries (scrollgt PR #1,
+#    ScrollGT 0.4.0). Residual: at a branch node the walk continues to the lowest-index
+#    neighbour, so renumbering nodes moves a score slightly. Measured on the shipped data
+#    (5 random renumberings), the drift is within 0.02% on unbranched cubes and up to 2.8%
+#    on s5_03997_01497_03997_256, which holds 10 of the data's 31 branch nodes.
+SCORING_VERSION = 2
+
 
 @dataclass
 class ConnectivityScores:
@@ -60,6 +72,7 @@ class ConnectivityScores:
     def as_row(self) -> dict:
         """Flat dict for a leaderboard table; excludes the raw run lengths."""
         return {
+            "scoring_version": SCORING_VERSION,
             "erl": round(self.erl, 2),
             "erl_merge_penalized": round(self.erl_merge_penalized, 2),
             "coverage": round(self.coverage, 4),

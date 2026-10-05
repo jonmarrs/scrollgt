@@ -7,6 +7,26 @@
 targets, column-level reading targets, and fiber connectivity targets, each with anti-gaming
 floors and our own negative results published.**
 
+> **v0.4.0 — fiber scores corrected; every published fiber number changed.** Up to 0.3.2, fiber
+> scoring read runs in the order edge rows happen to be stored, not along the fiber, so a reshuffle
+> of the same ground truth's rows moved a published floor by up to 25%. Luke Finigan found and fixed
+> it in [scrollgt#1](https://github.com/jonmarrs/scrollgt/pull/1): edges are now walked in path
+> order, and a run ends where the fiber leaves the cube. All 11 targets were rescored:
+>
+> | published value | change |
+> |---|---|
+> | oracle ERL | −0.1% to −7.5% |
+> | connected-components ERL | +0.0% to +14.3% |
+> | connected-components splits | −20% to −57% |
+> | coverage | within 0.0003 |
+>
+> **A score from ≤ 0.3.2 is not comparable with these floors; re-score with 0.4.0.** Scores and
+> `meta.json` now carry `scoring_version` (2), and `score-fibers` refuses to read a score against
+> floors from another version. Our own tracer's rows were scored with version 1 and have not been
+> re-measured. One known residual: at the data's 31 branch nodes the walk takes the lowest-numbered
+> neighbour, so renumbering nodes moved a score by up to 2.8% on the most-branched cube
+> (`s5_03997_01497_03997_256`) and by under 0.02% on an unbranched one.
+
 > **v0.3.1 — floors now ship with every score, in all three families.** `score`, `score-columns`
 > and `score-fibers` each compute the trivial predictors against the target you are scoring and
 > return them in a `floors` block, so a number never travels without the bar it has to clear.

@@ -12,6 +12,7 @@ import os
 import numpy as np
 
 from .eval_trace import (
+    SCORING_VERSION,
     floor_connected_components,
     floor_random_instances,
     floor_single_instance,
@@ -170,6 +171,17 @@ def score_fiber_prediction(labels_path, target_dir, recompute_floors: bool = Fal
         floors = _floor_rows(skeleton, mask, tolerance)
         floors_source = "recomputed"
     else:
+        # Published floors are only comparable with a score from the same scorer. Version 1
+        # (ScrollGT <= 0.3.2) read runs in stored edge-row order, so its floors moved by up
+        # to 25% when the same ground truth's rows were reshuffled.
+        published_version = meta.get("floors_scoring_version", 1)
+        if published_version != SCORING_VERSION:
+            raise ValueError(
+                f"{target_dir}: the published floors in meta.json were computed with fiber "
+                f"scoring version {published_version}, but this scorer is version "
+                f"{SCORING_VERSION}, and their numbers are not comparable. Pass "
+                f"--recompute-floors, or use target data shipped with this release."
+            )
         floors = {k: v for k, v in meta.get("floors", {}).items()
                   if k.startswith("floor_")}
         floors_source = "published"
@@ -190,6 +202,7 @@ def score_fiber_prediction(labels_path, target_dir, recompute_floors: bool = Fal
         # look them up.
         "size_class": int(meta["size_class"]),
         "class_oracle_erl": meta.get("floors", {}).get("oracle", {}).get("erl"),
+        "scoring_version": SCORING_VERSION,
         "metrics": row,
         "floors": floors,
         "floors_source": floors_source,

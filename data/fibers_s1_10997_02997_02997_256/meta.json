@@ -45,6 +45,7 @@
   },
   "floors": {
     "oracle": {
+      "scoring_version": 2,
       "erl": 244.1,
       "erl_merge_penalized": 228.74,
       "coverage": 1.0,
@@ -59,6 +60,7 @@
       "tolerance": 2.0
     },
     "floor_single_instance": {
+      "scoring_version": 2,
       "erl": 200.76,
       "erl_merge_penalized": 0.0,
       "coverage": 0.8553,
@@ -73,6 +75,7 @@
       "tolerance": 2.0
     },
     "floor_connected_components": {
+      "scoring_version": 2,
       "erl": 200.76,
       "erl_merge_penalized": 58.23,
       "coverage": 0.8553,
@@ -87,6 +90,7 @@
       "tolerance": 2.0
     },
     "floor_voxel_instances": {
+      "scoring_version": 2,
       "erl": 1.05,
       "erl_merge_penalized": 1.05,
       "coverage": 0.8553,
@@ -101,6 +105,7 @@
       "tolerance": 2.0
     },
     "floor_random_instances": {
+      "scoring_version": 2,
       "erl": 1.09,
       "erl_merge_penalized": 0.0,
       "coverage": 0.8553,
@@ -126,7 +131,12 @@
       "n_pred_instances": 487,
       "gt_length": 19810.2,
       "pred_length": 175025.0,
-      "tolerance": 2.0
+      "tolerance": 2.0,
+      "scoring_version": 1
     }
-  }
+  },
+  "floors_scoring_version": 2,
+  "floors_not_recomputed": [
+    "tracer_strict_relink"
+  ]
 }

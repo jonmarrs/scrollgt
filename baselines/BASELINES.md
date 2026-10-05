@@ -251,7 +251,8 @@ raw ERL and on merge-penalized ERL, on every cube it has been scored against.
 
 Oracle, floor and cc numbers were rescored after the scorer started walking each fiber's edges
 in path order (stored edge rows are not in path order, which used to count spurious splits).
-The tracer columns are from before that change and have not been rescored yet.
+The tracer columns are from before that change and have not been rescored yet. So within a row, the tracer columns (fiber scoring version 1) and the cc columns
+(version 2) come from different scorers; the 0.3.2 tables compared like with like.
 
 ### 256³ cubes (n=8)
 
