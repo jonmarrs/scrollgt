@@ -96,19 +96,49 @@ def _dilate_labels(instances: np.ndarray, radius: float) -> np.ndarray:
     return out
 
 
+def _edge_walk(edges: np.ndarray):
+    """Yield edges as (a, b) in walk order, each continuing from the last.
+
+    Runs are read off the sample sequence, so that sequence has to follow the
+    fiber; stored edge rows need not. Reversing only the rows of
+    fibers_s1_00497_01497_03997_256 used to move connected-components splits
+    265 -> 140. Each walk starts at the lowest-index fiber end (any node, for a
+    loop) and takes the lowest-index unused neighbour, so the order depends on
+    the graph alone.
+    None marks a jump to a new stretch: a branch or a disconnected piece.
+    """
+    adj: dict[int, list[tuple[int, int]]] = {}
+    for k, (a, b) in enumerate(edges):
+        adj.setdefault(int(a), []).append((int(b), k))
+        adj.setdefault(int(b), []).append((int(a), k))
+    used: set[int] = set()
+    for start in sorted(adj, key=lambda n: (len(adj[n]) != 1, n)):
+        cur, walked = start, False
+        while free := [(n, k) for n, k in adj[cur] if k not in used]:
+            nxt, k = min(free)
+            used.add(k)
+            yield cur, nxt
+            cur, walked = nxt, True
+        if walked:
+            yield None
+
+
 def _resample_fiber(coords: np.ndarray, edges: np.ndarray, step: float = 0.5):
     """Yield (point, segment_length) along a fiber at ~`step` voxel spacing.
 
     Ground-truth nodes sit 1-2 voxels apart but are not adjacent, so runs must be
-    computed on a resampled polyline. Each edge is treated independently, which is
-    correct for branching trees: a branch point simply appears in two edges.
+    computed on a resampled polyline, walked in path order by `_edge_walk`.
+    (None, 0.0) marks the end of a stretch.
     """
     if len(edges) == 0:
         if len(coords):
             yield coords[0], 0.0
         return
-    for a_i, b_i in edges:
-        a, b = coords[a_i], coords[b_i]
+    for edge in _edge_walk(edges):
+        if edge is None:
+            yield None, 0.0
+            continue
+        a, b = coords[edge[0]], coords[edge[1]]
         seg = float(np.linalg.norm(b - a))
         if seg == 0.0:
             yield a, 0.0
@@ -148,6 +178,39 @@ def _runs_along_fiber(
     return [(lab, ln) for lab, ln in runs if ln > 0]
 
 
+def _fiber_runs(fiber, grown, step, restrict_to_bounds, zeroed=frozenset()):
+    """Runs along one fiber, its split count, and its traced and covered length.
+
+    A run cannot continue across a stretch boundary or a skipped out-of-bounds
+    stretch: the prediction is not observed there, so bridging it would credit a
+    run nobody saw, and breaking it is not the tracer's fault. Splits are
+    therefore counted within stretches.
+    """
+    shape = grown.shape
+    runs: list[tuple[int, float]] = []
+    splits, total, covered = 0, 0.0, 0.0
+    labels: list[int] = []
+    lengths: list[float] = []
+    samples = _resample_fiber(fiber.coords, fiber.edges, step=step)
+    for p, dl in [*samples, (None, 0.0)]:
+        idx = None if p is None else tuple(int(round(v)) for v in p)
+        if idx is not None and all(0 <= idx[a] < shape[a] for a in range(3)):
+            lab = int(grown[idx])
+            labels.append(0 if lab in zeroed else lab)
+            lengths.append(dl)
+        elif idx is not None and not restrict_to_bounds:
+            labels.append(0)
+            lengths.append(dl)
+        elif labels:
+            stretch = _runs_along_fiber(labels, lengths)
+            runs.extend(stretch)
+            splits += max(0, len(stretch) - 1)
+            total += float(sum(lengths))
+            covered += float(sum(d for lab, d in zip(labels, lengths, strict=False) if lab))
+            labels, lengths = [], []
+    return runs, splits, total, covered
+
+
 def score_tracing(
     gt: Skeleton,
     instances: np.ndarray,
@@ -174,34 +237,16 @@ def score_tracing(
     all_runs: list[float] = []
     per_instance_gt: dict[int, set[int]] = {}
     per_gt_instances: dict[int, set[int]] = {}
-    runs_per_gt: dict[int, int] = {}
+    splits = 0
     gt_total = 0.0
     covered = 0.0
 
     for gi, fiber in enumerate(gt.fibers):
-        labels: list[int] = []
-        lengths: list[float] = []
-        for p, dl in _resample_fiber(fiber.coords, fiber.edges, step=step):
-            idx = tuple(int(round(v)) for v in p)
-            inside = all(0 <= idx[a] < shape[a] for a in range(3))
-            if not inside:
-                if restrict_to_bounds:
-                    continue
-                labels.append(0)
-                lengths.append(dl)
-                continue
-            lab = int(grown[idx])
-            labels.append(lab)
-            lengths.append(dl)
-
-        seg_total = float(sum(lengths))
-        gt_total += seg_total
-        covered += float(
-            sum(dl for lab, dl in zip(labels, lengths, strict=False) if lab != 0)
-        )
-
-        runs = _runs_along_fiber(labels, lengths)
-        runs_per_gt[gi] = len(runs)
+        runs, fiber_splits, fiber_total, fiber_covered = _fiber_runs(
+            fiber, grown, step, restrict_to_bounds)
+        splits += fiber_splits
+        gt_total += fiber_total
+        covered += fiber_covered
         for lab, ln in runs:
             all_runs.append(ln)
             per_instance_gt.setdefault(lab, set()).add(gi)
@@ -213,7 +258,6 @@ def score_tracing(
     # traced in two disconnected halves under one id as zero splits, which is
     # wrong -- it is fragmented, and fragmentation is the error mode that
     # actually limits this tracer.
-    splits = sum(max(0, k - 1) for k in runs_per_gt.values())
     # Merges: an instance covering k ground-truth fibers contributes k-1.
     merges = sum(max(0, len(v) - 1) for v in per_instance_gt.values())
     merged_instances = sum(1 for v in per_instance_gt.values() if len(v) > 1)
@@ -229,20 +273,9 @@ def score_tracing(
 
     # Merge-penalized: rebuild runs, zeroing any run belonging to a merging id.
     penalized: list[float] = []
-    for gi, fiber in enumerate(gt.fibers):
-        labels, lengths = [], []
-        for p, dl in _resample_fiber(fiber.coords, fiber.edges, step=step):
-            idx = tuple(int(round(v)) for v in p)
-            if not all(0 <= idx[a] < shape[a] for a in range(3)):
-                if restrict_to_bounds:
-                    continue
-                labels.append(0)
-                lengths.append(dl)
-                continue
-            lab = int(grown[idx])
-            labels.append(0 if lab in merging_ids else lab)
-            lengths.append(dl)
-        penalized.extend(ln for _, ln in _runs_along_fiber(labels, lengths))
+    for fiber in gt.fibers:
+        runs, _, _, _ = _fiber_runs(fiber, grown, step, restrict_to_bounds, merging_ids)
+        penalized.extend(ln for _, ln in runs)
     # Denominator stays the full traced length, so merges genuinely cost ERL.
     tot_all = float(sum(all_runs))
     erl_pen = float(sum(r * r for r in penalized) / tot_all) if tot_all > 0 else 0.0
@@ -251,6 +284,8 @@ def score_tracing(
     gt_mask = np.zeros(shape, dtype=bool)
     for fiber in gt.fibers:
         for p, _ in _resample_fiber(fiber.coords, fiber.edges, step=step):
+            if p is None:
+                continue
             idx = tuple(int(round(v)) for v in p)
             if all(0 <= idx[a] < shape[a] for a in range(3)):
                 gt_mask[idx] = True

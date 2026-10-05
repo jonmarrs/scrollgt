@@ -403,7 +403,7 @@ different instance labellings of the same cube — connected components, one ins
 everything, one instance per voxel, and 50 random labels — all score **identical** coverage
 (0.9177) and precision (0.2194), because those metrics are properties of the fiber *mask*, not of
 the *labelling*. Only expected run length and the merge count separate them, and even raw ERL
-alone is gameable: labelling the whole cube once scores 199.18 against an oracle's 258.27 while
+alone is gameable: labelling the whole cube once scores 200.52 against an oracle's 247.84 while
 its merge-penalized ERL is exactly **0.00**.
 
 So `score-fibers` never prints one ERL without the other, and never prints either without the

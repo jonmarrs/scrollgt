@@ -76,7 +76,7 @@ mismatched shape with a `ValueError`, and three of the targets are 512³.
    minutes for a 512³ one — its connected-components floor alone measures ~70 s, at ~8 GB
    peak RSS.
 3. **Report both ERL variants together, with the tolerance.** Raw ERL alone is gameable — a
-   single instance covering the whole cube scores within 23% of the oracle while its
+   single instance covering the whole cube scores within 20% of the oracle while its
    merge-penalized ERL is exactly 0.00 — so a row quoting one number without the other will be
    sent back. Splits and merges are reported separately and must never be summed.
 4. **Never average ERL across size classes, and never compare a score to the other class's

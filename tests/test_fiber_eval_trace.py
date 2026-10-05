@@ -195,6 +195,42 @@ def test_out_of_bounds_gt_nodes_are_excluded():
     assert inside.gt_length < outside.gt_length
 
 
+def test_scores_do_not_depend_on_stored_edge_order():
+    """Same fiber, rows reordered and some flipped: the score must not move.
+
+    The sampler used to walk edge rows as stored, so rows out of path order read
+    as extra splits.
+    """
+    f = _straight_fiber(1, 16, 16, 5, 45)
+    shuffled = Fiber(id=1, name="f1", node_ids=f.node_ids, coords=f.coords,
+                     edges=np.concatenate([f.edges[::2], f.edges[1::2, ::-1]]))
+    inst = oracle_from_skeleton(Skeleton(fibers=[f]), SHAPE, radius=1.0)
+    inst[:, :, 26:] = np.where(inst[:, :, 26:] > 0, 7, 0)
+    a = score_tracing(Skeleton(fibers=[f]), inst, tolerance=2.0)
+    b = score_tracing(Skeleton(fibers=[shuffled]), inst, tolerance=2.0)
+    assert a.splits == b.splits == 1
+    assert a.erl == pytest.approx(b.erl)
+    assert a.coverage == pytest.approx(b.coverage)
+
+
+def test_a_run_does_not_bridge_a_stretch_outside_the_cube():
+    """A fiber that leaves the cube and comes back is two observed stretches.
+
+    Joining them would credit run length across voxels the prediction never
+    covers; splitting them is not the tracer's fault, so it is not a split.
+    """
+    pts = ([(16, 8, x) for x in range(30, 71)] + [(16, y, 70) for y in range(9, 25)]
+           + [(16, 24, x) for x in range(69, 29, -1)])
+    n = len(pts)
+    f = Fiber(id=1, name="f1", node_ids=np.arange(n), coords=np.array(pts, float),
+              edges=np.array([[i, i + 1] for i in range(n - 1)], dtype=np.int64))
+    gt = Skeleton(fibers=[f])
+    s = score_tracing(gt, oracle_from_skeleton(gt, SHAPE, radius=1.0), tolerance=2.0)
+    assert s.splits == 0
+    assert len(s.run_lengths) == 2
+    assert max(s.run_lengths) < 23, "one stretch is ~22 voxels inside the cube"
+
+
 def test_as_row_is_serialisable():
     gt = _three_fibers()
     s = score_tracing(gt, oracle_from_skeleton(gt, SHAPE, 1.0), tolerance=2.0)
