@@ -7,6 +7,13 @@
 targets, column-level reading targets, and fiber connectivity targets, each with anti-gaming
 floors and our own negative results published.**
 
+> **v0.4.1 — our tracer re-measured with the corrected scorer; one published claim reversed.** Re-run
+> at its published defaults on all 11 cubes, our tracer still trails connected components on raw ERL
+> everywhere. On merge-penalized ERL it is **ahead on 4 of 11**, all three 512³ cubes among them. The
+> README previously said it lost on both metrics everywhere, a version-1 result. Its labellings, scored
+> with version 1, reproduce the old tracer rows exactly, so the reversal is the scorer's, not the tracer's.
+> The rows are listed in `meta.json` as `floors_external`, with their source.
+
 > **v0.4.0 — fiber scores corrected; every published fiber number changed.** Up to 0.3.2, fiber
 > scoring read runs in the order edge rows happen to be stored, not along the fiber, so a reshuffle
 > of the same ground truth's rows moved a published floor by up to 25%. Luke Finigan found and fixed
@@ -22,8 +29,7 @@ floors and our own negative results published.**
 >
 > **A score from ≤ 0.3.2 is not comparable with these floors; re-score with 0.4.0.** Scores and
 > `meta.json` now carry `scoring_version` (2), and `score-fibers` refuses to read a score against
-> floors from another version. Our own tracer's rows were scored with version 1 and have not been
-> re-measured. One known residual: at the data's 31 branch nodes the walk takes the lowest-numbered
+> floors from another version. Our own tracer's rows were re-measured in 0.4.1 (see above). One known residual: at the data's 31 branch nodes the walk takes the lowest-numbered
 > neighbour, so renumbering nodes moved a score by up to 2.8% on the most-branched cube
 > (`s5_03997_01497_03997_256`) and by under 0.02% on an unbranched one.
 
@@ -459,10 +465,15 @@ identity; the shipped `labelsTr/*.tif` are semantic and cannot support connectiv
 Reference mask: `scrollprize/fiber_hz_vt` (Apache-2.0) at P ≥ 0.5, identical for every entrant so
 scorecard differences come from the labelling rather than the segmentation.
 
-**Our own tracer loses to connected components on both metrics, on all six cubes it has been
-scored against** — published in [`baselines/BASELINES.md`](baselines/BASELINES.md) rather than
-hidden. That is the bar to clear. The five cubes added since ship with ground truth, mask, and
-oracle/floor scores; the tracer has not yet been re-run against them.
+**Our own tracer, re-measured on all 11 cubes with scoring version 2:**
+* **Raw ERL:** connected components is far ahead on every cube (3.9–6.3×).
+* **Merge-penalized ERL:** the tracer is ahead on 4 of 11: one 256³ cube and all three 512³ cubes,
+  where connected components merges so heavily that its penalized ERL falls to 10.6–17.0.
+
+The tracer covers only 57–70% of ground-truth length; leading on the penalized metric means it merges
+less, not that it follows fibers well. Up to 0.3.2 this README said the tracer lost on both metrics on
+every cube. That came from the order-dependent version-1 scorer and does not hold under version 2.
+Full tables in [`baselines/BASELINES.md`](baselines/BASELINES.md).
 
 ## Roadmap
 

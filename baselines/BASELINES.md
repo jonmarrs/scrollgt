@@ -240,50 +240,49 @@ primary, inside the 256³ class only; the 512³ cubes are absolute scores agains
 oracles, not a transfer measurement. Closing that gap needs 512³ Scroll-1 cubes, which the
 villa dataset does not currently offer.
 
-Tracer and connected-components rows below exist only for the six cubes scored in the
-original v0.3 release (five `primary` + `s5_03997_01497_03997`). The five cubes added by
-this expansion (`s5_07997_02997_05497`, `s5_14997_01497_01497`, and the three 512³ cubes)
-ship ground truth, mask, and oracle/floor scores — the tracer itself was not re-run against
-them, so their tracer/cc columns are marked `—` rather than guessed at.
+Every cube has tracer, connected-components (cc) and oracle rows, all scored with fiber scoring
+version 2 (the path walk, scrollgt#1). The tracer is our own, at its published defaults: relink on,
+no smoothing, no skipping, no seed suppression. It was re-measured on 2026-10-09 (vesuvius-autoresearch
+finding 80, pre-registered). Its labellings, scored with version 1, reproduce the 0.3.2 tracer rows
+exactly on the six cubes that had one, so the tracer itself has not changed; the scorer moved its
+numbers. The source is recorded in each `meta.json` under `floors_external_source`.
 
-**Connected components is a strong baseline, and our own tracer does not beat it** — losing on
-raw ERL and on merge-penalized ERL, on every cube it has been scored against.
-
-Oracle, floor and cc numbers were rescored after the scorer started walking each fiber's edges
-in path order (stored edge rows are not in path order, which used to count spurious splits).
-The tracer columns are from before that change and have not been rescored yet. So within a row, the tracer columns (fiber scoring version 1) and the cc columns
-(version 2) come from different scorers; the 0.3.2 tables compared like with like.
+**Connected components is far ahead on raw ERL, on every cube** (3.9–6.3×). **On merge-penalized
+ERL the tracer is ahead on 4 of 11 cubes** (bold below): `s5_14997_01497_01497` at 256³, and all three
+512³ cubes, where cc merges so many fibers that its penalized ERL falls to 10.6–17.0. Until 0.3.2 this
+page said the tracer lost on both metrics on every cube scored. That was measured with the
+order-dependent version-1 scorer, on six cubes, none of them 512³, and it does not hold under version 2.
 
 ### 256³ cubes (n=8)
 
 | cube | split | oracle ERL | tracer ERL | cc ERL | tracer ERLpen | cc ERLpen | tracer coverage |
 |---|---|---|---|---|---|---|---|
-| s1_00497_01497_03997 | primary | 247.84 | 26.6 | 200.5 | 23.2 | 37.1 | 0.623 |
-| s1_00497_02497_02997 | primary | 219.38 | 45.8 | 213.4 | 33.6 | 65.4 | 0.704 |
-| s1_00997_02497_02997 | primary | 243.56 | 36.3 | 205.9 | 29.8 | 60.8 | 0.605 |
-| s1_08997_02997_02497 | primary | 257.43 | 34.1 | 201.5 | 30.8 | 112.2 | 0.671 |
-| s1_10997_02997_02997 | primary | 244.10 | 37.4 | 200.8 | 34.2 | 58.2 | 0.616 |
-| s5_03997_01497_03997 | cross_scroll | 236.56 | 31.5 | 182.3 | 25.4 | 54.2 | 0.623 |
-| s5_07997_02997_05497 | cross_scroll | 250.55 | — | — | — | — | — |
-| s5_14997_01497_01497 | cross_scroll | 242.23 | — | — | — | — | — |
+| s1_00497_01497_03997 | primary | 247.84 | 35.39 | 200.47 | 30.85 | 37.09 | 0.6231 |
+| s1_00497_02497_02997 | primary | 219.38 | 55.07 | 213.41 | 40.61 | 65.37 | 0.7038 |
+| s1_00997_02497_02997 | primary | 243.56 | 48.82 | 205.85 | 38.72 | 60.81 | 0.6054 |
+| s1_08997_02997_02497 | primary | 257.43 | 44.91 | 201.51 | 40.58 | 112.16 | 0.6707 |
+| s1_10997_02997_02997 | primary | 244.10 | 48.17 | 200.76 | 44.19 | 58.23 | 0.6164 |
+| s5_03997_01497_03997 | cross_scroll | 236.56 | 40.45 | 182.25 | 33.30 | 54.17 | 0.6233 |
+| s5_07997_02997_05497 | cross_scroll | 250.55 | 48.00 | 205.25 | 43.65 | 87.47 | 0.6755 |
+| s5_14997_01497_01497 | cross_scroll | 242.23 | 46.62 | 188.89 | **38.56** | 33.09 | 0.6586 |
 
 ### 512³ cubes (n=3)
 
 | cube | split | oracle ERL | tracer ERL | cc ERL | tracer ERLpen | cc ERLpen | tracer coverage |
 |---|---|---|---|---|---|---|---|
-| s5_06494_01994_03994 | cross_scroll | 499.86 | — | — | — | — | — |
-| s5_06994_00994_04994 | cross_scroll | 507.25 | — | — | — | — | — |
-| s5_07994_01994_05494 | cross_scroll | 491.18 | — | — | — | — | — |
+| s5_06494_01994_03994 | cross_scroll | 499.86 | 53.40 | 321.98 | **42.63** | 15.59 | 0.6716 |
+| s5_06994_00994_04994 | cross_scroll | 507.25 | 42.65 | 245.23 | **34.14** | 10.55 | 0.5759 |
+| s5_07994_01994_05494 | cross_scroll | 491.18 | 41.42 | 258.83 | **34.18** | 17.02 | 0.5742 |
 
 Note the 512³ oracle ERLs (491.18–507.25) against the 256³ oracle ERLs (219.38–257.43): roughly
 double, which is the geometric effect above, not a difference in fiber quality between
 cubes.
 
-Fragmentation is the cause of the tracer's loss on the six scored cubes. The tracer finds the
-fibers — coverage 0.605–0.704 of ground-truth length is claimed by *something* — but it cannot
-hold one identity along them, so its runs are short and ERL is low. An earlier reading that the
-tracer was marginally ahead on the penalized metric came from a 128³ sub-volume and **does not
-survive at full-cube scale**; it should not be cited.
+Fragmentation limits the tracer. It finds the fibers (coverage 0.574–0.704 of ground-truth length is
+claimed by *something*) but cannot hold one identity along them, so its runs are short and its raw
+ERL is low. It merges less than cc, which is why it can lead on the penalized metric where cc merges
+heavily. An earlier reading of the tracer ahead on the penalized metric came from a 128³ sub-volume
+and should still not be cited. The full-cube result above is the one to use.
 
 ### What the floors establish
 

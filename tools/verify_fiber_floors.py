@@ -39,14 +39,18 @@ def recompute(target: Path) -> tuple[dict, dict]:
 def stamped(meta: dict, rows: dict) -> dict:
     floors = {k: ({**rows[k]} if k in COMPUTED else {**v, "scoring_version": v.get("scoring_version", 1)})
               for k, v in meta["floors"].items()}  # fmt: skip
+    others = [x for x in floors if x not in COMPUTED]
     out = {}
     for k, v in meta.items():
-        if k in ("floors_scoring_version", "floors_not_recomputed"):
+        if k in ("floors_scoring_version", "floors_not_recomputed", "floors_external"):
             continue
         out[k] = floors if k == "floors" else v
         if k == "floors":
             out["floors_scoring_version"] = SCORING_VERSION
-            out["floors_not_recomputed"] = sorted(x for x in floors if x not in COMPUTED)
+            # Rows this repo cannot recompute: either from an older scorer (not comparable), or re-measured
+            # elsewhere with this scorer and recorded in floors_external_source.
+            out["floors_not_recomputed"] = sorted(x for x in others if floors[x]["scoring_version"] != SCORING_VERSION)
+            out["floors_external"] = sorted(x for x in others if floors[x]["scoring_version"] == SCORING_VERSION)
     return out
 
 

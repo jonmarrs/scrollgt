@@ -118,8 +118,29 @@
       "gt_length": 284951.0,
       "pred_length": 8593412.0,
       "tolerance": 2.0
+    },
+    "tracer_strict_relink": {
+      "scoring_version": 2,
+      "erl": 42.65,
+      "erl_merge_penalized": 34.14,
+      "coverage": 0.5759,
+      "precision": 0.3091,
+      "splits": 13705,
+      "merges": 606,
+      "merged_instances": 540,
+      "n_gt_fibers": 627,
+      "n_pred_instances": 6126,
+      "gt_length": 284951.0,
+      "pred_length": 1787376.0,
+      "tolerance": 2.0
     }
   },
   "floors_scoring_version": 2,
-  "floors_not_recomputed": []
+  "floors_not_recomputed": [],
+  "floors_external": [
+    "tracer_strict_relink"
+  ],
+  "floors_external_source": {
+    "tracer_strict_relink": "vesuvius-autoresearch finding 80 (reports/tracer_rescore.md, prereg f5f775c3 + Amendment 1 aa1c5712, 2026-10-09): bench_cli trace at its published defaults (relink on, tangent window 1, no skips, no seed NMS); 512^3 cubes traced with --detect-block 128, bit-identical to dense. Its version-1 score reproduces the 0.3.2 rows exactly on the six cubes that had one."
+  }
 }

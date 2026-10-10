@@ -50,9 +50,15 @@ def test_shipped_floors_record_the_scorer_that_made_them(target):
     for key in COMPUTED:
         assert meta["floors"][key]["scoring_version"] == SCORING_VERSION, key
     others = [k for k in meta["floors"] if k not in COMPUTED]
-    assert sorted(others) == meta["floors_not_recomputed"]
-    for key in others:  # e.g. tracer rows, which cannot be re-run from the repo
+    stale, external = meta["floors_not_recomputed"], meta.get("floors_external", [])
+    # Rows the repo cannot recompute (e.g. tracer rows, whose tracer needs a GPU model and the CT cube) are
+    # listed exactly once: stale ones from an older scorer, or external ones re-measured with this scorer.
+    assert sorted(others) == sorted(stale + external) and not set(stale) & set(external)
+    for key in stale:
         assert meta["floors"][key]["scoring_version"] != SCORING_VERSION, key
+    for key in external:
+        assert meta["floors"][key]["scoring_version"] == SCORING_VERSION, key
+        assert meta["floors_external_source"][key], key
 
 
 def test_published_floors_from_another_version_are_refused(tmp_path):
