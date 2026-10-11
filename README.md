@@ -7,6 +7,26 @@
 targets, column-level reading targets, and fiber connectivity targets, each with anti-gaming
 floors and our own negative results published.**
 
+> **v0.5.0 — three fiber targets moved to villa's current annotations, and a disclosure: the reference mask
+> was trained on every fiber target.**
+> * **Revised ground truth.** villa's `fiber-skeletons` Dataset004 (2025-07-28) revised three of the cubes
+>   ScrollGT had shipped from Dataset001: `s1_00497_02497_02997` (v00 → v01), `s1_08997_02997_02497` (v00 → v01)
+>   and `s5_14997_01497_01497` (v01 → v02). The revisions add 28–53% more fibers and 21–37% more fiber length.
+>   These targets now carry the current annotation. Their oracle, floor and tracer rows are recomputed; the CT,
+>   and therefore the mask, is unchanged.
+> * **No published ranking reverses.** Connected components' coverage on these cubes falls from 0.88–0.93 to
+>   0.76–0.82: half to 70% of the added fiber lies outside the reference mask.
+> * **Provenance.** Every target now records the NML it was built from (`ground_truth.nml`: release, file,
+>   SHA-256), and score cards carry it as `ground_truth_nml`. For the other eight targets, re-parsing the current
+>   release's file reproduces the shipped skeleton array for array.
+> * **The reference mask is in-sample.** `scrollprize/fiber_hz_vt`'s training fingerprint (18 cubes: 13 at 256³,
+>   5 at 512³) matches villa's Dataset002, which holds all 11 targets in their earlier versions. An entrant built
+>   on this mask, as connected components and our tracer are, is scored on a segmentation that has seen the cube.
+>   Its score measures the instance step, not generalization. For such an entrant the `cross_scroll` split cannot
+>   measure transfer either, because the mask trained on both scrolls.
+> * **Re-score** any score against the three revised targets from ≤ 0.4.1; it is not comparable. The before/after
+>   table is vesuvius-autoresearch finding 82, pre-registered (`reports/scrollgt_current_annotations.md`).
+
 > **v0.4.1 — our tracer re-measured with the corrected scorer; one published claim reversed.** Re-run
 > at its published defaults on all 11 cubes, our tracer still trails connected components on raw ERL
 > everywhere. On merge-penalized ERL it is **ahead on 4 of 11**, all three 512³ cubes among them. The
@@ -460,17 +480,24 @@ per-class tables, including oracle ceilings for every cube, are in
 [`baselines/BASELINES.md`](baselines/BASELINES.md).
 
 Ground truth: villa's `fiber-skeletons` dataset (`dl.ash2txt.org/datasets/fiber-skeletons/`),
-every fiber in each cube hand-traced in WEBKNOSSOS at 7.91 µm. Only the `nml/` files carry fiber
-identity; the shipped `labelsTr/*.tif` are semantic and cannot support connectivity metrics.
+every fiber in each cube hand-traced in WEBKNOSSOS at 7.91 µm, as of its latest release, Dataset004.
+Each target's `meta.json` names the NML file and its SHA-256 under `ground_truth.nml`. Only the
+`nml/` files carry fiber identity; the shipped `labelsTr/*.tif` are semantic and cannot support
+connectivity metrics.
+
 Reference mask: `scrollprize/fiber_hz_vt` (Apache-2.0) at P ≥ 0.5, identical for every entrant so
-scorecard differences come from the labelling rather than the segmentation.
+scorecard differences come from the labelling rather than the segmentation. **It was trained on
+these cubes.** Its training fingerprint matches villa's Dataset002, which holds all 11 targets in
+earlier annotation versions. A score built on the mask therefore measures the instance step on an
+in-sample segmentation, not generalization. Against the current annotations the whole mask (the
+connected-components floor) covers 0.76–0.92 of ground-truth length.
 
 **Our own tracer, re-measured on all 11 cubes with scoring version 2:**
-* **Raw ERL:** connected components is far ahead on every cube (3.9–6.3×).
+* **Raw ERL:** connected components is far ahead on every cube (3.7–6.2×).
 * **Merge-penalized ERL:** the tracer is ahead on 4 of 11: one 256³ cube and all three 512³ cubes,
   where connected components merges so heavily that its penalized ERL falls to 10.6–17.0.
 
-The tracer covers only 57–70% of ground-truth length; leading on the penalized metric means it merges
+The tracer covers only 56–68% of ground-truth length; leading on the penalized metric means it merges
 less, not that it follows fibers well. Up to 0.3.2 this README said the tracer lost on both metrics on
 every cube. That came from the order-dependent version-1 scorer and does not hold under version 2.
 Full tables in [`baselines/BASELINES.md`](baselines/BASELINES.md).

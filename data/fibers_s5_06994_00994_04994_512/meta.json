@@ -24,7 +24,12 @@
     "n_fibers": 658,
     "n_fibers_scored": 627,
     "n_nodes_in_bounds": 19760,
-    "note": "n_fibers is every fiber in the raw NML trace. n_fibers_scored (and floors.*.n_gt_fibers) is smaller: it excludes fibers with 0 or 1 in-bounds nodes, since a fiber needs at least two in-bounds nodes to contribute a measurable run. Annotators traced beyond the cube boundary, so this gap reaches ~12% on the shipped cubes."
+    "note": "n_fibers is every fiber in the raw NML trace. n_fibers_scored (and floors.*.n_gt_fibers) is smaller: it excludes fibers with 0 or 1 in-bounds nodes, since a fiber needs at least two in-bounds nodes to contribute a measurable run. Annotators traced beyond the cube boundary, so this gap reaches 10% on the shipped cubes.",
+    "nml": {
+      "dataset": "Dataset004_sk-fibers-binary-20250728",
+      "file": "fibers_s5_06994z_00994y_04994x_512_v01.nml",
+      "sha256": "daa11116851742bc697adb8f8ff4fc0ba6bcbbad135c3709b91e7d61ca8c7c91"
+    }
   },
   "convention_check": {
     "claim": "NML nodes are x,y,z in absolute scroll space; volumes index z,y,x; the cube origin is encoded in the filename as <scroll>_<z>_<y>_<x>_<size>",

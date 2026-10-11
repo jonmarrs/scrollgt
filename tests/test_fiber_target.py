@@ -177,7 +177,7 @@ def test_skeleton_lands_on_the_scoring_mask_far_above_chance(target):
     """Hand-traced nodes must fall on the reference mask much more often than chance.
 
     Chance is the mask density (~5%). Measured across the eleven shipped targets is
-    63.7-85.4%, an enrichment of 9.9-21.5x (lowest s5_06994_00994_04994_512, highest
+    63.7-81.6%, an enrichment of 9.9-21.5x (lowest s5_06994_00994_04994_512, highest
     s5_07997_02997_05497_256). A frame error would collapse this toward density, which is
     exactly what the assertion catches; the 5x threshold is left where it is, well below
     the measured minimum and well above the ~1x an axis swap produces.

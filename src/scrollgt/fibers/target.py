@@ -203,6 +203,10 @@ def score_fiber_prediction(labels_path, target_dir, recompute_floors: bool = Fal
         "size_class": int(meta["size_class"]),
         "class_oracle_erl": meta.get("floors", {}).get("oracle", {}).get("erl"),
         "scoring_version": SCORING_VERSION,
+        # The annotation this score was measured against. villa revises annotations between
+        # dataset releases (three targets changed in 0.5.0), so a score without it cannot be
+        # matched to the ground truth that produced it.
+        "ground_truth_nml": meta.get("ground_truth", {}).get("nml"),
         "metrics": row,
         "floors": floors,
         "floors_source": floors_source,
