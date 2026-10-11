@@ -89,3 +89,36 @@ def test_the_two_rates_note_does_not_assert_a_rate_it_cannot_know(target):
     rate = meta["convention_check"]["measured_node_landing_rate_on_semantic_label"]
     assert "and is 1.0" not in note, f"{target.name}: measured rate is {rate}, not 1.0"
     assert "0.999" in note
+
+
+NML_KEYS = {"dataset", "file", "sha256"}
+
+
+@pytest.mark.parametrize("target", TARGETS, ids=lambda p: p.name)
+def test_ground_truth_names_the_nml_it_was_built_from(target):
+    """villa revises fiber annotations between dataset releases, and until 0.5.0 nothing recorded
+    which file a target came from: three of the eleven had been revised upstream, undetected.
+
+    tools/update_fiber_ground_truth.py writes this record only after re-parsing the file reproduces
+    the shipped skeleton array for array (or, for a revision, after the file replaces it).
+    """
+    meta = json.loads((target / "meta.json").read_text())
+    nml = meta["ground_truth"]["nml"]
+    assert set(nml) == NML_KEYS
+    assert nml["dataset"].startswith("Dataset") and len(nml["dataset"]) > 10
+    assert len(nml["sha256"]) == 64 and int(nml["sha256"], 16) >= 0
+    scroll, z, y, x, size = meta["cube"].split("_")
+    assert nml["file"].startswith(f"fibers_{scroll}") and f"_{z}z_{y}y_{x}x_{size}_v" in nml["file"]
+
+
+def test_score_card_names_its_ground_truth(tmp_path):
+    import numpy as np
+
+    from scrollgt.fibers.target import score_fiber_prediction
+
+    target = TARGETS[0]
+    shape = tuple(json.loads((target / "meta.json").read_text())["shape"])
+    p = tmp_path / "empty.npy"
+    np.save(p, np.zeros(shape, dtype=np.int32))
+    card = score_fiber_prediction(p, target)
+    assert card["ground_truth_nml"] == json.loads((target / "meta.json").read_text())["ground_truth"]["nml"]
