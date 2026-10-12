@@ -248,9 +248,9 @@ exactly on the six cubes that had one, so the tracer itself has not changed; the
 numbers. The source is recorded in each `meta.json` under `floors_external_source`.
 
 **0.5.0:** three cubes (`s1_00497_02497_02997`, `s1_08997_02997_02497`, `s5_14997_01497_01497`) now carry
-villa's current annotation (Dataset004), with 28–53% more fibers than the Dataset001 version shipped
-before. Their oracle, floor and tracer rows are rescored against it (vesuvius-autoresearch finding 82,
-pre-registered). No ranking reversed. The reference mask, `fiber_hz_vt`, was trained on all 11 cubes in
+villa's current annotation (Dataset004), with 22–53% more fibers than the Dataset001 version shipped
+before (corrected 2026-10-12 from "28–53%": `s5_14997_01497_01497` goes from 147 to 179, +22%). Their
+oracle, floor and tracer rows are rescored against it (vesuvius-autoresearch finding 82, pre-registered). No ranking reversed. The reference mask, `fiber_hz_vt`, was trained on all 11 cubes in
 their earlier versions, so every row built on it, connected components and our tracer included, is
 scored on an in-sample segmentation.
 
