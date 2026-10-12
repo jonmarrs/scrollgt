@@ -55,7 +55,8 @@ floors and our own negative results published.**
 > was trained on every fiber target.**
 > * **Revised ground truth.** villa's `fiber-skeletons` Dataset004 (2025-07-28) revised three of the cubes
 >   ScrollGT had shipped from Dataset001: `s1_00497_02497_02997` (v00 → v01), `s1_08997_02997_02497` (v00 → v01)
->   and `s5_14997_01497_01497` (v01 → v02). The revisions add 28–53% more fibers and 21–37% more fiber length.
+>   and `s5_14997_01497_01497` (v01 → v02). The revisions add 22–53% more fibers in the cube and 21–37% more
+>   fiber length. (Corrected 2026-10-12 from "28–53%": `s5_14997_01497_01497` goes from 147 to 179 fibers, +22%.)
 >   These targets now carry the current annotation. Their oracle, floor and tracer rows are recomputed; the CT,
 >   and therefore the mask, is unchanged.
 > * **No published ranking reverses.** Connected components' coverage on these cubes falls from 0.88–0.93 to
