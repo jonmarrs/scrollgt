@@ -85,8 +85,8 @@ def test_a_512_target_reports_a_512_ceiling(tmp_path):
     assert meta["shape"] == [512, 512, 512]
     assert card["class_oracle_erl"] == pytest.approx(meta["floors"]["oracle"]["erl"])
     # Guards a card that reports class 512 while carrying a 256 cube's ceiling: shipped
-    # 512 oracles are 497-513, shipped 256 oracles 222-262.
-    assert card["class_oracle_erl"] > 400.0
+    # 512 oracles are 388-562, shipped 256 oracles 201-251.
+    assert card["class_oracle_erl"] > 300.0
 
     text = fiber_markdown_report(card)
     assert "size class 512" in text

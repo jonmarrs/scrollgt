@@ -81,6 +81,24 @@ def test_aggregating_across_size_classes_is_refused():
         aggregate_fiber_scores(mixed)
 
 
+def test_aggregating_held_out_with_in_sample_targets_is_refused():
+    """The reference mask trained on every in-sample target and on no held-out one (0.6.0).
+
+    On two held-out Scroll-5 cubes the mask's coverage is 0.53-0.64 against 0.82-0.91 in sample, so a mean over
+    both splits would average away the one difference the held-out split exists to show.
+    """
+    from scrollgt.fibers.target import aggregate_fiber_scores
+
+    mixed = [
+        {"size_class": 256, "split": "cross_scroll", "metrics": {"erl": 45.0, "erl_merge_penalized": 30.0}},
+        {"size_class": 256, "split": "held_out", "metrics": {"erl": 30.0, "erl_merge_penalized": 25.0}},
+    ]
+    with pytest.raises(ValueError, match="held-out with in-sample"):
+        aggregate_fiber_scores(mixed)
+    assert aggregate_fiber_scores([mixed[1], mixed[1]])["n"] == 2
+    assert aggregate_fiber_scores([mixed[0], {**mixed[0], "split": "primary"}])["n"] == 2
+
+
 def test_aggregating_within_one_size_class_works():
     from scrollgt.fibers.target import aggregate_fiber_scores
 

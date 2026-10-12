@@ -53,9 +53,9 @@ These targets score an **instance labelling**, not a probability map: which voxe
 which fiber. Everything needed ships in the repo, so no GPU, model download, or network access
 is involved.
 
-**Eleven cubes in two size classes: eight at 256³ and three at 512³.** Take the array shape
+**Twenty-one cubes in two size classes: ten at 256³ and eleven at 512³.** Take the array shape
 from the target's own `meta.json["shape"]` — never assume 256³, since `score-fibers` rejects a
-mismatched shape with a `ValueError`, and three of the targets are 512³.
+mismatched shape with a `ValueError`, and eleven of the targets are 512³.
 
 1. Produce `labels.npy` — an integer array of exactly `meta.json["shape"]`, `0` = background,
    one distinct id per predicted fiber instance:
@@ -82,17 +82,20 @@ mismatched shape with a `ValueError`, and three of the targets are 512³.
 4. **Never average ERL across size classes, and never compare a score to the other class's
    ceiling.** ERL is expected run length in voxels (`Σr²/Σr`), a length statistic: a 512³ cube
    admits fibers up to twice as long per axis, so its ERL runs roughly double for purely
-   geometric reasons — shipped oracles are 222–262 at 256³ and 498–513 at 512³. Every
+   geometric reasons — shipped oracles are 201–251 at 256³ and 389–562 at 512³. Every
    scorecard prints its own class and that class's oracle for this reason, and
    `aggregate_fiber_scores` raises on a mixed-class input rather than returning a misleading
-   mean. Report the two classes as separate tables.
-5. **Score at least all eight 256³ cubes**, and say which you ran. The three 512³ cubes are
-   optional — they cost substantially more — but a row covering only some of the 256³ class
-   is not a submission: a leaderboard assembled from whichever cubes went well says nothing
+   mean. Report the two classes as separate tables, and held-out cubes apart from in-sample ones
+   (`aggregate_fiber_scores` refuses to mix those too).
+5. **Score at least all ten 256³ cubes** (eight in sample, two held out), and say which you ran.
+   The eleven 512³ cubes are optional, since they cost substantially more, but take all of a split
+   or none of it. A row covering only some of the 256³ class is not a submission: a leaderboard assembled from whichever cubes went well says nothing
    about a tracer, which is the whole reason this family stopped being one cube. The
    cross-scroll split is **all six `s5_*` cubes** — three at each size class — not one cube;
-   the five `s1_*` cubes are the `primary` split. Both are labelled reporting conventions rather than withheld data: the ground truth
-   is a public villa dataset and cannot be hidden. Beating connected components on **both**
+   the five `s1_*` cubes are the `primary` split. The ten `held_out` cubes (eight `s3_*`, two
+   `s5_*`) are the ones the reference mask never trained on. If your own model trained on villa's
+   Dataset004, they are in-sample for you; say so. None of the splits is withheld data: the ground
+   truth is a public villa dataset and cannot be hidden. Beating connected components on **both**
    metrics is the bar; our own tracer does not clear it (see `baselines/BASELINES.md`).
 
 ## Add a target
@@ -126,14 +129,14 @@ See the withheld-target discussion in `baselines/BASELINES.md` for a worked exam
 ```bash
 pip install -e ".[dev]"
 pytest -q            # default suite
-pytest -m heavy      # plus the two opt-in 512³ floor reproductions
+pytest -m heavy      # plus the ten opt-in 512³ floor reproductions
 ```
 
 **The `heavy` marker.** `test_published_floors_reproduce_from_shipped_data` recomputes a
 cube's connected-components floor from the shipped mask and checks it against the published
 value — the regression that keeps the no-GPU reproduction guarantee real. On a 512³ cube that
-costs ~70 s and ~8 GB peak RSS. The default run therefore covers all eight 256³ targets **plus
-one** 512³ target, so both size classes stay covered; the remaining two 512³ parametrizations
+costs ~70 s and ~8 GB peak RSS. The default run therefore covers all ten 256³ targets **plus
+one** 512³ target, so both size classes stay covered; the remaining ten 512³ parametrizations
 are marked `heavy` and deselected by `addopts = ["-m", "not heavy"]` in `pyproject.toml`. Run
 them before changing anything that touches fiber packaging or the ERL implementation. A test
 asserts that the default run still includes a 512³ target, so the coverage cannot quietly
