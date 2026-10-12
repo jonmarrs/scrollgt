@@ -149,3 +149,56 @@ def test_it_accepts_a_real_scorecard_not_just_a_hand_built_dict(tmp_path):
     assert out["n"] == 1
     assert out["size_class"] == card["size_class"]
     assert out["erl_mean"] == pytest.approx(card["metrics"]["erl"])
+
+
+def _fiber(fid, y, length=40):
+    import numpy as np
+
+    from scrollgt.fibers.skeleton_io import Fiber
+
+    coords = np.array([[1, y, x] for x in range(1, length + 1)], dtype=float)
+    return Fiber(fid, f"f{fid}", np.arange(length), coords,
+                 np.array([[i, i + 1] for i in range(length - 1)], dtype=np.int64))  # fmt: skip
+
+
+def test_dropping_fragments_cannot_buy_erl_by_shrinking_the_denominator():
+    """Scoring version 2 divided ERL by the covered length, so deleting short fragments raised it.
+
+    One fiber traced whole, the other in four short fragments. Deleting the fragments loses real coverage and, under
+    version 2, raised ERL 28.11 -> 39.00. Version 3 divides by the ground-truth length, so the lost runs count as zero
+    and ERL falls 20.54 -> 19.50.
+    """
+    import numpy as np
+
+    from scrollgt.fibers.skeleton_io import Skeleton
+
+    gt = Skeleton([_fiber(1, 2), _fiber(2, 20)])
+    labels = np.zeros((3, 24, 48), dtype=np.int32)
+    labels[1, 2, 1:41] = 1
+    for k, x in enumerate((1, 11, 21, 31)):
+        labels[1, 20, x : x + 5] = 2 + k
+    pruned = np.where(labels == 1, labels, 0)
+    before = score_tracing(gt, labels, tolerance=0)
+    after = score_tracing(gt, pruned, tolerance=0)
+    assert after.coverage < before.coverage
+    assert (before.erl_covered, after.erl_covered) == pytest.approx((28.105, 39.0), abs=1e-3)  # the version-2 exploit
+    assert (before.erl, after.erl) == pytest.approx((20.538, 19.5), abs=1e-3)
+    assert after.erl == pytest.approx(sum(r * r for r in after.run_lengths) / after.gt_length, rel=1e-12)
+
+
+def test_on_shipped_data_deleting_small_components_still_raises_only_the_old_erl(rows):
+    """The same exploit on a real labelling. vesuvius-autoresearch finding 85 found it by deleting our tracer's
+    instances under 400 voxels on this cube: version-2 ERL 35.39 -> 41.46 while coverage fell 0.62 -> 0.38. Here,
+    deleting every connected component under 5,000 voxels raises erl_covered (200.47 -> 208.03) and lowers the
+    version-3 headline (183.97 -> 181.92)."""
+    import numpy as np
+
+    skel, mask, meta = load_fiber_target(TARGET)
+    cc = floor_connected_components(mask)
+    ids, counts = np.unique(cc[cc > 0], return_counts=True)
+    after = score_tracing(skel, np.where(np.isin(cc, ids[counts >= 5000]), cc, 0),
+                          tolerance=meta["tolerance"]).as_row()  # fmt: skip
+    before = rows["cc"]
+    assert after["coverage"] < before["coverage"]
+    assert after["erl_covered"] > before["erl_covered"], "the exploit this pins has vanished; re-check the scorer"
+    assert after["erl"] < before["erl"]

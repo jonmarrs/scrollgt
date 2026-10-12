@@ -50,9 +50,11 @@
   },
   "floors": {
     "oracle": {
-      "scoring_version": 2,
+      "scoring_version": 3,
       "erl": 524.89,
       "erl_merge_penalized": 514.36,
+      "erl_covered": 524.89,
+      "erl_merge_penalized_covered": 514.36,
       "coverage": 1.0,
       "precision": 1.0,
       "splits": 29,
@@ -65,9 +67,11 @@
       "tolerance": 2.0
     },
     "floor_single_instance": {
-      "scoring_version": 2,
-      "erl": 249.08,
+      "scoring_version": 3,
+      "erl": 201.68,
       "erl_merge_penalized": 0.0,
+      "erl_covered": 249.08,
+      "erl_merge_penalized_covered": 0.0,
       "coverage": 0.8097,
       "precision": 0.2938,
       "splits": 3064,
@@ -80,9 +84,11 @@
       "tolerance": 2.0
     },
     "floor_connected_components": {
-      "scoring_version": 2,
-      "erl": 247.6,
-      "erl_merge_penalized": 29.41,
+      "scoring_version": 3,
+      "erl": 200.48,
+      "erl_merge_penalized": 23.81,
+      "erl_covered": 247.6,
+      "erl_merge_penalized_covered": 29.41,
       "coverage": 0.8097,
       "precision": 0.2938,
       "splits": 3178,
@@ -95,9 +101,11 @@
       "tolerance": 2.0
     },
     "floor_voxel_instances": {
-      "scoring_version": 2,
-      "erl": 1.13,
-      "erl_merge_penalized": 1.13,
+      "scoring_version": 3,
+      "erl": 0.91,
+      "erl_merge_penalized": 0.91,
+      "erl_covered": 1.13,
+      "erl_merge_penalized_covered": 1.13,
       "coverage": 0.8097,
       "precision": 0.2938,
       "splits": 248966,
@@ -110,9 +118,11 @@
       "tolerance": 2.0
     },
     "floor_random_instances": {
-      "scoring_version": 2,
-      "erl": 1.16,
+      "scoring_version": 3,
+      "erl": 0.94,
       "erl_merge_penalized": 0.0,
+      "erl_covered": 1.16,
+      "erl_merge_penalized_covered": 0.0,
       "coverage": 0.8097,
       "precision": 0.2938,
       "splits": 244083,
@@ -125,9 +135,11 @@
       "tolerance": 2.0
     },
     "tracer_strict_relink": {
-      "scoring_version": 2,
-      "erl": 56.01,
-      "erl_merge_penalized": 44.9,
+      "scoring_version": 3,
+      "erl": 30.89,
+      "erl_merge_penalized": 24.76,
+      "erl_covered": 56.01,
+      "erl_merge_penalized_covered": 44.9,
       "coverage": 0.5515,
       "precision": 0.3539,
       "splits": 12133,
@@ -140,12 +152,12 @@
       "tolerance": 2.0
     }
   },
-  "floors_scoring_version": 2,
+  "floors_scoring_version": 3,
   "floors_not_recomputed": [],
   "floors_external": [
     "tracer_strict_relink"
   ],
   "floors_external_source": {
-    "tracer_strict_relink": "vesuvius-autoresearch finding 83 labelling (reports/fiber_heldout_split.md, prereg 8a7b2d4f): bench_cli trace at its published defaults (relink on, tangent window 1, no skips, no seed NMS), as in finding 80; 512^3 cubes with --detect-block 128, bit-identical to dense (finding 80 Amendment 1). These rows reproduce that report's exactly."
+    "tracer_strict_relink": "vesuvius-autoresearch finding 83 labelling (reports/fiber_heldout_split.md, prereg 8a7b2d4f): bench_cli trace at its published defaults (relink on, tangent window 1, no skips, no seed NMS), as in finding 80; 512^3 cubes with --detect-block 128, bit-identical to dense (finding 80 Amendment 1). These rows reproduce that report's exactly. Re-scored from the same labelling with scoring version 3 in ScrollGT 0.7.0; its version-2 row reproduces exactly as erl_covered and erl_merge_penalized_covered."
   }
 }

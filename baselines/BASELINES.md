@@ -224,7 +224,7 @@ targets it spans **9.9×–21.5×** (low: `s5_06994_00994_04994`; high:
 chance, so the expansion did not introduce one with a silently broken registration.
 
 **ERL does not compare across cube sizes and is never averaged across them.** ERL is
-expected run length in voxels (`Σr²/Σr`): a 512³ cube admits fibers up to twice as long per
+expected run length in voxels (`Σr²/L_gt`): a 512³ cube admits fibers up to twice as long per
 axis as a 256³ cube, so its ERL runs roughly double for purely geometric reasons, not
 because the tracer or the fibers are different. `aggregate_fiber_scores` in
 `src/scrollgt/fibers/target.py` raises on a mixed size-class input rather than silently
@@ -241,7 +241,7 @@ oracles, not a transfer measurement. Closing that gap needs 512³ Scroll-1 cubes
 villa dataset does not currently offer.
 
 Every cube has tracer, connected-components (cc) and oracle rows, all scored with fiber scoring
-version 2 (the path walk, scrollgt#1). The tracer is our own, at its published defaults: relink on,
+version 3: the path walk of scrollgt#1, with ERL divided by the ground-truth length (0.7.0). The tracer is our own, at its published defaults: relink on,
 no smoothing, no skipping, no seed suppression. It was re-measured on 2026-10-09 (vesuvius-autoresearch
 finding 80, pre-registered). Its labellings, scored with version 1, reproduce the 0.3.2 tracer rows
 exactly on the six cubes that had one, so the tracer itself has not changed; the scorer moved its
@@ -254,32 +254,40 @@ pre-registered). No ranking reversed. The reference mask, `fiber_hz_vt`, was tra
 their earlier versions, so every row built on it, connected components and our tracer included, is
 scored on an in-sample segmentation.
 
-**Connected components is far ahead on raw ERL, on every cube** (3.7–6.2×). **On merge-penalized
-ERL the tracer is ahead on 4 of 11 cubes** (bold below): `s5_14997_01497_01497` at 256³, and all three
-512³ cubes, where cc merges so many fibers that its penalized ERL falls to 10.6–17.0. Until 0.3.2 this
-page said the tracer lost on both metrics on every cube scored. That was measured with the
-order-dependent version-1 scorer, on six cubes, none of them 512³, and it does not hold under version 2.
+**0.7.0, scoring version 3:** ERL and ERLpen now divide by the ground-truth length, not the covered length.
+Under version 2 fiber a labelling missed never entered the score, so deleting short fragments raised it
+(vesuvius-autoresearch finding 85). Version 3 = version 2 × coverage exactly. Every row below was re-scored:
+floors from the shipped mask, tracer rows from the saved labellings. Each row's version-2 values reproduce the
+0.6.0 row exactly and stay in `meta.json` as `erl_covered` and `erl_merge_penalized_covered`. Since the tracer
+covers less fiber than cc, the change lowers its rows most (×0.26–0.68, against ×0.53–0.92 for cc).
+
+**Connected components is far ahead on raw ERL, on every cube** (5.0–8.9×). **On merge-penalized
+ERL the tracer is ahead on 4 of 11 cubes** (bold below): `s5_14997_01497_01497` at 256³, now a near-tie
+(19.94 against 19.88), and all three 512³ cubes, where cc merges so many fibers that its penalized ERL falls
+to 8.6–14.0. Until 0.3.2 this page said the tracer lost on both metrics on every cube scored. That was measured
+with the order-dependent version-1 scorer, on six cubes, none of them 512³, and it does not hold under versions
+2 or 3.
 
 ### 256³ cubes (n=8)
 
 | cube | split | oracle ERL | tracer ERL | cc ERL | tracer ERLpen | cc ERLpen | tracer coverage |
 |---|---|---|---|---|---|---|---|
-| s1_00497_01497_03997 | primary | 247.84 | 35.39 | 200.47 | 30.85 | 37.09 | 0.6231 |
-| s1_00497_02497_02997 | primary | 228.92 | 52.39 | 196.39 | 35.46 | 45.37 | 0.6136 |
-| s1_00997_02497_02997 | primary | 243.56 | 48.82 | 205.85 | 38.72 | 60.81 | 0.6054 |
-| s1_08997_02997_02497 | primary | 246.70 | 44.97 | 174.24 | 36.25 | 62.90 | 0.5598 |
-| s1_10997_02997_02997 | primary | 244.10 | 48.17 | 200.76 | 44.19 | 58.23 | 0.6164 |
-| s5_03997_01497_03997 | cross_scroll | 236.56 | 40.45 | 182.25 | 33.30 | 54.17 | 0.6233 |
-| s5_07997_02997_05497 | cross_scroll | 250.55 | 48.00 | 205.25 | 43.65 | 87.47 | 0.6755 |
-| s5_14997_01497_01497 | cross_scroll | 242.18 | 44.96 | 172.25 | **33.62** | 24.29 | 0.5932 |
+| s1_00497_01497_03997 | primary | 247.84 | 22.05 | 183.97 | 19.22 | 34.04 | 0.6231 |
+| s1_00497_02497_02997 | primary | 228.92 | 32.15 | 160.98 | 21.76 | 37.19 | 0.6136 |
+| s1_00997_02497_02997 | primary | 243.56 | 29.55 | 169.31 | 23.44 | 50.02 | 0.6054 |
+| s1_08997_02997_02497 | primary | 246.70 | 25.17 | 132.73 | 20.29 | 47.92 | 0.5598 |
+| s1_10997_02997_02997 | primary | 244.10 | 29.69 | 171.71 | 27.24 | 49.80 | 0.6164 |
+| s5_03997_01497_03997 | cross_scroll | 236.56 | 25.21 | 157.94 | 20.75 | 46.95 | 0.6233 |
+| s5_07997_02997_05497 | cross_scroll | 250.55 | 32.42 | 187.17 | 29.48 | 79.76 | 0.6755 |
+| s5_14997_01497_01497 | cross_scroll | 242.18 | 26.67 | 140.99 | **19.94** | 19.88 | 0.5932 |
 
 ### 512³ cubes (n=3)
 
 | cube | split | oracle ERL | tracer ERL | cc ERL | tracer ERLpen | cc ERLpen | tracer coverage |
 |---|---|---|---|---|---|---|---|
-| s5_06494_01994_03994 | cross_scroll | 499.86 | 53.40 | 321.98 | **42.63** | 15.59 | 0.6716 |
-| s5_06994_00994_04994 | cross_scroll | 507.25 | 42.65 | 245.23 | **34.14** | 10.55 | 0.5759 |
-| s5_07994_01994_05494 | cross_scroll | 491.18 | 41.42 | 258.83 | **34.18** | 17.02 | 0.5742 |
+| s5_06494_01994_03994 | cross_scroll | 499.86 | 35.87 | 286.00 | **28.63** | 13.85 | 0.6716 |
+| s5_06994_00994_04994 | cross_scroll | 507.25 | 24.56 | 199.38 | **19.66** | 8.57 | 0.5759 |
+| s5_07994_01994_05494 | cross_scroll | 491.18 | 23.78 | 212.83 | **19.63** | 14.00 | 0.5742 |
 
 Note the 512³ oracle ERLs (491.18–507.25) against the 256³ oracle ERLs (228.92–250.55): roughly
 double, which is the geometric effect above, not a difference in fiber quality between
@@ -295,9 +303,9 @@ and should still not be cited. The full-cube result above is the one to use.
 
 Ten cubes from villa's `fiber-skeletons` Dataset004 that the reference mask never trained on: absent from
 Dataset002 and Dataset003, the releases matching `fiber_hz_vt`'s training fingerprint. Eight are from Scroll 3 at
-512³, a scroll the mask never saw; two are new Scroll-5 cubes at 256³. Split `held_out`. Every row equals the one
-vesuvius-autoresearch finding 83 published (pre-registered, `reports/fiber_heldout_split.md`), field for field;
-`tools/add_fiber_target.py` refuses to write a target otherwise. Frame check: nodes land on the mask at 6.4–13.2×
+512³, a scroll the mask never saw; two are new Scroll-5 cubes at 256³. Split `held_out`. Every row's version-2
+values equal the row vesuvius-autoresearch finding 83 published (pre-registered, `reports/fiber_heldout_split.md`),
+field for field; `tools/add_fiber_target.py` refuses to write a target otherwise. Frame check: nodes land on the mask at 6.4–13.2×
 its density (in sample 9.9–21.5×) and on villa's semantic label at 1.000.
 
 `cc coverage` is the mask's recall of the hand-traced fibers. It holds on Scroll 3 (median 0.826, in-sample 512³
@@ -312,26 +320,28 @@ finding 84, pre-registered). The cause is unknown.
 
 | cube | split | oracle ERL | tracer ERL | cc ERL | tracer ERLpen | cc ERLpen | tracer coverage | cc coverage |
 |---|---|---|---|---|---|---|---|---|
-| s5_13497_01497_02497 | held_out | 205.49 | 29.29 | 82.92 | **26.89** | 7.36 | 0.3783 | 0.6427 |
-| s5_16997_03997_04497 | held_out | 201.34 | 26.30 | 78.18 | **18.49** | 7.10 | 0.2549 | 0.5291 |
+| s5_13497_01497_02497 | held_out | 205.49 | 11.08 | 53.29 | **10.17** | 4.73 | 0.3783 | 0.6427 |
+| s5_16997_03997_04497 | held_out | 201.33 | 6.70 | 41.37 | **4.71** | 3.76 | 0.2549 | 0.5291 |
 
 #### Held out, 512³ (n=8)
 
 | cube | split | oracle ERL | tracer ERL | cc ERL | tracer ERLpen | cc ERLpen | tracer coverage | cc coverage |
 |---|---|---|---|---|---|---|---|---|
-| s3_00994_00494_01994 | held_out | 496.71 | 49.25 | 231.49 | **41.46** | 18.85 | 0.5328 | 0.8096 |
-| s3_00994_01994_00494 | held_out | 524.89 | 56.01 | 247.60 | **44.90** | 29.41 | 0.5515 | 0.8097 |
-| s3_00994_02494_01494 | held_out | 561.99 | 44.02 | 221.46 | **34.38** | 7.86 | 0.4998 | 0.7938 |
-| s3_01994_01494_00994 | held_out | 445.11 | 43.77 | 232.24 | **38.60** | 18.37 | 0.5510 | 0.8424 |
-| s3_01994_01994_01494 | held_out | 388.83 | 41.54 | 223.05 | **33.52** | 15.06 | 0.5823 | 0.8626 |
-| s3_02994_02494_01994 | held_out | 502.18 | 58.94 | 307.42 | **46.90** | 17.09 | 0.6390 | 0.8677 |
-| s3_03494_01494_00494 | held_out | 533.99 | 56.55 | 205.87 | **41.24** | 33.70 | 0.5020 | 0.7694 |
-| s3_04494_00994_01494 | held_out | 479.98 | 41.96 | 247.61 | **30.96** | 10.01 | 0.5756 | 0.8573 |
+| s3_00994_00494_01994 | held_out | 496.71 | 26.24 | 187.41 | **22.09** | 15.26 | 0.5328 | 0.8096 |
+| s3_00994_01994_00494 | held_out | 524.89 | 30.89 | 200.48 | **24.76** | 23.81 | 0.5515 | 0.8097 |
+| s3_00994_02494_01494 | held_out | 561.99 | 22.01 | 175.80 | **17.18** | 6.24 | 0.4998 | 0.7938 |
+| s3_01994_01494_00994 | held_out | 445.11 | 24.12 | 195.64 | **21.27** | 15.48 | 0.5510 | 0.8424 |
+| s3_01994_01994_01494 | held_out | 388.83 | 24.18 | 192.39 | **19.52** | 12.99 | 0.5823 | 0.8626 |
+| s3_02994_02494_01994 | held_out | 502.18 | 37.66 | 266.75 | **29.97** | 14.83 | 0.6390 | 0.8677 |
+| s3_03494_01494_00494 | held_out | 533.99 | 28.38 | 158.40 | 20.70 | 25.93 | 0.5020 | 0.7694 |
+| s3_04494_00994_01494 | held_out | 479.98 | 24.15 | 212.27 | **17.82** | 8.58 | 0.5756 | 0.8573 |
 
-On merge-penalized ERL our tracer leads connected components on all ten held-out cubes; on raw ERL connected
-components leads on all ten. On the two Scroll-5 cubes the lead comes from connected components' collapse (its
-merge-penalized ERL falls to about 7) rather than from the tracer, whose own penalized ERL also falls below its
-in-sample range.
+On merge-penalized ERL our tracer leads connected components on nine of the ten held-out cubes; on
+`s3_03494_01494_00494` connected components leads, 25.93 against 20.70. Up to 0.6.0 this page said all ten: under
+version 2 the tracer led there 41.24 to 33.70, because its missed fiber did not count. On raw ERL connected
+components leads on all ten (4.8–8.8×). On the two Scroll-5 cubes the tracer's lead comes from connected
+components' collapse (its merge-penalized ERL falls to 3.8 and 4.7) rather than from the tracer, whose own
+penalized ERL also falls below its in-sample range.
 
 ### What the floors establish
 
@@ -342,14 +352,14 @@ separate them. On `s1_00497_01497_03997`:
 | labelling | ERL | ERLpen | coverage | precision | splits | merges | n inst |
 |---|---|---|---|---|---|---|---|
 | *oracle (disclosed)* | *247.84* | *229.29* | *1.0000* | *1.0000* | *14* | *7* | *87* |
-| floor: one instance for everything | 200.52 | **0.00** | 0.9177 | 0.2194 | 130 | 86 | 1 |
-| floor: connected components | 200.47 | 37.09 | 0.9177 | 0.2194 | 131 | 66 | 299 |
-| floor: one instance per voxel | 1.07 | 1.06 | 0.9177 | 0.2194 | 20984 | 7 | 1005366 |
-| floor: 50 random instances | 1.10 | **0.00** | 0.9177 | 0.2194 | 20568 | 4125 | 50 |
+| floor: one instance for everything | 184.02 | **0.00** | 0.9177 | 0.2194 | 130 | 86 | 1 |
+| floor: connected components | 183.97 | 34.04 | 0.9177 | 0.2194 | 131 | 66 | 299 |
+| floor: one instance per voxel | 0.98 | 0.98 | 0.9177 | 0.2194 | 20984 | 7 | 1005366 |
+| floor: 50 random instances | 1.01 | **0.00** | 0.9177 | 0.2194 | 20568 | 4125 | 50 |
 
 A benchmark reporting coverage and precision alone cannot distinguish a correct tracer from
-`numpy.random`. Raw ERL alone is gameable too: labelling everything once scores 200.52 against an
-oracle's 247.84 — within 20% — while its merge-penalized ERL is exactly 0.00. **Both ERL and the
+`numpy.random`. Raw ERL alone is gameable too: labelling everything once scores 184.02 against an
+oracle's 247.84 — 74% of it — while its merge-penalized ERL is exactly 0.00. **Both ERL and the
 merge count are required**, which is why `scrollgt score-fibers` never prints one without the
 other. The claim is pinned by `tests/test_fiber_gaming.py`, so a change that breaks it fails CI.
 

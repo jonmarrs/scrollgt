@@ -7,6 +7,28 @@
 targets, column-level reading targets, and fiber connectivity targets, each with anti-gaming
 floors and our own negative results published.**
 
+> **v0.7.0 — fiber ERL now counts the fiber a labelling misses; one published claim reversed.**
+> * **The flaw.** Up to 0.6.0, ERL and ERLpen divided the sum of squared run lengths by the *covered* length, so
+>   fiber a labelling missed never entered the score, and deleting short fragments raised it. On
+>   `s1_00497_01497_03997_256`, deleting our tracer's instances under 400 voxels moved its ERL 35.39 → 41.46 while
+>   its coverage fell 0.62 → 0.38 (vesuvius-autoresearch finding 85).
+> * **The fix: scoring version 3.** Both ERLs divide by the scored ground-truth length, so a missed point is a run
+>   of length zero. Version 3 = version 2 × coverage, exactly. Every row and score card keeps the version-2 values as
+>   `erl_covered` and `erl_merge_penalized_covered`, and the card prints them.
+> * **Re-scored, not converted.** Floors were recomputed from the shipped mask and our tracer's rows from its saved
+>   labellings. A target was rewritten only if every row's version-2 values reproduced its 0.6.0 row exactly; all
+>   126 rows on the 21 targets did (`tools/migrate_fiber_rows_v3.py`).
+> * **One claim reverses.** Held out, our tracer leads connected components on merge-penalized ERL on **9 of 10**
+>   cubes, not 10: on `s3_03494_01494_00494_512` connected components leads, 25.93 against 20.70. In sample it is
+>   still 4 of 11, but `s5_14997_01497_01497_256` is now a near-tie (19.94 against 19.88). On raw ERL connected
+>   components still leads everywhere, now by 5.0–8.9× rather than 3.7–6.2×, because the tracer covers less fiber.
+> * **What moved.** Oracles change by at most 0.01 (coverage 1.0). Connected components' ERL falls by its coverage
+>   (×0.53–0.92), and our tracer's falls further (×0.26–0.68). Labelling everything once now scores 74% of the
+>   oracle, not 81%.
+> * **A score from ≤ 0.6.0 is not comparable** with these floors: read it against `erl_covered`, or re-score.
+>   `score-fibers` refuses floors from another version. `tests/test_fiber_gaming.py` pins the fix: deleting
+>   fragments raises `erl_covered` and lowers `erl`, on a synthetic labelling and on shipped data.
+
 > **v0.6.0 — a held-out fiber split: ten cubes the reference mask never trained on.**
 > * **New targets.** villa's `fiber-skeletons` Dataset004 holds ten annotated cubes absent from the releases
 >   `fiber_hz_vt` trained on:
@@ -24,6 +46,7 @@ floors and our own negative results published.**
 >   unknown, and two cubes cannot separate the candidates.
 > * **On merge-penalized ERL our tracer leads connected components on all ten held-out cubes.** Connected
 >   components merges whatever the mask joins. On raw ERL, connected components still leads everywhere.
+>   *Corrected in 0.7.0: nine of ten under scoring version 3 (see above).*
 > * **Held out from the reference mask only.** An entrant whose own model trained on Dataset004 is in-sample on
 >   these cubes, and should say so. `aggregate_fiber_scores` refuses to average held-out cards with in-sample
 >   ones, and a held-out score card says the mask did not train on its cube.
@@ -470,7 +493,7 @@ different instance labellings of the same cube — connected components, one ins
 everything, one instance per voxel, and 50 random labels — all score **identical** coverage
 (0.9177) and precision (0.2194), because those metrics are properties of the fiber *mask*, not of
 the *labelling*. Only expected run length and the merge count separate them, and even raw ERL
-alone is gameable: labelling the whole cube once scores 200.52 against an oracle's 247.84 while
+alone is gameable: labelling the whole cube once scores 184.02 against an oracle's 247.84 while
 its merge-penalized ERL is exactly **0.00**.
 
 So `score-fibers` never prints one ERL without the other, and never prints either without the
@@ -520,16 +543,19 @@ generalization. Against the current annotations the whole mask (the connected-co
 covers 0.76–0.92 of ground-truth length in sample. Held out, it covers 0.77–0.87 on Scroll 3 and
 0.53–0.64 on the two new Scroll-5 cubes.
 
-**Our own tracer, re-measured on all 11 in-sample cubes with scoring version 2:**
-* **Raw ERL:** connected components is far ahead on every cube (3.7–6.2×).
-* **Merge-penalized ERL:** the tracer is ahead on 4 of 11: one 256³ cube and all three 512³ cubes,
-  where connected components merges so heavily that its penalized ERL falls to 10.6–17.0.
+**Our own tracer on all 11 in-sample cubes, scoring version 3:**
+* **Raw ERL:** connected components is far ahead on every cube (5.0–8.9×).
+* **Merge-penalized ERL:** the tracer is ahead on 4 of 11: one 256³ cube, now a near-tie (19.94
+  against 19.88), and all three 512³ cubes, where connected components merges so heavily that its
+  penalized ERL falls to 8.6–14.0.
 
 The tracer covers only 56–68% of ground-truth length; leading on the penalized metric means it merges
 less, not that it follows fibers well. **On the ten held-out cubes** connected components again leads on raw
-ERL everywhere, and the tracer leads on merge-penalized ERL on all ten. On the two new Scroll-5 cubes that lead
-comes from connected components' collapse (merge-penalized ERL about 7), not from the tracer improving. Up to 0.3.2 this README said the tracer lost on both metrics on
-every cube. That came from the order-dependent version-1 scorer and does not hold under version 2.
+ERL everywhere, and the tracer leads on merge-penalized ERL on nine; on `s3_03494_01494_00494` connected
+components leads, 25.93 against 20.70 (0.6.0 said all ten, under version 2). On the two new Scroll-5 cubes the
+tracer's lead comes from connected components' collapse (merge-penalized ERL 3.8 and 4.7), not from the tracer
+improving. Up to 0.3.2 this README said the tracer lost on both metrics on every cube. That came from the
+order-dependent version-1 scorer and does not hold under versions 2 or 3.
 Full tables in [`baselines/BASELINES.md`](baselines/BASELINES.md).
 
 ## Roadmap

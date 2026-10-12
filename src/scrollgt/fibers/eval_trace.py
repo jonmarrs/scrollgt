@@ -15,10 +15,13 @@ so:
 
 - **ERL (expected run length)**: walk each ground-truth fiber and split it into
   maximal contiguous stretches ("runs") assigned to a single predicted instance.
-  ERL is the length-weighted mean run length, `sum(L_i^2) / sum(L_i)`, following
+  ERL is the length-weighted mean run length, `sum(L_i^2) / L_gt`, following
   Januszewski et al. Length-weighting is the point: it answers "if I pick a random
   point on a fiber, how far can I follow it before an error", which is what a
-  downstream consumer of fiber connectivity cares about.
+  downstream consumer of fiber connectivity cares about. The point is picked on
+  the whole ground truth, `L_gt` its scored length, so a missed point is a run of
+  length zero. Dividing by the covered length instead (`sum(L_i)`, scoring
+  version 2, kept as `erl_covered`) let deleting short fragments raise ERL.
 - **Splits and merges reported separately, never summed.** A split fails to help;
   a **merge actively corrupts** the U/V parameterization fibers are wanted for. A
   single aggregate would let a merge hide behind good coverage.
@@ -48,7 +51,13 @@ from .skeleton_io import Skeleton
 #    neighbour, so renumbering nodes moves a score slightly. Measured on the shipped data
 #    (5 random renumberings), the drift is within 0.02% on unbranched cubes and up to 2.8%
 #    on s5_03997_01497_03997_256, which holds 10 of the data's 31 branch nodes.
-SCORING_VERSION = 2
+# 3: ERL and ERLpen divide by the scored ground-truth length, not the covered length
+#    (ScrollGT 0.7.0). Version 2 left missed fiber out of the denominator, so deleting a
+#    labelling's short fragments raised it: on s1_00497_01497_03997_256, deleting our
+#    tracer's instances under 400 voxels moved ERL 35.39 -> 41.46 while coverage fell
+#    0.62 -> 0.38 (vesuvius-autoresearch finding 85). Version 3 = version 2 x coverage
+#    exactly; the version-2 values are kept as erl_covered and erl_merge_penalized_covered.
+SCORING_VERSION = 3
 
 
 @dataclass
@@ -57,6 +66,8 @@ class ConnectivityScores:
 
     erl: float
     erl_merge_penalized: float
+    erl_covered: float
+    erl_merge_penalized_covered: float
     coverage: float
     precision: float
     n_gt_fibers: int
@@ -75,6 +86,8 @@ class ConnectivityScores:
             "scoring_version": SCORING_VERSION,
             "erl": round(self.erl, 2),
             "erl_merge_penalized": round(self.erl_merge_penalized, 2),
+            "erl_covered": round(self.erl_covered, 2),
+            "erl_merge_penalized_covered": round(self.erl_merge_penalized_covered, 2),
             "coverage": round(self.coverage, 4),
             "precision": round(self.precision, 4),
             "splits": self.splits,
@@ -276,22 +289,20 @@ def score_tracing(
     merged_instances = sum(1 for v in per_instance_gt.values() if len(v) > 1)
     merging_ids = {lab for lab, v in per_instance_gt.items() if len(v) > 1}
 
-    def _erl(runs: list[float]) -> float:
-        tot = float(sum(runs))
-        if tot <= 0:
-            return 0.0
-        return float(sum(r * r for r in runs) / tot)
-
-    erl = _erl(all_runs)
+    def _erl(squares: float, denominator: float) -> float:
+        return float(squares / denominator) if denominator > 0 else 0.0
 
     # Merge-penalized: rebuild runs, zeroing any run belonging to a merging id.
     penalized: list[float] = []
     for fiber in gt.fibers:
         runs, _, _, _ = _fiber_runs(fiber, grown, step, restrict_to_bounds, merging_ids)
         penalized.extend(ln for _, ln in runs)
-    # Denominator stays the full traced length, so merges genuinely cost ERL.
+    # The penalized numerator drops merging runs while the denominator keeps them, so merges
+    # genuinely cost ERL. The headline divides by the ground truth, the _covered variants by the
+    # covered length; sum(all_runs) is the covered length, so headline = covered x coverage.
+    squares = float(sum(r * r for r in all_runs))
+    squares_pen = float(sum(r * r for r in penalized))
     tot_all = float(sum(all_runs))
-    erl_pen = float(sum(r * r for r in penalized) / tot_all) if tot_all > 0 else 0.0
 
     # Precision: predicted length within tolerance of any ground-truth fiber.
     gt_mask = np.zeros(shape, dtype=bool)
@@ -315,8 +326,10 @@ def score_tracing(
     )
 
     return ConnectivityScores(
-        erl=erl,
-        erl_merge_penalized=erl_pen,
+        erl=_erl(squares, gt_total),
+        erl_merge_penalized=_erl(squares_pen, gt_total),
+        erl_covered=_erl(squares, tot_all),
+        erl_merge_penalized_covered=_erl(squares_pen, tot_all),
         coverage=(covered / gt_total) if gt_total > 0 else 0.0,
         precision=precision,
         n_gt_fibers=len(gt.fibers),

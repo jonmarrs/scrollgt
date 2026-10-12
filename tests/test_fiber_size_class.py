@@ -1,6 +1,6 @@
 """A fiber score is only readable against its own class ceiling.
 
-ERL is expected run length in voxels (`_erl(runs) = sum r^2 / sum r`), so a 512-cube
+ERL is expected run length in voxels (`sum r^2 / L_gt`, scoring version 3), so a 512-cube
 admits longer fibers and scores higher for geometric reasons alone. Every scorecard
 therefore states its size class and that class's oracle, so a number is never read
 against the wrong ceiling.

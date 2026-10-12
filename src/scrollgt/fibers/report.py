@@ -3,10 +3,13 @@
 Three rules are enforced by construction rather than left to the caller: both ERL
 variants always appear together, the tolerance always appears, and the cube's size class
 appears with that class's oracle ERL. Raw ERL alone is gameable -- labelling an entire
-cube as one instance scores within 20% of the oracle -- so a card showing one number
-without the other would be actively misleading. The class matters for the same reason:
-ERL is expected run length in voxels, so a 512 cube scores roughly double a 256 cube for
-purely geometric reasons, and a score read against the wrong ceiling is read wrong.
+cube as one instance scores about three quarters of the oracle -- so a card showing one
+number without the other would be actively misleading. The class matters for the same
+reason: ERL is expected run length in voxels, so a 512 cube scores roughly double a 256
+cube for purely geometric reasons, and a score read against the wrong ceiling is read wrong.
+
+Since scoring version 3 the card also prints the labelling's ERL over covered fiber only,
+the version-2 headline, so a score can be read against results published before 0.7.0.
 """
 
 from __future__ import annotations
@@ -79,6 +82,14 @@ def fiber_markdown_report(card: dict) -> str:
         "Splits and merges are reported separately and are never summed: a split "
         "fails to help, a merge corrupts the U/V parameterization.",
     ]
+    m = card["metrics"]
+    if "erl_covered" in m:
+        lines.append(
+            f"ERL and ERLpen divide by the ground-truth length (scoring version 3), so missed "
+            f"fiber counts as zero run length and dropping fragments no longer raises them by "
+            f"shrinking the denominator. Over covered fiber only, as published before 0.7.0: "
+            f"ERL {m['erl_covered']:.2f}, ERLpen {m['erl_merge_penalized_covered']:.2f}."
+        )
 
     if len(card.get("floors", {})) > 1:
         lines.append(
