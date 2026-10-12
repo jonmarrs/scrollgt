@@ -215,7 +215,7 @@ def score_fiber_prediction(labels_path, target_dir, recompute_floors: bool = Fal
 
 
 def aggregate_fiber_scores(cards) -> dict:
-    """Mean ERL over cards of ONE size class. Raises on a mixed or empty set.
+    """Mean ERL over cards of ONE size class, all held-out or all in-sample. Raises on a mixed or empty set.
 
     Provided so that summarising several cubes has a correct implementation to reach for.
     Without one, a reader averages by hand across whatever cubes are in front of them, and
@@ -225,6 +225,13 @@ def aggregate_fiber_scores(cards) -> dict:
     cards = list(cards)
     if not cards:
         raise ValueError("aggregate_fiber_scores: no scorecards given")
+    held = {c.get("split") == "held_out" for c in cards}
+    if len(held) > 1:
+        raise ValueError(
+            "refusing to aggregate held-out with in-sample targets: the reference mask trained on every in-sample "
+            "target and on no held-out one, and a mean over both hides exactly that difference; aggregate each "
+            "separately"
+        )
     classes = {int(c["size_class"]) for c in cards}
     if len(classes) > 1:
         raise ValueError(

@@ -20,10 +20,12 @@ TARGETS = sorted(pathlib.Path("data").glob("fibers_*"))
 #
 # The call: every 256 target plus ONE 512 target runs by default, so the reproduction
 # guarantee still covers both size classes and a 512-specific packaging mistake is still
-# caught. The other two 512 targets are marked `heavy` and deselected by the
+# caught. The other ten 512 targets are marked `heavy` and deselected by the
 # `-m "not heavy"` in pyproject.toml; run them with `pytest -m heavy` (see CONTRIBUTING).
 # Dropping 512 coverage entirely would have been cheaper and dishonest.
 _512_TARGETS = [t for t in TARGETS if t.name.endswith("_512")]
+# Sorted by name, the first 512 target is a held-out Scroll-3 cube (0.6.0), so the default run checks the newest
+# packaging; the three in-sample 512 cubes, verified since 0.4.0, are among the heavy ones.
 DEFAULT_512 = _512_TARGETS[0] if _512_TARGETS else None
 HEAVY_512 = _512_TARGETS[1:]
 FLOOR_TARGETS = [
@@ -31,8 +33,8 @@ FLOOR_TARGETS = [
 ]
 
 
-def test_eleven_targets_are_shipped():
-    assert len(TARGETS) == 11, [t.name for t in TARGETS]
+def test_twenty_one_targets_are_shipped():
+    assert len(TARGETS) == 21, [t.name for t in TARGETS]
 
 
 def test_the_default_floor_run_still_covers_both_size_classes():
@@ -47,7 +49,7 @@ def test_the_default_floor_run_still_covers_both_size_classes():
     assert len(HEAVY_512) == len(_512_TARGETS) - 1
     assert DEFAULT_512 not in HEAVY_512
     default_names = {t.name for t in TARGETS if t not in HEAVY_512}
-    assert sum(n.endswith("_256") for n in default_names) == 8
+    assert sum(n.endswith("_256") for n in default_names) == 10
     assert sum(n.endswith("_512") for n in default_names) == 1
 
 
@@ -75,7 +77,7 @@ def test_published_floors_reproduce_from_shipped_data(target):
     requires it to match the number published in meta.json. A data packaging
     mistake would otherwise be silent.
 
-    Two of the three 512 cubes are `heavy` and deselected by default -- see the
+    Ten of the eleven 512 cubes are `heavy` and deselected by default -- see the
     FLOOR_TARGETS comment above for why, and CONTRIBUTING.md for how to run them.
     """
     from scrollgt.fibers import floor_connected_components
@@ -176,11 +178,13 @@ def _mask_and_nodes(target):
 def test_skeleton_lands_on_the_scoring_mask_far_above_chance(target):
     """Hand-traced nodes must fall on the reference mask much more often than chance.
 
-    Chance is the mask density (~5%). Measured across the eleven shipped targets is
-    63.7-81.6%, an enrichment of 9.9-21.5x (lowest s5_06994_00994_04994_512, highest
-    s5_07997_02997_05497_256). A frame error would collapse this toward density, which is
-    exactly what the assertion catches; the 5x threshold is left where it is, well below
-    the measured minimum and well above the ~1x an axis swap produces.
+    Chance is the mask density (~5%). Across the eleven in-sample targets the enrichment is
+    9.9-21.5x (lowest s5_06994_00994_04994_512, highest s5_07997_02997_05497_256). On the ten
+    held-out targets it is 6.4-13.2x. The lowest, s5_16997_03997_04497_256, is where the mask
+    itself fails (vesuvius-autoresearch finding 83), not the frame: its nodes land on villa's
+    semantic label at 1.000. A frame error would collapse this toward density, which is
+    exactly what the assertion catches; the 5x threshold is left where it is, below the
+    measured minimum and well above the ~1x an axis swap produces.
     """
     mask, nodes = _mask_and_nodes(target)
     assert len(nodes) > 100, f"{target.name}: too few in-bounds nodes to judge"

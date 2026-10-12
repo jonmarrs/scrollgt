@@ -1,0 +1,151 @@
+{
+  "target_id": "fibers_s3_01994_01994_01494_512",
+  "family": "fiber_connectivity",
+  "cube": "s3_01994_01994_01494_512",
+  "scroll": "Scroll 3 (PHerc. 332)",
+  "split": "held_out",
+  "size_class": 512,
+  "split_note": "'held_out' means the reference mask, scrollprize/fiber_hz_vt, did not train on this cube. The cube is absent from villa's Dataset002 and Dataset003, the releases that match the mask's training fingerprint, and first appears in Dataset004 (2025-07-28), after the mask was published. It is not held-out secrecy: the ground truth is public. An entrant whose own model trained on Dataset004 is in-sample here and should say so.",
+  "shape": [
+    512,
+    512,
+    512
+  ],
+  "origin_zyx": [
+    1994,
+    1994,
+    1494
+  ],
+  "voxel_size_um": 7.91,
+  "tolerance": 2.0,
+  "ground_truth": {
+    "origin": "villa fiber-skeletons dataset, dl.ash2txt.org/datasets/fiber-skeletons/ \u2014 every papyrus fiber in the cube hand-traced in WEBKNOSSOS at 7.91 um",
+    "source_file": "nml/fibers_s3_01994z_01994y_01494x_512_v00.nml",
+    "n_fibers": 726,
+    "n_fibers_scored": 718,
+    "n_nodes_in_bounds": 26619,
+    "note": "n_fibers is every fiber in the raw NML trace. n_fibers_scored (and floors.*.n_gt_fibers) is smaller: it excludes fibers with 0 or 1 in-bounds nodes, since a fiber needs at least two in-bounds nodes to contribute a measurable run. Annotators traced beyond the cube boundary, so this gap reaches 10% on the shipped cubes.",
+    "nml": {
+      "dataset": "Dataset004_sk-fibers-binary-20250728",
+      "file": "fibers_s3_01994z_01994y_01494x_512_v00.nml",
+      "sha256": "c8aec25d8ba9c0a047fad6cb97e706831c597c18dca5bc61be07ae5506103a58"
+    }
+  },
+  "convention_check": {
+    "claim": "NML nodes are x,y,z in absolute scroll space; volumes index z,y,x; the cube origin is encoded in the filename as <scroll>_<z>_<y>_<x>_<size>",
+    "measured_node_landing_rate_on_semantic_label": 1.0,
+    "verified_against": "labelsTr/s3_01994_01994_01494_512.tif (Dataset004_sk-fibers-binary-20250728, the semantic label of the same release)",
+    "measured_node_landing_rate_on_scoring_mask": 0.774221,
+    "scoring_mask_density": 0.072753,
+    "landing_enrichment_vs_chance": 10.641846,
+    "in_bounds_node_fraction": 0.875452,
+    "note_on_the_two_rates": "measured_node_landing_rate_on_semantic_label is against labelsTr, villa's shipped semantic mask, and is at or above 0.999 on every shipped cube \u2014 the exporter refuses to ship one below that; the value measured for this cube is recorded above. That artifact is NOT what scoring uses. The figure that matters for scoring is measured_node_landing_rate_on_scoring_mask, against the fiber_hz_vt reference mask: lower, because the mask is a thresholded model output rather than a hand label, but many times chance, which is what establishes that skeleton and mask share a coordinate frame. Recomputed from shipped data by tests/test_fiber_target.py rather than trusted from this file."
+  },
+  "mask": {
+    "model": "scrollprize/fiber_hz_vt (Apache-2.0)",
+    "threshold": 0.5,
+    "density": 0.072753,
+    "note": "Every entrant is scored against this identical mask, so scorecard differences come from the instance labelling rather than from a better or worse segmentation.",
+    "generated": "probability volume produced locally by running scrollprize/fiber_hz_vt over the cube, not downloaded from the villa dataset; thresholded at 0.5 to give the shipped mask"
+  },
+  "floors": {
+    "oracle": {
+      "scoring_version": 2,
+      "erl": 388.83,
+      "erl_merge_penalized": 374.92,
+      "coverage": 1.0,
+      "precision": 1.0,
+      "splits": 34,
+      "merges": 16,
+      "merged_instances": 16,
+      "n_gt_fibers": 718,
+      "n_pred_instances": 718,
+      "gt_length": 201276.8,
+      "pred_length": 1059761.0,
+      "tolerance": 2.0
+    },
+    "floor_single_instance": {
+      "scoring_version": 2,
+      "erl": 224.01,
+      "erl_merge_penalized": 0.0,
+      "coverage": 0.8626,
+      "precision": 0.1988,
+      "splits": 1729,
+      "merges": 707,
+      "merged_instances": 1,
+      "n_gt_fibers": 718,
+      "n_pred_instances": 1,
+      "gt_length": 201276.8,
+      "pred_length": 9764682.0,
+      "tolerance": 2.0
+    },
+    "floor_connected_components": {
+      "scoring_version": 2,
+      "erl": 223.05,
+      "erl_merge_penalized": 15.06,
+      "coverage": 0.8626,
+      "precision": 0.1988,
+      "splits": 1810,
+      "merges": 635,
+      "merged_instances": 58,
+      "n_gt_fibers": 718,
+      "n_pred_instances": 6958,
+      "gt_length": 201276.8,
+      "pred_length": 9764682.0,
+      "tolerance": 2.0
+    },
+    "floor_voxel_instances": {
+      "scoring_version": 2,
+      "erl": 1.09,
+      "erl_merge_penalized": 1.09,
+      "coverage": 0.8626,
+      "precision": 0.1988,
+      "splits": 187195,
+      "merges": 18,
+      "merged_instances": 18,
+      "n_gt_fibers": 718,
+      "n_pred_instances": 9764682,
+      "gt_length": 201276.8,
+      "pred_length": 9764682.0,
+      "tolerance": 2.0
+    },
+    "floor_random_instances": {
+      "scoring_version": 2,
+      "erl": 1.13,
+      "erl_merge_penalized": 0.0,
+      "coverage": 0.8626,
+      "precision": 0.1988,
+      "splits": 183462,
+      "merges": 31735,
+      "merged_instances": 50,
+      "n_gt_fibers": 718,
+      "n_pred_instances": 50,
+      "gt_length": 201276.8,
+      "pred_length": 9764682.0,
+      "tolerance": 2.0
+    },
+    "tracer_strict_relink": {
+      "scoring_version": 2,
+      "erl": 41.54,
+      "erl_merge_penalized": 33.52,
+      "coverage": 0.5823,
+      "precision": 0.244,
+      "splits": 11279,
+      "merges": 349,
+      "merged_instances": 318,
+      "n_gt_fibers": 718,
+      "n_pred_instances": 8131,
+      "gt_length": 201276.8,
+      "pred_length": 1643307.0,
+      "tolerance": 2.0
+    }
+  },
+  "floors_scoring_version": 2,
+  "floors_not_recomputed": [],
+  "floors_external": [
+    "tracer_strict_relink"
+  ],
+  "floors_external_source": {
+    "tracer_strict_relink": "vesuvius-autoresearch finding 83 labelling (reports/fiber_heldout_split.md, prereg 8a7b2d4f): bench_cli trace at its published defaults (relink on, tangent window 1, no skips, no seed NMS), as in finding 80; 512^3 cubes with --detect-block 128, bit-identical to dense (finding 80 Amendment 1). These rows reproduce that report's exactly."
+  }
+}

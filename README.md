@@ -7,6 +7,27 @@
 targets, column-level reading targets, and fiber connectivity targets, each with anti-gaming
 floors and our own negative results published.**
 
+> **v0.6.0 — a held-out fiber split: ten cubes the reference mask never trained on.**
+> * **New targets.** villa's `fiber-skeletons` Dataset004 holds ten annotated cubes absent from the releases
+>   `fiber_hz_vt` trained on:
+>   * eight from Scroll 3 (PHerc. 332) at 512³, a scroll the mask never saw;
+>   * two new Scroll-5 cubes at 256³.
+>
+>   They ship as split `held_out`, each with oracle, floor and tracer rows. Every row equals the one published by
+>   vesuvius-autoresearch finding 83 (pre-registered, `reports/fiber_heldout_split.md`), field for field.
+>   `tools/add_fiber_target.py` refuses to write a target otherwise.
+> * **On Scroll 3 the mask holds.** Connected components' coverage, which is the mask's recall, has a median of
+>   0.826 there, against 0.822 on the in-sample 512³ cubes.
+> * **On the two new Scroll-5 cubes it fails.** Coverage is 0.53 and 0.64, against 0.82–0.91 on the in-sample
+>   Scroll-5 256³ cubes. It is neither a frame offset nor a threshold artifact: the best rigid shift gains under
+>   0.002, and at P ≥ 0.1 coverage reaches only 0.76 and 0.69 (vesuvius-autoresearch finding 84). The cause is
+>   unknown, and two cubes cannot separate the candidates.
+> * **On merge-penalized ERL our tracer leads connected components on all ten held-out cubes.** Connected
+>   components merges whatever the mask joins. On raw ERL, connected components still leads everywhere.
+> * **Held out from the reference mask only.** An entrant whose own model trained on Dataset004 is in-sample on
+>   these cubes, and should say so. `aggregate_fiber_scores` refuses to average held-out cards with in-sample
+>   ones, and a held-out score card says the mask did not train on its cube.
+
 > **v0.5.0 — three fiber targets moved to villa's current annotations, and a disclosure: the reference mask
 > was trained on every fiber target.**
 > * **Revised ground truth.** villa's `fiber-skeletons` Dataset004 (2025-07-28) revised three of the cubes
@@ -467,13 +488,18 @@ that. Pass `--recompute-floors` to verify them yourself from the shipped mask in
 the published values: ~50 s for a 256³ cube, several minutes for a 512³ one (its
 connected-components floor alone is ~70 s, at ~8 GB peak RSS).
 
-Eleven cubes, in two size classes: **eight at 256³** and **three at 512³**. The five `s1_*`
-cubes are the `primary` split; the six `s5_*` cubes — three at each size — are the
-**cross-scroll** reporting split, up from the single `s5_03997_01497_03997_256` cube this
-family shipped with. The ground truth is a public villa dataset and cannot be hidden, so that
-split is a labelled convention for reporting transfer — not a claim of held-out secrecy. ERL is
-a length statistic and is never averaged across the two size classes; `aggregate_fiber_scores`
-raises rather than doing so. That has a cost worth stating up front: the 512³ class is 3
+Twenty-one cubes, in two size classes (**ten at 256³**, **eleven at 512³**) and three splits.
+* **In sample: 11 cubes, all trained on by the reference mask.**
+  * `primary`: the five `s1_*` cubes.
+  * `cross_scroll`: the six `s5_*` cubes, three at each size, up from the single
+    `s5_03997_01497_03997_256` cube this family shipped with.
+* **`held_out` (0.6.0): 10 cubes the mask never trained on.** Eight `s3_*` cubes at 512³ and two `s5_*` at 256³.
+
+The ground truth is a public villa dataset and cannot be hidden, so no split is a claim of
+secrecy. `cross_scroll` is a labelled convention for reporting transfer. `held_out` means held
+out from the reference mask, nothing more. ERL is a length statistic and is never averaged across
+the two size classes, nor across held-out and in-sample cubes; `aggregate_fiber_scores` raises
+rather than doing either. That has a cost worth stating up front: the in-sample 512³ class is 3
 cross-scroll and **0 primary**, so it carries no same-scroll counterpart to transfer from, and
 the usable same-vs-cross comparison is n=3 against n=5 inside the 256³ class alone. Full
 per-class tables, including oracle ceilings for every cube, are in
@@ -487,18 +513,22 @@ connectivity metrics.
 
 Reference mask: `scrollprize/fiber_hz_vt` (Apache-2.0) at P ≥ 0.5, identical for every entrant so
 scorecard differences come from the labelling rather than the segmentation. **It was trained on
-these cubes.** Its training fingerprint matches villa's Dataset002, which holds all 11 targets in
-earlier annotation versions. A score built on the mask therefore measures the instance step on an
-in-sample segmentation, not generalization. Against the current annotations the whole mask (the
-connected-components floor) covers 0.76–0.92 of ground-truth length.
+the eleven in-sample cubes** and on none of the ten held-out ones. Its training fingerprint matches
+villa's Dataset002, which holds all 11 in-sample targets in earlier annotation versions. On those, a
+score built on the mask measures the instance step on an in-sample segmentation, not
+generalization. Against the current annotations the whole mask (the connected-components floor)
+covers 0.76–0.92 of ground-truth length in sample. Held out, it covers 0.77–0.87 on Scroll 3 and
+0.53–0.64 on the two new Scroll-5 cubes.
 
-**Our own tracer, re-measured on all 11 cubes with scoring version 2:**
+**Our own tracer, re-measured on all 11 in-sample cubes with scoring version 2:**
 * **Raw ERL:** connected components is far ahead on every cube (3.7–6.2×).
 * **Merge-penalized ERL:** the tracer is ahead on 4 of 11: one 256³ cube and all three 512³ cubes,
   where connected components merges so heavily that its penalized ERL falls to 10.6–17.0.
 
 The tracer covers only 56–68% of ground-truth length; leading on the penalized metric means it merges
-less, not that it follows fibers well. Up to 0.3.2 this README said the tracer lost on both metrics on
+less, not that it follows fibers well. **On the ten held-out cubes** connected components again leads on raw
+ERL everywhere, and the tracer leads on merge-penalized ERL on all ten. On the two new Scroll-5 cubes that lead
+comes from connected components' collapse (merge-penalized ERL about 7), not from the tracer improving. Up to 0.3.2 this README said the tracer lost on both metrics on
 every cube. That came from the order-dependent version-1 scorer and does not hold under version 2.
 Full tables in [`baselines/BASELINES.md`](baselines/BASELINES.md).
 
@@ -542,7 +572,7 @@ surface volumes: `s3://vesuvius-challenge-open-data/` (anonymous).
 
 - The three pixel-level Scroll-1 targets (`scroll1_*`) register 2023 Grand-Prize-era human ink
   annotations from the Vesuvius Challenge open data release; see the challenge's data terms.
-- The eleven fiber targets (`fibers_*`) carry hand-traced skeletons from villa's `fiber-skeletons`
+- The twenty-one fiber targets (`fibers_*`) carry hand-traced skeletons from villa's `fiber-skeletons`
   dataset (`dl.ash2txt.org/datasets/fiber-skeletons/`), also a Vesuvius Challenge release — see
   the challenge's data terms. Each target's `mask.npz` is derived from `scrollprize/fiber_hz_vt`
   (Apache-2.0). Provenance for both is recorded in the target's `meta.json`.

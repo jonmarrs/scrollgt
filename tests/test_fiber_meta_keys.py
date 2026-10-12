@@ -37,7 +37,31 @@ MASK_KEYS = {"model", "threshold", "density", "note", "generated"}
 
 
 def test_there_are_targets_to_check():
-    assert len(TARGETS) == 11, [t.name for t in TARGETS]
+    assert len(TARGETS) == 21, [t.name for t in TARGETS]
+
+
+def test_splits_are_what_the_readme_says():
+    """Five primary (Scroll 1), six cross-scroll (Scroll 5), all trained on by the reference mask; ten held out from it."""
+    splits = {}
+    for t in TARGETS:
+        splits.setdefault(json.loads((t / "meta.json").read_text())["split"], []).append(t.name)
+    assert {k: len(v) for k, v in splits.items()} == {"primary": 5, "cross_scroll": 6, "held_out": 10}, splits
+    assert all(n.startswith("fibers_s1_") for n in splits["primary"])
+    assert all(n.startswith("fibers_s5_") for n in splits["cross_scroll"])
+    assert sum(n.startswith("fibers_s3_") for n in splits["held_out"]) == 8
+
+
+@pytest.mark.parametrize("target", TARGETS, ids=lambda p: p.name)
+def test_a_held_out_target_says_what_is_held_out(target):
+    """`held_out` means the reference mask did not train on the cube. Those cubes first appear in Dataset004."""
+    meta = json.loads((target / "meta.json").read_text())
+    if meta["split"] != "held_out":
+        return
+    assert "fiber_hz_vt" in meta["split_note"] and "did not train" in meta["split_note"]
+    assert "not held-out secrecy" in meta["split_note"]
+    assert meta["ground_truth"]["nml"]["dataset"].startswith("Dataset004")
+    assert meta["floors_external"] == ["tracer_strict_relink"]
+    assert "finding 83" in meta["floors_external_source"]["tracer_strict_relink"]
 
 
 @pytest.mark.parametrize("target", TARGETS, ids=lambda p: p.name)

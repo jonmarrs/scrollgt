@@ -18,6 +18,14 @@ FLOOR_LABELS = {
     "floor_random_instances": "floor: 50 random instances",
 }
 
+# A held-out card says what is held out: the reference mask did not train on the cube. Every in-sample target's
+# mask did, so an entrant built on the mask is scored there on a segmentation that has seen the cube.
+SPLIT_LABELS = {
+    "primary": "primary split",
+    "cross_scroll": "cross-scroll split",
+    "held_out": "held-out split: the reference mask did not train on this cube",
+}
+
 COLUMNS = ["ERL", "ERLpen", "coverage", "precision", "splits", "merges", "n inst"]
 
 
@@ -60,7 +68,7 @@ def fiber_markdown_report(card: dict) -> str:
         if key in card.get("floors", {}):
             lines.append(_row(label, card["floors"][key]))
 
-    split = "cross-scroll split" if card.get("split") == "cross_scroll" else "primary split"
+    split = SPLIT_LABELS.get(card.get("split"), "primary split")
     source = card.get("floors_source", "published")
     lines += [
         "",

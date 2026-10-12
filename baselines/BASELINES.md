@@ -291,6 +291,48 @@ ERL is low. It merges less than cc, which is why it can lead on the penalized me
 heavily. An earlier reading of the tracer ahead on the penalized metric came from a 128³ sub-volume
 and should still not be cited. The full-cube result above is the one to use.
 
+### Held-out cubes (0.6.0)
+
+Ten cubes from villa's `fiber-skeletons` Dataset004 that the reference mask never trained on: absent from
+Dataset002 and Dataset003, the releases matching `fiber_hz_vt`'s training fingerprint. Eight are from Scroll 3 at
+512³, a scroll the mask never saw; two are new Scroll-5 cubes at 256³. Split `held_out`. Every row equals the one
+vesuvius-autoresearch finding 83 published (pre-registered, `reports/fiber_heldout_split.md`), field for field;
+`tools/add_fiber_target.py` refuses to write a target otherwise. Frame check: nodes land on the mask at 6.4–13.2×
+its density (in sample 9.9–21.5×) and on villa's semantic label at 1.000.
+
+`cc coverage` is the mask's recall of the hand-traced fibers. It holds on Scroll 3 (median 0.826, in-sample 512³
+0.822) and falls on the two Scroll-5 cubes (0.64 and 0.53, in-sample Scroll-5 256³ 0.82–0.91). Those two targets are built
+correctly: no rigid shift within ±4 voxels gains more than 0.002, and lowering the threshold to 0.1 lifts coverage only
+to 0.76 and 0.69. A fifth to a quarter of their fiber has no voxel at P ≥ 0.05 within 2 voxels (vesuvius-autoresearch
+finding 84, pre-registered). The cause is unknown.
+
+**Held-out cubes are never averaged with in-sample ones.** `aggregate_fiber_scores` refuses the mix.
+
+#### Held out, 256³ (n=2)
+
+| cube | split | oracle ERL | tracer ERL | cc ERL | tracer ERLpen | cc ERLpen | tracer coverage | cc coverage |
+|---|---|---|---|---|---|---|---|---|
+| s5_13497_01497_02497 | held_out | 205.49 | 29.29 | 82.92 | **26.89** | 7.36 | 0.3783 | 0.6427 |
+| s5_16997_03997_04497 | held_out | 201.34 | 26.30 | 78.18 | **18.49** | 7.10 | 0.2549 | 0.5291 |
+
+#### Held out, 512³ (n=8)
+
+| cube | split | oracle ERL | tracer ERL | cc ERL | tracer ERLpen | cc ERLpen | tracer coverage | cc coverage |
+|---|---|---|---|---|---|---|---|---|
+| s3_00994_00494_01994 | held_out | 496.71 | 49.25 | 231.49 | **41.46** | 18.85 | 0.5328 | 0.8096 |
+| s3_00994_01994_00494 | held_out | 524.89 | 56.01 | 247.60 | **44.90** | 29.41 | 0.5515 | 0.8097 |
+| s3_00994_02494_01494 | held_out | 561.99 | 44.02 | 221.46 | **34.38** | 7.86 | 0.4998 | 0.7938 |
+| s3_01994_01494_00994 | held_out | 445.11 | 43.77 | 232.24 | **38.60** | 18.37 | 0.5510 | 0.8424 |
+| s3_01994_01994_01494 | held_out | 388.83 | 41.54 | 223.05 | **33.52** | 15.06 | 0.5823 | 0.8626 |
+| s3_02994_02494_01994 | held_out | 502.18 | 58.94 | 307.42 | **46.90** | 17.09 | 0.6390 | 0.8677 |
+| s3_03494_01494_00494 | held_out | 533.99 | 56.55 | 205.87 | **41.24** | 33.70 | 0.5020 | 0.7694 |
+| s3_04494_00994_01494 | held_out | 479.98 | 41.96 | 247.61 | **30.96** | 10.01 | 0.5756 | 0.8573 |
+
+On merge-penalized ERL our tracer leads connected components on all ten held-out cubes; on raw ERL connected
+components leads on all ten. On the two Scroll-5 cubes the lead comes from connected components' collapse (its
+merge-penalized ERL falls to about 7) rather than from the tracer, whose own penalized ERL also falls below its
+in-sample range.
+
 ### What the floors establish
 
 All four floors score **identical coverage and precision**, because those metrics are properties

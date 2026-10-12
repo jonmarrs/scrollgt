@@ -131,6 +131,16 @@ def test_report_flags_an_entry_that_trails_the_baseline(tmp_path):
     assert f"{cc:.2f}" in text, "the card must name the baseline it trails"
 
 
+def test_a_held_out_card_says_the_mask_did_not_train_on_the_cube():
+    from scrollgt.fibers.report import fiber_markdown_report
+
+    card = {"target": "t", "prediction": "p", "split": "held_out", "tolerance": 2.0, "size_class": 256,
+            "class_oracle_erl": 205.49, "floors": {}, "floors_source": "published",
+            "metrics": {"erl": 1.0, "erl_merge_penalized": 1.0, "coverage": 0.5, "precision": 0.5, "splits": 0,
+                        "merges": 0, "n_pred_instances": 1}}  # fmt: skip
+    assert "held-out split: the reference mask did not train on this cube" in fiber_markdown_report(card)
+
+
 def test_cli_reports_cross_scroll_split(tmp_path, capsys):
     from scrollgt.fibers import floor_connected_components
     from scrollgt.fibers.target import load_fiber_target
