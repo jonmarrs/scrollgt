@@ -1,9 +1,10 @@
 """Fiber scores carry the scorer version, and published floors are never compared across versions.
 
 Version 1 (ScrollGT <= 0.3.2) read runs in stored edge-row order: reshuffling one shipped cube's rows moved a published
-floor by up to 25% with identical geometry. Version 2 (scrollgt PR #1) walks edges in path order. A score from one
-version read against floors from the other compares two different metrics, so the published floors record their
-version and scoring refuses a mismatch.
+floor by up to 25% with identical geometry. Version 2 (scrollgt PR #1) walks edges in path order. Version 3 (0.7.0)
+divides ERL by the ground-truth length instead of the covered length. A score from one version read against floors
+from another compares two different metrics, so the published floors record their version and scoring refuses a
+mismatch.
 """
 
 from __future__ import annotations
@@ -28,7 +29,20 @@ def test_rows_carry_the_scoring_version():
     coords = np.array([[1, 1, x] for x in range(1, 6)], dtype=float)
     f = Fiber(1, "f", np.arange(5), coords, np.array([[i, i + 1] for i in range(4)], dtype=np.int64))
     row = score_tracing(Skeleton([f]), np.ones((3, 3, 8), dtype=np.int64), tolerance=0).as_row()
-    assert row["scoring_version"] == SCORING_VERSION == 2
+    assert row["scoring_version"] == SCORING_VERSION == 3
+
+
+def test_the_headline_is_the_covered_erl_times_coverage():
+    """Version 3 = version 2 x coverage, exactly: sum(r^2)/L_gt = sum(r^2)/sum(r) x sum(r)/L_gt. Half a fiber traced."""
+    coords = np.array([[1, 1, x] for x in range(1, 21)], dtype=float)
+    f = Fiber(1, "f", np.arange(20), coords, np.array([[i, i + 1] for i in range(19)], dtype=np.int64))
+    inst = np.zeros((3, 3, 24), dtype=np.int64)
+    inst[1, 1, 1:11] = 1
+    s = score_tracing(Skeleton([f]), inst, tolerance=0)
+    assert 0.4 < s.coverage < 0.6
+    assert s.erl == pytest.approx(s.erl_covered * s.coverage, rel=1e-12)
+    assert s.erl_merge_penalized == pytest.approx(s.erl_merge_penalized_covered * s.coverage, rel=1e-12)
+    assert s.erl == pytest.approx(sum(r * r for r in s.run_lengths) / s.gt_length, rel=1e-12)
 
 
 def test_a_zero_length_edge_keeps_the_fiber_one_run():

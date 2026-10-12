@@ -173,7 +173,8 @@ def score_fiber_prediction(labels_path, target_dir, recompute_floors: bool = Fal
     else:
         # Published floors are only comparable with a score from the same scorer. Version 1
         # (ScrollGT <= 0.3.2) read runs in stored edge-row order, so its floors moved by up
-        # to 25% when the same ground truth's rows were reshuffled.
+        # to 25% when the same ground truth's rows were reshuffled. Version 2 (<= 0.6.0)
+        # divided ERL by the covered length, which version 3 multiplies by coverage.
         published_version = meta.get("floors_scoring_version", 1)
         if published_version != SCORING_VERSION:
             raise ValueError(

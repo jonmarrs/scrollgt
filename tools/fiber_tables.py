@@ -31,8 +31,31 @@ def table(size: int, held_out: bool = False) -> str:
     return "\n".join(out)
 
 
+FLOORS = {"oracle": "*oracle (disclosed)*", "floor_single_instance": "floor: one instance for everything",
+          "floor_connected_components": "floor: connected components",
+          "floor_voxel_instances": "floor: one instance per voxel", "floor_random_instances": "floor: 50 random instances"}  # fmt: skip
+
+
+def floors_table(cube: str = "s1_00497_01497_03997_256") -> str:
+    """Every floor on one cube: identical coverage and precision, separated only by ERL and merges."""
+    f = json.loads((ROOT / "data" / f"fibers_{cube}" / "meta.json").read_text())["floors"]
+    out = ["| labelling | ERL | ERLpen | coverage | precision | splits | merges | n inst |",
+           "|---|---|---|---|---|---|---|---|"]  # fmt: skip
+    for key, name in FLOORS.items():
+        r = f[key]
+        cells = [f"{r['erl']:.2f}", f"{r['erl_merge_penalized']:.2f}", f"{r['coverage']:.4f}", f"{r['precision']:.4f}",
+                 str(r["splits"]), str(r["merges"]), str(r["n_pred_instances"])]  # fmt: skip
+        if key == "oracle":
+            cells = [f"*{c}*" for c in cells]
+        elif cells[1] == "0.00":
+            cells[1] = "**0.00**"
+        out.append(f"| {name} | " + " | ".join(cells) + " |")
+    return "\n".join(out)
+
+
 if __name__ == "__main__":
     for size in (256, 512):
         print(f"### {size}³\n\n{table(size)}\n")
     for size in (256, 512):
         print(f"### held out, {size}³\n\n{table(size, held_out=True)}\n")
+    print(f"### floors\n\n{floors_table()}\n")

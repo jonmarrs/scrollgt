@@ -64,6 +64,22 @@ def test_a_held_out_target_says_what_is_held_out(target):
     assert "finding 83" in meta["floors_external_source"]["tracer_strict_relink"]
 
 
+ROW_KEYS = {
+    "scoring_version", "erl", "erl_merge_penalized", "erl_covered", "erl_merge_penalized_covered", "coverage",
+    "precision", "splits", "merges", "merged_instances", "n_gt_fibers", "n_pred_instances", "gt_length",
+    "pred_length", "tolerance",
+}  # fmt: skip
+
+
+@pytest.mark.parametrize("target", TARGETS, ids=lambda p: p.name)
+def test_every_published_row_carries_every_scored_field(target):
+    """A row is what `ConnectivityScores.as_row` writes. Version 3 (0.7.0) added the two `_covered` ERLs, which keep
+    the version-2 values readable beside the new headline."""
+    meta = json.loads((target / "meta.json").read_text())
+    for key, row in meta["floors"].items():
+        assert set(row) == ROW_KEYS, f"{target.name} {key}: {sorted(set(row) ^ ROW_KEYS)}"
+
+
 @pytest.mark.parametrize("target", TARGETS, ids=lambda p: p.name)
 def test_convention_check_carries_every_expected_field(target):
     meta = json.loads((target / "meta.json").read_text())

@@ -17,3 +17,11 @@ def test_baselines_carries_the_generated_table(size, held_out):
     table = fiber_tables.table(size, held_out=held_out)
     assert table.count("\n") >= 3, "an empty table would pass vacuously"
     assert table in baselines, f"BASELINES.md does not carry the current {size}³ {'held-out' if held_out else 'in-sample'} table"
+
+
+def test_baselines_carries_the_generated_floors_table():
+    """The one-cube table of every floor, whose numbers all moved with scoring version 3, is generated too."""
+    baselines = (ROOT / "baselines" / "BASELINES.md").read_text()
+    table = fiber_tables.floors_table()
+    assert table.count("\n") == 6
+    assert table in baselines, "BASELINES.md does not carry the current floors table"

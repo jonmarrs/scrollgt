@@ -76,11 +76,13 @@ mismatched shape with a `ValueError`, and eleven of the targets are 512³.
    minutes for a 512³ one — its connected-components floor alone measures ~70 s, at ~8 GB
    peak RSS.
 3. **Report both ERL variants together, with the tolerance.** Raw ERL alone is gameable — a
-   single instance covering the whole cube scores within 20% of the oracle while its
+   single instance covering the whole cube scores about three quarters of the oracle while its
    merge-penalized ERL is exactly 0.00 — so a row quoting one number without the other will be
-   sent back. Splits and merges are reported separately and must never be summed.
+   sent back. Splits and merges are reported separately and must never be summed. Since 0.7.0
+   (scoring version 3) both ERLs divide by the ground-truth length. A figure published with
+   0.6.0 or earlier is the `erl_covered` / `erl_merge_penalized_covered` field now, not `erl`.
 4. **Never average ERL across size classes, and never compare a score to the other class's
-   ceiling.** ERL is expected run length in voxels (`Σr²/Σr`), a length statistic: a 512³ cube
+   ceiling.** ERL is expected run length in voxels (`Σr²/L_gt`), a length statistic: a 512³ cube
    admits fibers up to twice as long per axis, so its ERL runs roughly double for purely
    geometric reasons — shipped oracles are 201–251 at 256³ and 389–562 at 512³. Every
    scorecard prints its own class and that class's oracle for this reason, and

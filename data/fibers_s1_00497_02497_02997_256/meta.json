@@ -50,9 +50,11 @@
   },
   "floors": {
     "oracle": {
-      "scoring_version": 2,
+      "scoring_version": 3,
       "erl": 228.92,
       "erl_merge_penalized": 219.01,
+      "erl_covered": 228.92,
+      "erl_merge_penalized_covered": 219.01,
       "coverage": 1.0,
       "precision": 1.0,
       "splits": 265,
@@ -65,9 +67,11 @@
       "tolerance": 2.0
     },
     "floor_single_instance": {
-      "scoring_version": 2,
-      "erl": 196.54,
+      "scoring_version": 3,
+      "erl": 161.1,
       "erl_merge_penalized": 0.0,
+      "erl_covered": 196.54,
+      "erl_merge_penalized_covered": 0.0,
       "coverage": 0.8197,
       "precision": 0.3077,
       "splits": 220,
@@ -80,9 +84,11 @@
       "tolerance": 2.0
     },
     "floor_connected_components": {
-      "scoring_version": 2,
-      "erl": 196.39,
-      "erl_merge_penalized": 45.37,
+      "scoring_version": 3,
+      "erl": 160.98,
+      "erl_merge_penalized": 37.19,
+      "erl_covered": 196.39,
+      "erl_merge_penalized_covered": 45.37,
       "coverage": 0.8197,
       "precision": 0.3077,
       "splits": 237,
@@ -95,9 +101,11 @@
       "tolerance": 2.0
     },
     "floor_voxel_instances": {
-      "scoring_version": 2,
-      "erl": 1.07,
-      "erl_merge_penalized": 1.05,
+      "scoring_version": 3,
+      "erl": 0.88,
+      "erl_merge_penalized": 0.86,
+      "erl_covered": 1.07,
+      "erl_merge_penalized_covered": 1.05,
       "coverage": 0.8197,
       "precision": 0.3077,
       "splits": 27354,
@@ -110,9 +118,11 @@
       "tolerance": 2.0
     },
     "floor_random_instances": {
-      "scoring_version": 2,
-      "erl": 1.11,
+      "scoring_version": 3,
+      "erl": 0.91,
       "erl_merge_penalized": 0.0,
+      "erl_covered": 1.11,
+      "erl_merge_penalized_covered": 0.0,
       "coverage": 0.8197,
       "precision": 0.3077,
       "splits": 26789,
@@ -125,9 +135,11 @@
       "tolerance": 2.0
     },
     "tracer_strict_relink": {
-      "scoring_version": 2,
-      "erl": 52.39,
-      "erl_merge_penalized": 35.46,
+      "scoring_version": 3,
+      "erl": 32.15,
+      "erl_merge_penalized": 21.76,
+      "erl_covered": 52.39,
+      "erl_merge_penalized_covered": 35.46,
       "coverage": 0.6136,
       "precision": 0.3474,
       "splits": 1559,
@@ -140,12 +152,12 @@
       "tolerance": 2.0
     }
   },
-  "floors_scoring_version": 2,
+  "floors_scoring_version": 3,
   "floors_not_recomputed": [],
   "floors_external": [
     "tracer_strict_relink"
   ],
   "floors_external_source": {
-    "tracer_strict_relink": "vesuvius-autoresearch finding 80 labelling (reports/tracer_rescore.md, prereg f5f775c3 + Amendment 1 aa1c5712): bench_cli trace at its published defaults (relink on, tangent window 1, no skips, no seed NMS). Re-scored against the Dataset004 annotation in finding 82 (reports/scrollgt_current_annotations.md, prereg 6185a0a6), whose rows this reproduces exactly."
+    "tracer_strict_relink": "vesuvius-autoresearch finding 80 labelling (reports/tracer_rescore.md, prereg f5f775c3 + Amendment 1 aa1c5712): bench_cli trace at its published defaults (relink on, tangent window 1, no skips, no seed NMS). Re-scored against the Dataset004 annotation in finding 82 (reports/scrollgt_current_annotations.md, prereg 6185a0a6), whose rows this reproduces exactly. Re-scored from the same labelling with scoring version 3 in ScrollGT 0.7.0; its version-2 row reproduces exactly as erl_covered and erl_merge_penalized_covered."
   }
 }

@@ -34,6 +34,19 @@ def test_report_prints_both_erl_variants_and_tolerance(cc_labels):
     assert "splits" in text.lower() and "merges" in text.lower()
 
 
+def test_report_prints_the_covered_only_erl_beside_the_headline(cc_labels):
+    """Scoring version 3 (0.7.0) changed the headline ERL's denominator. The card says so, and prints the
+    version-2 values, so a score can still be read against results published before 0.7.0."""
+    from scrollgt.fibers.target import score_fiber_prediction
+
+    card = score_fiber_prediction(cc_labels, TARGET)
+    m = card["metrics"]
+    assert m["erl"] < m["erl_covered"] and m["erl"] == pytest.approx(m["erl_covered"] * m["coverage"], abs=0.02)
+    text = fiber_markdown_report(card)
+    assert "scoring version 3" in text
+    assert f"ERL {m['erl_covered']:.2f}, ERLpen {m['erl_merge_penalized_covered']:.2f}" in text
+
+
 def _meta(target):
     return json.loads((pathlib.Path(target) / "meta.json").read_text())
 
