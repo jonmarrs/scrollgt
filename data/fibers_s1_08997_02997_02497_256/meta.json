@@ -45,7 +45,7 @@
     "model": "scrollprize/fiber_hz_vt (Apache-2.0)",
     "threshold": 0.5,
     "density": 0.048683,
-    "note": "Every entrant is scored against this identical mask, so scorecard differences come from the instance labelling rather than from a better or worse segmentation.",
+    "note": "Every entrant built on this identical mask (the floors and our tracer) labels it, so their scorecard differences come from the instance labelling rather than from a better or worse segmentation. villa's neural tracer (0.8.0) is not built on it: it labels its own centrelines, with this mask's model as its presence input.",
     "generated": "probability volume produced locally by running scrollprize/fiber_hz_vt over the cube, not downloaded from the villa dataset; thresholded at 0.5 to give the shipped mask"
   },
   "floors": {
@@ -150,14 +150,33 @@
       "gt_length": 33895.8,
       "pred_length": 173580.0,
       "tolerance": 2.0
+    },
+    "villa_neural_tracer": {
+      "scoring_version": 3,
+      "erl": 6.73,
+      "erl_merge_penalized": 5.88,
+      "erl_covered": 27.79,
+      "erl_merge_penalized_covered": 24.27,
+      "coverage": 0.2422,
+      "precision": 0.5515,
+      "splits": 951,
+      "merges": 11,
+      "merged_instances": 10,
+      "n_gt_fibers": 161,
+      "n_pred_instances": 120,
+      "gt_length": 33895.8,
+      "pred_length": 18680.0,
+      "tolerance": 2.0
     }
   },
   "floors_scoring_version": 3,
   "floors_not_recomputed": [],
   "floors_external": [
-    "tracer_strict_relink"
+    "tracer_strict_relink",
+    "villa_neural_tracer"
   ],
   "floors_external_source": {
-    "tracer_strict_relink": "vesuvius-autoresearch finding 80 labelling (reports/tracer_rescore.md, prereg f5f775c3 + Amendment 1 aa1c5712): bench_cli trace at its published defaults (relink on, tangent window 1, no skips, no seed NMS). Re-scored against the Dataset004 annotation in finding 82 (reports/scrollgt_current_annotations.md, prereg 6185a0a6), whose rows this reproduces exactly. Re-scored from the same labelling with scoring version 3 in ScrollGT 0.7.0; its version-2 row reproduces exactly as erl_covered and erl_merge_penalized_covered."
+    "tracer_strict_relink": "vesuvius-autoresearch finding 80 labelling (reports/tracer_rescore.md, prereg f5f775c3 + Amendment 1 aa1c5712): bench_cli trace at its published defaults (relink on, tangent window 1, no skips, no seed NMS). Re-scored against the Dataset004 annotation in finding 82 (reports/scrollgt_current_annotations.md, prereg 6185a0a6), whose rows this reproduces exactly. Re-scored from the same labelling with scoring version 3 in ScrollGT 0.7.0; its version-2 row reproduces exactly as erl_covered and erl_merge_penalized_covered.",
+    "villa_neural_tracer": "vesuvius-autoresearch finding 91 (reports/neural_tracer_entrant.md, prereg 8a0d033f + amendment baa7e917, 2026-10-16): villa #2045's vesuvius.neural_tracing.tracers.fibers.tracing.volume at villa ccb431818, checkpoint scrollprize/fiber_single_small at 451182558cb3270cfc2ddf967acbd4f36b9b816b (last.pt sha256 3268a0ac1807debdeaded05fa7bc90b82d3ca8102125247e5cba688a10a4811f), volume mode, every default plus --ct-level 0 --ct-grid-scale 1 --grid-scale 2 --base-um 7.91 for a 7.91 um cube; presence = the probability of scrollprize/fiber_hz_vt, the reference mask's own model. Its .afv fibers are rasterised as thin centrelines (afv_to_labels.py: 0.25 vx samples, nearest sample wins a voxel). Deterministic: two repeated cubes reproduced exactly. Training (read from the checkpoint): 563 Scroll 1 (Paris 4) fibers and four automated fiber volumes (PHerc0175A, PHerc1447, PHerc0125, Paris 4 central); no Scroll 3 or Scroll 5."
   }
 }
