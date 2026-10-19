@@ -367,12 +367,20 @@ How its rows differ from the others:
 0.480, against our tracer's 0.551 and connected components' 0.826. Connected components still leads on raw ERL on
 every cube (4.8–7.7×), so it does not clear the bar of beating connected components on both metrics.
 
+**Its Scroll-3 lead depends on running at the cubes' own 7.91 µm (0.8.1).** Resampled to its 9.6 µm training pitch, it
+scores lower on all 21 cubes (merge-penalized ERL a median 0.63 of the published rows) and leads our tracer on none of
+the 8 Scroll-3 cubes (vesuvius-autoresearch finding 92, pre-registered, `reports/neural_tracer_pitch.md`). The rows
+here are the native run, the higher of the two on every cube, so they stay the better measure of the tool as run here.
+Why it falls is not established: its settings are in grid voxels, so resampling also lengthens each in physical units
+and shrinks each cube's trace grid, and interpolation smooths the CT. Resampling is not a 9.6 µm scan.
+
 **On the other 13 cubes it trails our tracer on merge-penalized ERL,** including the five from Scroll 1, its own
 training scroll: median 7.22 against 21.26 on the 8 in-sample 256³ cubes, and 9.33 against 19.66 on the 3 in-sample
 512³ ones. On the two held-out Scroll-5 cubes its coverage is 0.134 and 0.096, and it leads connected components on
-one of them (5.71 against 4.73). Why the scrolls differ is untested: the scan (its Scroll 1 data is the 2.4 µm rescan),
-the 7.91 µm pitch, finer than any of its sources, the cube size, or annotation style. The in-sample cubes also favour
-our tracer and connected components, which are built from a mask that trained on them.
+one of them (5.71 against 4.73). Pitch is not the main cause of the in-sample deficit: at 9.6 µm it still trails our
+tracer on all 11 in-sample cubes (finding 92). Why the scrolls differ is otherwise untested: the scan (its Scroll 1 data
+is the 2.4 µm rescan), the cube size, or annotation style. The in-sample cubes also favour our tracer and connected
+components, which are built from a mask that trained on them.
 
 One checkpoint, in volume mode, at its defaults: VC3D's seed mode is not tested. Bold: its merge-penalized ERL
 leads both our tracer and connected components.
