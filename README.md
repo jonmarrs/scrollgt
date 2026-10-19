@@ -7,6 +7,20 @@
 targets, column-level reading targets, and fiber connectivity targets, each with anti-gaming
 floors and our own negative results published.**
 
+> **v0.8.1 — villa's neural tracer: its Scroll-3 lead depends on the pitch it runs at. No row changes.**
+> * **The check.** Its checkpoint trained on 8.64–9.6 µm CT, the cubes are 7.91 µm, and no flag changes the pitch its
+>   network sees. vesuvius-autoresearch finding 92 (pre-registered, `reports/neural_tracer_pitch.md`) resampled each
+>   cube to 9.6 µm, the pitch of its Scroll 1 source, traced it with the same settings and scored it here, in the
+>   cube's own frame.
+> * **Its Scroll-3 lead depends on running at the cubes' own 7.91 µm.** Resampled to its 9.6 µm training pitch, it
+>   scores lower on all 21 cubes (merge-penalized ERL a median 0.63 of the published rows) and leads our tracer on
+>   none of the 8 Scroll-3 cubes. Per cube the ratio is 0.44–0.94.
+> * **The published rows stay.** They are the native run, the higher of the two on every cube. The note is in
+>   [`baselines/BASELINES.md`](baselines/BASELINES.md) and in each target's `floors_external_source`. Pitch is not
+>   the main cause of its in-sample deficit: at 9.6 µm it still trails our tracer on all 11 in-sample cubes.
+> * **Why it falls is not established.** Its settings are in grid voxels, so at 9.6 µm each is 21% longer in physical
+>   units; each cube's trace grid shrinks; and interpolation smooths the CT. Resampling is not a 9.6 µm scan.
+
 > **v0.8.0 — a third fiber entrant: villa's own neural tracer.**
 > * **The entrant.** villa's neural fiber tracer ([villa #2045](https://github.com/ScrollPrize/villa/pull/2045),
 >   checkpoint `scrollprize/fiber_single_small`, every default), run on all 21 cubes and scored with this scorer
@@ -577,7 +591,9 @@ order-dependent version-1 scorer and does not hold under versions 2 or 3.
 centrelines, not a relabelling of the shipped mask, though its presence input is the mask model's probability. On
 the eight Scroll-3 cubes it ranks first on merge-penalized ERL, ahead of our tracer and connected components on all
 8, with less coverage. On the other 13 cubes it trails our tracer on merge-penalized ERL, and connected components
-leads it on raw ERL on every cube.
+leads it on raw ERL on every cube. Its Scroll-3 lead depends on running at the cubes' own 7.91 µm (0.8.1). Resampled to
+its 9.6 µm training pitch, it scores lower on all 21 cubes (merge-penalized ERL a median 0.63 of the published rows)
+and leads our tracer on none of the 8 Scroll-3 cubes.
 Full tables in [`baselines/BASELINES.md`](baselines/BASELINES.md).
 
 ## Roadmap
