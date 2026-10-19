@@ -343,6 +343,81 @@ components leads on all ten (4.8–8.8×). On the two Scroll-5 cubes the tracer'
 components' collapse (its merge-penalized ERL falls to 3.8 and 4.7) rather than from the tracer, whose own
 penalized ERL also falls below its in-sample range.
 
+### villa's neural fiber tracer (0.8.0)
+
+A third entrant, and the first that ScrollGT's authors did not write: villa's neural fiber tracer
+([villa #2045](https://github.com/ScrollPrize/villa/pull/2045), `vesuvius.neural_tracing.tracers.fibers`) with its
+default checkpoint, `scrollprize/fiber_single_small`, in volume mode at every default. We ran it on all 21 cubes and
+scored it (vesuvius-autoresearch finding 91, pre-registered, `reports/neural_tracer_entrant.md`). Its rows are
+`villa_neural_tracer`, and each `meta.json` records their provenance under `floors_external_source`: the villa commit,
+the checkpoint's revision and sha256, and the four flags that read a 7.91 µm cube.
+
+How its rows differ from the others:
+* **Its labelling is its own.** It exports traced fibers as polylines, rasterised here as thin centrelines. Its
+  presence input is the probability of `fiber_hz_vt`, the reference mask's model, but its voxels are not a
+  relabelling of the shipped mask, so its coverage and precision are its own, not the floors'.
+* **It trained on different data from the mask.** Read from the checkpoint: 563 Scroll 1 fibers and four automated
+  fiber volumes (PHerc0175A, PHerc1447, PHerc0125, Paris 4 central), at 8.64–9.6 µm, and no Scroll 3 or Scroll 5.
+  So the eight Scroll-3 cubes are a scroll that none of the three entrants trained on, and the in-sample cubes
+  include its own training scroll, Scroll 1, in another scan.
+* **Its runs are deterministic:** two repeated cubes reproduce exactly.
+
+**On Scroll 3 it ranks first on merge-penalized ERL.** It is above our tracer on all 8 cubes (1.11–1.33×, median
+25.30 against 20.98) and above connected components on all 8 (median 15.04). It covers less fiber: median coverage
+0.480, against our tracer's 0.551 and connected components' 0.826. Connected components still leads on raw ERL on
+every cube (4.8–7.7×), so it does not clear the bar of beating connected components on both metrics.
+
+**On the other 13 cubes it trails our tracer on merge-penalized ERL,** including the five from Scroll 1, its own
+training scroll: median 7.22 against 21.26 on the 8 in-sample 256³ cubes, and 9.33 against 19.66 on the 3 in-sample
+512³ ones. On the two held-out Scroll-5 cubes its coverage is 0.134 and 0.096, and it leads connected components on
+one of them (5.71 against 4.73). Why the scrolls differ is untested: the scan (its Scroll 1 data is the 2.4 µm rescan),
+the 7.91 µm pitch, finer than any of its sources, the cube size, or annotation style. The in-sample cubes also favour
+our tracer and connected components, which are built from a mask that trained on them.
+
+One checkpoint, in volume mode, at its defaults: VC3D's seed mode is not tested. Bold: its merge-penalized ERL
+leads both our tracer and connected components.
+
+#### villa's neural tracer, in sample, 256³ (n=8)
+
+| cube | split | neural ERL | cc ERL | neural ERLpen | tracer ERLpen | cc ERLpen | neural coverage | tracer coverage |
+|---|---|---|---|---|---|---|---|---|
+| s1_00497_01497_03997 | primary | 5.73 | 183.97 | 5.20 | 19.22 | 34.04 | 0.2119 | 0.6231 |
+| s1_00497_02497_02997 | primary | 11.86 | 160.98 | 7.77 | 21.76 | 37.19 | 0.2682 | 0.6136 |
+| s1_00997_02497_02997 | primary | 9.75 | 169.31 | 8.62 | 23.44 | 50.02 | 0.2418 | 0.6054 |
+| s1_08997_02997_02497 | primary | 6.73 | 132.73 | 5.88 | 20.29 | 47.92 | 0.2422 | 0.5598 |
+| s1_10997_02997_02997 | primary | 11.68 | 171.71 | 11.64 | 27.24 | 49.80 | 0.2628 | 0.6164 |
+| s5_03997_01497_03997 | cross_scroll | 4.80 | 157.94 | 4.80 | 20.75 | 46.95 | 0.1564 | 0.6233 |
+| s5_07997_02997_05497 | cross_scroll | 7.89 | 187.17 | 7.82 | 29.48 | 79.76 | 0.2354 | 0.6755 |
+| s5_14997_01497_01497 | cross_scroll | 7.81 | 140.99 | 6.67 | 19.94 | 19.88 | 0.2384 | 0.5932 |
+
+#### villa's neural tracer, in sample, 512³ (n=3)
+
+| cube | split | neural ERL | cc ERL | neural ERLpen | tracer ERLpen | cc ERLpen | neural coverage | tracer coverage |
+|---|---|---|---|---|---|---|---|---|
+| s5_06494_01994_03994 | cross_scroll | 14.45 | 286.00 | 12.66 | 28.63 | 13.85 | 0.3807 | 0.6716 |
+| s5_06994_00994_04994 | cross_scroll | 10.50 | 199.38 | 8.46 | 19.66 | 8.57 | 0.3332 | 0.5759 |
+| s5_07994_01994_05494 | cross_scroll | 10.93 | 212.83 | 9.33 | 19.63 | 14.00 | 0.3422 | 0.5742 |
+
+#### villa's neural tracer, held out, 256³ (n=2)
+
+| cube | split | neural ERL | cc ERL | neural ERLpen | tracer ERLpen | cc ERLpen | neural coverage | tracer coverage |
+|---|---|---|---|---|---|---|---|---|
+| s5_13497_01497_02497 | held_out | 5.91 | 53.29 | 5.71 | 10.17 | 4.73 | 0.1340 | 0.3783 |
+| s5_16997_03997_04497 | held_out | 4.03 | 41.37 | 2.80 | 4.71 | 3.76 | 0.0964 | 0.2549 |
+
+#### villa's neural tracer, held out, 512³ (n=8)
+
+| cube | split | neural ERL | cc ERL | neural ERLpen | tracer ERLpen | cc ERLpen | neural coverage | tracer coverage |
+|---|---|---|---|---|---|---|---|---|
+| s3_00994_00494_01994 | held_out | 34.62 | 187.41 | **29.48** | 22.09 | 15.26 | 0.5414 | 0.5328 |
+| s3_00994_01994_00494 | held_out | 38.69 | 200.48 | **32.70** | 24.76 | 23.81 | 0.5124 | 0.5515 |
+| s3_00994_02494_01494 | held_out | 27.76 | 175.80 | **22.87** | 17.18 | 6.24 | 0.4419 | 0.4998 |
+| s3_01994_01494_00994 | held_out | 25.94 | 195.64 | **23.69** | 21.27 | 15.48 | 0.4415 | 0.5510 |
+| s3_01994_01994_01494 | held_out | 28.63 | 192.39 | **24.65** | 19.52 | 12.99 | 0.4616 | 0.5823 |
+| s3_02994_02494_01994 | held_out | 39.01 | 266.75 | **33.64** | 29.97 | 14.83 | 0.5180 | 0.6390 |
+| s3_03494_01494_00494 | held_out | 32.97 | 158.40 | **25.96** | 20.70 | 25.93 | 0.4608 | 0.5020 |
+| s3_04494_00994_01494 | held_out | 27.41 | 212.27 | **21.35** | 17.82 | 8.58 | 0.4981 | 0.5756 |
+
 ### What the floors establish
 
 All four floors score **identical coverage and precision**, because those metrics are properties

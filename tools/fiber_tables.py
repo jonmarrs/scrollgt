@@ -31,6 +31,27 @@ def table(size: int, held_out: bool = False) -> str:
     return "\n".join(out)
 
 
+NEURAL = "villa_neural_tracer"
+
+
+def entrant_table(size: int, held_out: bool = False, row: str = NEURAL) -> str:
+    """An external entrant beside our tracer and cc, one size class and split. Bold: its ERLpen leads both."""
+    out = ["| cube | split | neural ERL | cc ERL | neural ERLpen | tracer ERLpen | cc ERLpen | neural coverage | tracer coverage |",
+           "|---|---|---|---|---|---|---|---|---|"]  # fmt: skip
+    for p in sorted((ROOT / "data").glob(f"fibers_*_{size}")):
+        m = json.loads((p / "meta.json").read_text())
+        if (m["split"] == "held_out") != held_out:
+            continue
+        f = m["floors"]
+        n, t, c = f[row], f["tracer_strict_relink"], f["floor_connected_components"]
+        lead = n["erl_merge_penalized"] > max(t["erl_merge_penalized"], c["erl_merge_penalized"])
+        pen = f"**{n['erl_merge_penalized']:.2f}**" if lead else f"{n['erl_merge_penalized']:.2f}"
+        cube = p.name.removeprefix("fibers_").removesuffix(f"_{size}")
+        out.append(f"| {cube} | {m['split']} | {n['erl']:.2f} | {c['erl']:.2f} | {pen} | {t['erl_merge_penalized']:.2f} | "
+                   f"{c['erl_merge_penalized']:.2f} | {n['coverage']:.4f} | {t['coverage']:.4f} |")  # fmt: skip
+    return "\n".join(out)
+
+
 FLOORS = {"oracle": "*oracle (disclosed)*", "floor_single_instance": "floor: one instance for everything",
           "floor_connected_components": "floor: connected components",
           "floor_voxel_instances": "floor: one instance per voxel", "floor_random_instances": "floor: 50 random instances"}  # fmt: skip
@@ -58,4 +79,8 @@ if __name__ == "__main__":
         print(f"### {size}³\n\n{table(size)}\n")
     for size in (256, 512):
         print(f"### held out, {size}³\n\n{table(size, held_out=True)}\n")
+    for held_out in (False, True):
+        for size in (256, 512):
+            print(f"### villa's neural tracer, {'held out' if held_out else 'in sample'}, {size}³\n\n"
+                  f"{entrant_table(size, held_out=held_out)}\n")
     print(f"### floors\n\n{floors_table()}\n")

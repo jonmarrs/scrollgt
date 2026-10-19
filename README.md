@@ -7,6 +7,20 @@
 targets, column-level reading targets, and fiber connectivity targets, each with anti-gaming
 floors and our own negative results published.**
 
+> **v0.8.0 — a third fiber entrant: villa's own neural tracer.**
+> * **The entrant.** villa's neural fiber tracer ([villa #2045](https://github.com/ScrollPrize/villa/pull/2045),
+>   checkpoint `scrollprize/fiber_single_small`, every default), run on all 21 cubes and scored with this scorer
+>   (vesuvius-autoresearch finding 91, pre-registered). Its rows are `villa_neural_tracer` in each `meta.json`,
+>   beside our tracer's, with their provenance. It trained on Scroll 1 and four automated fiber volumes, and on no
+>   Scroll 3 or Scroll 5.
+> * **On Scroll 3, which none of the three entrants trained on, it ranks first on merge-penalized ERL** on all 8
+>   cubes (median 25.30, against our tracer's 20.98 and connected components' 15.04), with less coverage (median
+>   0.480, against 0.551 and 0.826). Connected components still leads on raw ERL on every cube.
+> * **On the other 13 cubes it trails our tracer,** including those from Scroll 1, its own training scroll. Why is
+>   untested. Tables and caveats are in [`baselines/BASELINES.md`](baselines/BASELINES.md).
+> * **No scorer change:** every other row is as in 0.7.0. `tools/import_tracer_rows.py` now takes `--row`, keeps
+>   the entrants already listed, and writes nothing if any target's labelling is missing.
+
 > **v0.7.0 — fiber ERL now counts the fiber a labelling misses; one published claim reversed.**
 > * **The flaw.** Up to 0.6.0, ERL and ERLpen divided the sum of squared run lengths by the *covered* length, so
 >   fiber a labelling missed never entered the score, and deleting short fragments raised it. On
@@ -535,8 +549,9 @@ Each target's `meta.json` names the NML file and its SHA-256 under `ground_truth
 `nml/` files carry fiber identity; the shipped `labelsTr/*.tif` are semantic and cannot support
 connectivity metrics.
 
-Reference mask: `scrollprize/fiber_hz_vt` (Apache-2.0) at P ≥ 0.5, identical for every entrant so
-scorecard differences come from the labelling rather than the segmentation. **It was trained on
+Reference mask: `scrollprize/fiber_hz_vt` (Apache-2.0) at P ≥ 0.5, identical for every entrant built on it (the
+floors and our tracer), so their scorecard differences come from the labelling rather than the segmentation.
+villa's neural tracer (0.8.0) labels its own centrelines, with the mask's model as its presence input. **It was trained on
 the eleven in-sample cubes** and on none of the ten held-out ones. Its training fingerprint matches
 villa's Dataset002, which holds all 11 in-sample targets in earlier annotation versions. On those, a
 score built on the mask measures the instance step on an in-sample segmentation, not
@@ -557,6 +572,12 @@ components leads, 25.93 against 20.70 (0.6.0 said all ten, under version 2). On 
 tracer's lead comes from connected components' collapse (merge-penalized ERL 3.8 and 4.7), not from the tracer
 improving. Up to 0.3.2 this README said the tracer lost on both metrics on every cube. That came from the
 order-dependent version-1 scorer and does not hold under versions 2 or 3.
+
+**villa's neural fiber tracer (0.8.0)** is the third entrant, run at its defaults. Its labelling is its own thin
+centrelines, not a relabelling of the shipped mask, though its presence input is the mask model's probability. On
+the eight Scroll-3 cubes it ranks first on merge-penalized ERL, ahead of our tracer and connected components on all
+8, with less coverage. On the other 13 cubes it trails our tracer on merge-penalized ERL, and connected components
+leads it on raw ERL on every cube.
 Full tables in [`baselines/BASELINES.md`](baselines/BASELINES.md).
 
 ## Roadmap

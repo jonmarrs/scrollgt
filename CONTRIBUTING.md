@@ -65,8 +65,8 @@ mismatched shape with a `ValueError`, and eleven of the targets are 512³.
    labels = np.zeros(shape, np.int32)
    ```
    The reference fiber mask is in the target's `mask.npz` if you want to label that rather
-   than segment your own; every published row is scored against that same mask, so
-   differences come from the labelling.
+   than segment your own. The floors and our tracer's rows are labellings of that same mask, so
+   differences among them come from the labelling; villa's neural tracer labels its own centrelines.
 2. Score it:
    ```bash
    scrollgt score-fibers labels.npy data/fibers_<cube> --json-out card.json
@@ -98,7 +98,8 @@ mismatched shape with a `ValueError`, and eleven of the targets are 512³.
    `s5_*`) are the ones the reference mask never trained on. If your own model trained on villa's
    Dataset004, they are in-sample for you; say so. None of the splits is withheld data: the ground
    truth is a public villa dataset and cannot be hidden. Beating connected components on **both**
-   metrics is the bar; our own tracer does not clear it (see `baselines/BASELINES.md`).
+   metrics is the bar; neither our own tracer nor villa's neural tracer clears it (see
+   `baselines/BASELINES.md`).
 
 ## Add a target
 
