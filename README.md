@@ -7,6 +7,19 @@
 targets, column-level reading targets, and fiber connectivity targets, each with anti-gaming
 floors and our own negative results published.**
 
+> **v0.8.2 — five in-sample fiber cubes: the hand-traced centrelines sit about a voxel off the CT's fibers.**
+> * **The measurement.** vesuvius-autoresearch PR #157 (exploratory, `reports/neural_tracer_entrant.md`) measured where
+>   the two thin fiber entrants' centrelines sit relative to the ground truth. On 5 of the 11 in-sample cubes, villa's
+>   neural tracer and #1934's generator agree on a shift of 1.01–1.53 voxels in a consistent direction. The CT alone,
+>   smoothed at sigma 1, puts the fibers' centres 0.51–0.93 voxels off the hand-traced centrelines in the same
+>   direction. Moving the neural tracer by the generator's shift raises its share within 2 voxels by 0.06–0.09 on
+>   these cubes.
+> * **What it means for scores.** At this scorer's 2-voxel tolerance, a thin entrant that follows the CT loses part of
+>   its credit on these cubes, while the thick, mask-built entrants hardly notice. It is part of the thin entrants'
+>   in-sample gap, not all of it.
+> * **No row or ground truth changes.** Each of the five cubes' `meta.json` gives its own shift under
+>   `ground_truth.placement_note`. The measurement came after the fact and is not a correction.
+
 > **v0.8.1 — villa's neural tracer: its Scroll-3 lead depends on the pitch it runs at. No row changes.**
 > * **The check.** Its checkpoint trained on 8.64–9.6 µm CT, the cubes are 7.91 µm, and no flag changes the pitch its
 >   network sees. vesuvius-autoresearch finding 92 (pre-registered, `reports/neural_tracer_pitch.md`) resampled each

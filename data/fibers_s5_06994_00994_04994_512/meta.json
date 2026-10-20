@@ -29,7 +29,8 @@
       "dataset": "Dataset004_sk-fibers-binary-20250728",
       "file": "fibers_s5_06994z_00994y_04994x_512_v01.nml",
       "sha256": "daa11116851742bc697adb8f8ff4fc0ba6bcbbad135c3709b91e7d61ca8c7c91"
-    }
+    },
+    "placement_note": "Exploratory measurement, vesuvius-autoresearch PR #157 (reports/neural_tracer_entrant.md, reports/neural_tracer_gt_offset.json, 2026-10-20): the hand-traced centrelines here sit about a voxel off the fibers' centres in the CT. Two thin entrants, villa's neural tracer and #1934's generator, agree on a mean shift of (z, y, x) = (1.01, 0.42, 1.07) voxels (each the median displacement to the ground truth along an axis, over samples on fibers within 30 degrees of perpendicular to it). The CT alone, smoothed at sigma 1, is brightest 0.77 voxels off the hand-traced centreline in the same direction. Moving the neural tracer's centreline by the generator's shift raises its share within 2 voxels of the ground truth from 0.497 to 0.583. Measured after the fact, on 5 of the 11 in-sample cubes; it is part of the thin entrants' in-sample gap, not all of it. The ground truth and every row are unchanged."
   },
   "convention_check": {
     "claim": "NML nodes are x,y,z in absolute scroll space; volumes index z,y,x; the cube origin is encoded in the filename as <scroll>_<z>_<y>_<x>_<size>",

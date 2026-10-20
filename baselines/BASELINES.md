@@ -382,6 +382,12 @@ tracer on all 11 in-sample cubes (finding 92). Why the scrolls differ is otherwi
 is the 2.4 µm rescan), the cube size, or annotation style. The in-sample cubes also favour our tracer and connected
 components, which are built from a mask that trained on them.
 
+**On five in-sample cubes the hand-traced centrelines sit about a voxel off the CT's fibers (0.8.2).** villa's neural
+tracer and #1934's generator agree on a shift of 1.01–1.53 voxels there. The CT alone puts the fibers' centres
+0.51–0.93 voxels off in the same direction (vesuvius-autoresearch PR #157, exploratory). Moving the neural tracer by
+the generator's shift raises its share within 2 voxels by 0.06–0.09 on these cubes: part of its in-sample gap, not all
+of it. No row changes. Each cube's values are in its `meta.json`, under `ground_truth.placement_note`.
+
 One checkpoint, in volume mode, at its defaults: VC3D's seed mode is not tested. Bold: its merge-penalized ERL
 leads both our tracer and connected components.
 
