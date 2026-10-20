@@ -382,6 +382,20 @@ tracer on all 11 in-sample cubes (finding 92). Why the scrolls differ is otherwi
 is the 2.4 µm rescan), the cube size, or annotation style. The in-sample cubes also favour our tracer and connected
 components, which are built from a mask that trained on them.
 
+**Its in-sample deficit is a tolerance-2 result on the 512³ cubes (0.8.2, finding 94): at tolerance 4 it leads our
+tracer on all three in-sample 512³ cubes (median 49.50 against 43.69), and still trails on all eight in-sample 256³
+cubes and both held-out Scroll-5 cubes. Its Scroll-3 lead holds at tolerance 4 and widens (a median 2.22 times our
+tracer, against 1.26).** Finding 94 (vesuvius-autoresearch, `reports/tolerance4_rescore.md`) was pre-registered. The
+tables here stay at tolerance 2, and those three cubes' `floors_external_source` give their tolerance-4 scores.
+
+**On five in-sample cubes the hand-traced centrelines sit about a voxel off the CT's fibers (0.8.2).** villa's neural
+tracer and #1934's generator agree on a shift of 1.01–1.53 voxels there. The CT alone puts the fibers' centres
+0.51–0.93 voxels off in the same direction (vesuvius-autoresearch PR #157, exploratory). Moving the neural tracer by
+the generator's shift raises its share within 2 voxels by 0.06–0.09 on these cubes: part of its in-sample gap, not all
+of it. These five are where the offset is largest, by a cut chosen after seeing the values. The CT alone puts the
+fibers' centres a smaller 0.18–0.48 voxels off on 7 of the 8 Scroll-3 cubes, so an offset of a fraction of a voxel may
+be general. No row changes. Each cube's values are in its `meta.json`, under `ground_truth.placement_note`.
+
 One checkpoint, in volume mode, at its defaults: VC3D's seed mode is not tested. Bold: its merge-penalized ERL
 leads both our tracer and connected components.
 

@@ -7,6 +7,27 @@
 targets, column-level reading targets, and fiber connectivity targets, each with anti-gaming
 floors and our own negative results published.**
 
+> **v0.8.2 — five in-sample fiber cubes: the hand-traced centrelines sit about a voxel off the CT's fibers; and
+> villa's neural tracer's in-sample deficit is a tolerance-2 result on the 512³ cubes.**
+> * **The measurement.** vesuvius-autoresearch PR #157 (exploratory, `reports/neural_tracer_entrant.md`) measured where
+>   the two thin fiber entrants' centrelines sit relative to the ground truth. On 5 of the 11 in-sample cubes, villa's
+>   neural tracer and #1934's generator agree on a shift of 1.01–1.53 voxels in a consistent direction. The CT alone,
+>   smoothed at sigma 1, puts the fibers' centres 0.51–0.93 voxels off the hand-traced centrelines in the same
+>   direction. Moving the neural tracer by the generator's shift raises its share within 2 voxels by 0.06–0.09 on
+>   these cubes. These five are where the offset is largest, by a cut chosen after seeing the values. The CT alone
+>   puts the fibers' centres a smaller 0.18–0.48 voxels off on 7 of the 8 Scroll-3 cubes, so an offset of a fraction
+>   of a voxel may be general.
+> * **The tolerance check.** Its in-sample deficit is a tolerance-2 result on the 512³ cubes (0.8.2, finding 94): at
+>   tolerance 4 it leads our tracer on all three in-sample 512³ cubes (median 49.50 against 43.69), and still trails
+>   on all eight in-sample 256³ cubes and both held-out Scroll-5 cubes. Its Scroll-3 lead holds at tolerance 4 and
+>   widens (a median 2.22 times our tracer, against 1.26). Finding 94 was pre-registered; the scores here stay at
+>   tolerance 2, and the three cubes' `floors_external_source` say so.
+> * **What it means for scores.** At this scorer's 2-voxel tolerance, a thin entrant that follows the CT loses part of
+>   its credit on these cubes, while the thick, mask-built entrants hardly notice. It is part of the thin entrants'
+>   in-sample gap, not all of it.
+> * **No row or ground truth changes.** Each of the five cubes' `meta.json` gives its own shift under
+>   `ground_truth.placement_note`. The measurement came after the fact and is not a correction.
+
 > **v0.8.1 — villa's neural tracer: its Scroll-3 lead depends on the pitch it runs at. No row changes.**
 > * **The check.** Its checkpoint trained on 8.64–9.6 µm CT, the cubes are 7.91 µm, and no flag changes the pitch its
 >   network sees. vesuvius-autoresearch finding 92 (pre-registered, `reports/neural_tracer_pitch.md`) resampled each
@@ -593,7 +614,10 @@ the eight Scroll-3 cubes it ranks first on merge-penalized ERL, ahead of our tra
 8, with less coverage. On the other 13 cubes it trails our tracer on merge-penalized ERL, and connected components
 leads it on raw ERL on every cube. Its Scroll-3 lead depends on running at the cubes' own 7.91 µm (0.8.1). Resampled to
 its 9.6 µm training pitch, it scores lower on all 21 cubes (merge-penalized ERL a median 0.63 of the published rows)
-and leads our tracer on none of the 8 Scroll-3 cubes.
+and leads our tracer on none of the 8 Scroll-3 cubes. Its in-sample deficit is a tolerance-2 result on the 512³ cubes
+(0.8.2, finding 94): at tolerance 4 it leads our tracer on all three in-sample 512³ cubes (median 49.50 against
+43.69), and still trails on all eight in-sample 256³ cubes and both held-out Scroll-5 cubes. Its Scroll-3 lead holds
+at tolerance 4 and widens (a median 2.22 times our tracer, against 1.26).
 Full tables in [`baselines/BASELINES.md`](baselines/BASELINES.md).
 
 ## Roadmap
