@@ -73,3 +73,10 @@ def test_the_release_note_and_baselines_give_the_ranges():
         assert f"by {min(gains):.2f}–{max(gains):.2f} on these cubes" in doc
         assert "No row changes." in doc or "No row or ground truth changes." in doc
     assert "> **v0.8.2 —" in (ROOT / "README.md").read_text()
+
+
+def test_the_five_are_the_largest_not_the_only():
+    """The CT alone puts Scroll 3's fiber centres 0.18–0.48 voxels off on 7 of its 8 cubes (#157's JSON, t* > 0)."""
+    for doc in (_flat(ROOT / "README.md"), _flat(ROOT / "baselines/BASELINES.md")):
+        assert "These five are where the offset is largest, by a cut chosen after seeing the values." in doc
+        assert "a smaller 0.18–0.48 voxels off on 7 of the 8 Scroll-3 cubes" in doc
