@@ -145,7 +145,7 @@ them before changing anything that touches fiber packaging or the ERL implementa
 asserts that the default run still includes a 512³ target, so the coverage cannot quietly
 collapse to one class.
 
-CI runs the default suite on Python 3.10–3.12 plus a CLI smoke on every push (see
+CI runs the default suite on Python 3.10–3.14 plus a CLI smoke on every push (see
 `.github/workflows/ci.yml`); it does not run `heavy`, because an 8 GB working set is at the
 edge of a hosted runner. Keep `src/scrollgt/metrics.py` byte-identical to the source
 repo's `detector/metrics.py` — the metric contract is the product, and the two must not
