@@ -603,7 +603,7 @@ To see that gap yourself, score the whole mask (the connected-components floor) 
 
 On the same two cubes villa's neural tracer, which draws its own centrelines, covers 0.0964 and 0.5414. Measured
 2026-10-23 on four cores shared with other jobs, from a fresh clone of v0.8.2 on Python 3.14.7 (numpy 2.5.4, scipy
-1.18.1): the 256³ cube took 26 s and 1.1 GB, the 512³ cube 300 s and 7.8 GB. Both rows, and the other held-out
+1.18.1): the 256³ cube took 26 s and 1.1 GB, the 512³ cube 300 s and 8.0 GB. Both rows, and the other held-out
 Scroll-5 cube's, matched the published `floor_connected_components` rows field for field.
 
 **Our own tracer on all 11 in-sample cubes, scoring version 3:**
