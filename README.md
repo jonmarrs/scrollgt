@@ -586,13 +586,25 @@ connectivity metrics.
 
 Reference mask: `scrollprize/fiber_hz_vt` (Apache-2.0) at P ≥ 0.5, identical for every entrant built on it (the
 floors and our tracer), so their scorecard differences come from the labelling rather than the segmentation.
-villa's neural tracer (0.8.0) labels its own centrelines, with the mask's model as its presence input. **It was trained on
-the eleven in-sample cubes** and on none of the ten held-out ones. Its training fingerprint matches
+villa's neural tracer (0.8.0) labels its own centrelines, with the mask's model as its presence input. **The mask's model
+was trained on the eleven in-sample cubes** and on none of the ten held-out ones. Its training fingerprint matches
 villa's Dataset002, which holds all 11 in-sample targets in earlier annotation versions. On those, a
 score built on the mask measures the instance step on an in-sample segmentation, not
 generalization. Against the current annotations the whole mask (the connected-components floor)
 covers 0.76–0.92 of ground-truth length in sample. Held out, it covers 0.77–0.87 on Scroll 3 and
 0.53–0.64 on the two new Scroll-5 cubes.
+
+To see that gap yourself, score the whole mask (the connected-components floor) on one held-out cube of each:
+
+```bash
+.venv/bin/scrollgt score-fibers --floor connected_components data/fibers_s5_16997_03997_04497_256  # coverage 0.5291
+.venv/bin/scrollgt score-fibers --floor connected_components data/fibers_s3_00994_00494_01994_512  # coverage 0.8096
+```
+
+On the same two cubes villa's neural tracer, which draws its own centrelines, covers 0.0964 and 0.5414. Measured
+2026-10-23 on four cores shared with other jobs, from a fresh clone of v0.8.2 on Python 3.14.7 (numpy 2.5.4, scipy
+1.18.1): the 256³ cube took 26 s and 1.1 GB, the 512³ cube 300 s and 8.0 GB. Both rows, and the other held-out
+Scroll-5 cube's, matched the published `floor_connected_components` rows field for field.
 
 **Our own tracer on all 11 in-sample cubes, scoring version 3:**
 * **Raw ERL:** connected components is far ahead on every cube (5.0–8.9×).
