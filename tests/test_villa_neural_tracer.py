@@ -48,7 +48,7 @@ def test_the_groups():
 @pytest.mark.parametrize("cube", sorted(META))
 def test_every_target_carries_the_row_as_an_external_entrant(cube):
     meta = META[cube]
-    assert meta["floors_external"] == [TRACER, ROW]
+    assert meta["floors_external"][:2] == [TRACER, ROW]  # 0.9.0 adds villa_neural_tracer_scan_context after them
     assert meta["floors"][ROW]["scoring_version"] == meta["floors_scoring_version"] == 3
     source = meta["floors_external_source"][ROW]
     for fact in ("finding 91", "villa #2045", "ccb431818", "fiber_single_small", CHECKPOINT_SHA256,

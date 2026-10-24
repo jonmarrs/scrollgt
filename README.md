@@ -7,6 +7,25 @@
 targets, column-level reading targets, and fiber connectivity targets, each with anti-gaming
 floors and our own negative results published.**
 
+> **v0.9.0 — the scan around each fiber cube: a tool that fetches it, and villa's neural tracer re-run with it as a
+> new row. No existing row changes.**
+> * **For entrants.** A tracer may now read the public scan past the cube's faces. `tools/context_ct.py` writes a
+>   cube's CT padded by up to 128 voxels of the scan it was cut from, converted as the cube's own CT was. With
+>   `--check`, it confirms that the core is the cube's own CT, voxel for voxel. Scoring is unchanged: on the cube
+>   alone, against its ground truth.
+> * **Why.** villa's neural tracer drops any seed whose 77-voxel CT window crosses the edge of the CT it is given
+>   (0.8.3). Given the cube alone, that edge is the cube's face. On a scroll it is far away.
+> * **A new row, `villa_neural_tracer_scan_context`, on all 21 cubes** (vesuvius-autoresearch findings 97 and 98,
+>   both pre-registered). It is `villa_neural_tracer`'s tracer, checkpoint and settings, given 128 voxels of the scan
+>   around each cube, with its box still the cube.
+>   * Its coverage is 1.76–2.78 times the cube-only row on the 256³ cubes, and 1.19–1.35 times on the 512³ ones.
+>   * On merge-penalized ERL it ranks first, ahead of our tracer and connected components, on 10 of the 21 cubes: the
+>     eight Scroll-3 cubes and the two held-out Scroll-5 ones. The cube-only row ranks first on 8.
+>   * It still trails our tracer on all 11 in-sample cubes, and connected components still leads it on raw ERL on
+>     every cube.
+> * **Every other row, and the reference mask, use the cube alone.** So do the cube-only `villa_neural_tracer` rows,
+>   which stay as published.
+
 > **v0.8.3 — villa's neural tracer on the 256³ cubes: given the cube's CT alone, it cannot seed near the faces; given
 > the scan around the cube, its coverage about doubles. No row changes.**
 > * **The rule.** It sets each seed's heading from a 77-voxel window of CT around the seed, and drops the seed if the
@@ -582,6 +601,19 @@ that. Pass `--recompute-floors` to verify them yourself from the shipped mask in
 the published values: ~50 s for a 256³ cube, several minutes for a 512³ one (its
 connected-components floor alone is ~70 s, at ~8 GB peak RSS).
 
+**The scan around each cube (0.9.0).** Scoring needs only the repo, but a tracer may also read past the cube's faces.
+`tools/context_ct.py` fetches a cube's CT padded by up to 128 voxels of the public scan it was cut from. Scroll 1 and
+Scroll 3 come by byte range from their raw slices; Scroll 5 comes from its raw zarr, which needs `numcodecs`. The CT is
+converted as the cube's own was. With `--check CUBE_CT.tif` it confirms that the core is the cube's own CT, voxel for
+voxel. At 128 voxels a 256³ cube takes about 0.3–0.5 GB of download and a 512³ one 0.9–1.5 GB. A row that uses it says
+so: `villa_neural_tracer_scan_context` did, with 128 voxels. Every other row, and the reference mask, use the cube
+alone.
+
+```bash
+# 512³ uint8, the cube at [128, 384) on each axis
+python tools/context_ct.py s1_00497_01497_03997_256 --out context.npy
+```
+
 Twenty-one cubes, in two size classes (**ten at 256³**, **eleven at 512³**) and three splits.
 * **In sample: 11 cubes, all trained on by the reference mask.**
   * `primary`: the five `s1_*` cubes.
@@ -653,7 +685,9 @@ and leads our tracer on none of the 8 Scroll-3 cubes. Its in-sample deficit is a
 at tolerance 4 and widens (a median 2.22 times our tracer, against 1.26). On the 256³ cubes this benchmark's protocol
 keeps it from seeding near the faces (0.8.3, finding 96): it drops any seed whose 77-voxel CT window crosses the edge
 of the CT it is given, and it is given the cube alone. Given the scan around each 256³ cube, its coverage there rises
-1.76–2.78× (finding 97).
+1.76–2.78× (finding 97). With 128 voxels of the scan around every cube (0.9.0, findings 97 and 98), as the row
+`villa_neural_tracer_scan_context`, it ranks first on merge-penalized ERL on 10 of the 21 cubes, against the cube-only
+row's 8. It still trails our tracer on all 11 in-sample cubes.
 Full tables in [`baselines/BASELINES.md`](baselines/BASELINES.md).
 
 ## Roadmap

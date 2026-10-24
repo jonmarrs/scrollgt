@@ -461,6 +461,71 @@ leads both our tracer and connected components.
 | s3_03494_01494_00494 | held_out | 32.97 | 158.40 | **25.96** | 20.70 | 25.93 | 0.4608 | 0.5020 |
 | s3_04494_00994_01494 | held_out | 27.41 | 212.27 | **21.35** | 17.82 | 8.58 | 0.4981 | 0.5756 |
 
+### villa's neural tracer with the scan around the cube (0.9.0)
+
+The same tracer, checkpoint and settings as `villa_neural_tracer`, given 128 voxels of the public scan around each
+cube, with its box still the cube. vesuvius-autoresearch ran it on all 21 cubes in two pre-registered runs: finding 97
+on the 256³ cubes (`reports/neural_tracer_ct_context.md`) and finding 98 on the 512³ ones
+(`reports/neural_tracer_ct_context_512.md`). Its rows are `villa_neural_tracer_scan_context`, and `tools/context_ct.py`
+fetches the same padded CT. The presence it reads is unchanged: the reference mask's model, run on the cube alone, with
+zeros beyond it.
+
+* **Seeds:** it drops 0.002–0.012 of its seed dots on the 11 in-sample cubes, 0.011–0.088 on Scroll 3, and 0.266 and
+  0.353 on the two held-out Scroll-5 cubes. With the cube alone it dropped 0.26–0.70.
+* **Coverage:** 1.76–2.78 times the cube-only row on the 256³ cubes, and 1.19–1.35 times on the 512³ ones.
+* **Ranking:** on merge-penalized ERL it is first, ahead of our tracer and connected components, on 10 of the 21
+  cubes. Those are all 8 Scroll-3 cubes (median 33.38, against our tracer's 20.98) and both held-out Scroll-5 cubes.
+  The cube-only row is first on 8. On Scroll 3 it now also covers more than our tracer on all 8 cubes (median 0.617,
+  against 0.551; the cube-only row's is 0.480). On the 11 in-sample cubes it still trails our tracer: median 13.46
+  against 21.26 on the 256³ cubes, and 11.65 against 19.66 on the 512³ ones.
+* **Raw ERL:** connected components still leads it on every cube (3.2–17.0×), so it does not clear the bar of beating
+  connected components on both metrics.
+* **At tolerance 4,** from the findings (the tables stay at tolerance 2), it leads our tracer on 19 of the 21 cubes,
+  against 11 with the cube alone.
+
+Bold: its merge-penalized ERL leads both our tracer and connected components.
+
+#### With the scan around the cube, in sample, 256³ (n=8)
+
+| cube | split | neural ERL | cc ERL | neural ERLpen | tracer ERLpen | cc ERLpen | neural coverage | tracer coverage |
+|---|---|---|---|---|---|---|---|---|
+| s1_00497_01497_03997 | primary | 10.84 | 183.97 | 10.03 | 19.22 | 34.04 | 0.3816 | 0.6231 |
+| s1_00497_02497_02997 | primary | 20.91 | 160.98 | 15.70 | 21.76 | 37.19 | 0.4887 | 0.6136 |
+| s1_00997_02497_02997 | primary | 13.49 | 169.31 | 11.80 | 23.44 | 50.02 | 0.4251 | 0.6054 |
+| s1_08997_02997_02497 | primary | 15.43 | 132.73 | 13.15 | 20.29 | 47.92 | 0.4605 | 0.5598 |
+| s1_10997_02997_02997 | primary | 21.34 | 171.71 | 20.49 | 27.24 | 49.80 | 0.5175 | 0.6164 |
+| s5_03997_01497_03997 | cross_scroll | 12.50 | 157.94 | 12.50 | 20.75 | 46.95 | 0.4016 | 0.6233 |
+| s5_07997_02997_05497 | cross_scroll | 15.35 | 187.17 | 14.64 | 29.48 | 79.76 | 0.4558 | 0.6755 |
+| s5_14997_01497_01497 | cross_scroll | 15.40 | 140.99 | 13.76 | 19.94 | 19.88 | 0.4826 | 0.5932 |
+
+#### With the scan around the cube, in sample, 512³ (n=3)
+
+| cube | split | neural ERL | cc ERL | neural ERLpen | tracer ERLpen | cc ERLpen | neural coverage | tracer coverage |
+|---|---|---|---|---|---|---|---|---|
+| s5_06494_01994_03994 | cross_scroll | 20.04 | 286.00 | 17.41 | 28.63 | 13.85 | 0.5139 | 0.6716 |
+| s5_06994_00994_04994 | cross_scroll | 14.25 | 199.38 | 11.43 | 19.66 | 8.57 | 0.4501 | 0.5759 |
+| s5_07994_01994_05494 | cross_scroll | 13.67 | 212.83 | 11.65 | 19.63 | 14.00 | 0.4304 | 0.5742 |
+
+#### With the scan around the cube, held out, 256³ (n=2)
+
+| cube | split | neural ERL | cc ERL | neural ERLpen | tracer ERLpen | cc ERLpen | neural coverage | tracer coverage |
+|---|---|---|---|---|---|---|---|---|
+| s5_13497_01497_02497 | held_out | 16.58 | 53.29 | **11.41** | 10.17 | 4.73 | 0.3332 | 0.3783 |
+| s5_16997_03997_04497 | held_out | 12.33 | 41.37 | **9.87** | 4.71 | 3.76 | 0.2679 | 0.2549 |
+
+#### With the scan around the cube, held out, 512³ (n=8)
+
+| cube | split | neural ERL | cc ERL | neural ERLpen | tracer ERLpen | cc ERLpen | neural coverage | tracer coverage |
+|---|---|---|---|---|---|---|---|---|
+| s3_00994_00494_01994 | held_out | 41.74 | 187.41 | **34.65** | 22.09 | 15.26 | 0.6429 | 0.5328 |
+| s3_00994_01994_00494 | held_out | 49.26 | 200.48 | **42.08** | 24.76 | 23.81 | 0.6490 | 0.5515 |
+| s3_00994_02494_01494 | held_out | 35.90 | 175.80 | **29.60** | 17.18 | 6.24 | 0.5714 | 0.4998 |
+| s3_01994_01494_00994 | held_out | 34.48 | 195.64 | **32.12** | 21.27 | 15.48 | 0.5783 | 0.5510 |
+| s3_01994_01994_01494 | held_out | 37.34 | 192.39 | **32.06** | 19.52 | 12.99 | 0.5968 | 0.5823 |
+| s3_02994_02494_01994 | held_out | 48.17 | 266.75 | **41.50** | 29.97 | 14.83 | 0.6742 | 0.6390 |
+| s3_03494_01494_00494 | held_out | 43.92 | 158.40 | **35.03** | 20.70 | 25.93 | 0.6107 | 0.5020 |
+| s3_04494_00994_01494 | held_out | 33.67 | 212.27 | **26.25** | 17.82 | 8.58 | 0.6230 | 0.5756 |
+
 ### What the floors establish
 
 All four floors score **identical coverage and precision**, because those metrics are properties
@@ -490,4 +555,6 @@ training. **Beating ROC 0.60 held-out, honestly, would be news.**
 
 For fibers, score an instance labelling against any cube
 (`scrollgt score-fibers labels.npy data/fibers_<cube> --json-out card.json`) and report both ERL
-variants with the tolerance. **Beating connected components on both metrics would be news.**
+variants with the tolerance. **Beating connected components on both metrics would be news.** A tracer may read the
+scan around the cube (`tools/context_ct.py`, 0.9.0). Say how far, and compare it with `villa_neural_tracer_scan_context`,
+which used 128 voxels. The cube-only rows are the comparison for a tracer that reads the cube alone.

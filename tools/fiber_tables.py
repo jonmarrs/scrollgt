@@ -32,6 +32,7 @@ def table(size: int, held_out: bool = False) -> str:
 
 
 NEURAL = "villa_neural_tracer"
+SCAN_CONTEXT = "villa_neural_tracer_scan_context"  # 0.9.0: the same tracer with the scan around each cube
 
 
 def entrant_table(size: int, held_out: bool = False, row: str = NEURAL) -> str:
@@ -83,4 +84,8 @@ if __name__ == "__main__":
         for size in (256, 512):
             print(f"### villa's neural tracer, {'held out' if held_out else 'in sample'}, {size}³\n\n"
                   f"{entrant_table(size, held_out=held_out)}\n")
+    for held_out in (False, True):
+        for size in (256, 512):
+            print(f"### villa's neural tracer with the scan around the cube, {'held out' if held_out else 'in sample'}, "
+                  f"{size}³\n\n{entrant_table(size, held_out=held_out, row=SCAN_CONTEXT)}\n")
     print(f"### floors\n\n{floors_table()}\n")

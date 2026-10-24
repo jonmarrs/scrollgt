@@ -168,16 +168,35 @@
       "gt_length": 204964.3,
       "pred_length": 196145.0,
       "tolerance": 2.0
+    },
+    "villa_neural_tracer_scan_context": {
+      "scoring_version": 3,
+      "erl": 20.04,
+      "erl_merge_penalized": 17.41,
+      "erl_covered": 39.01,
+      "erl_merge_penalized_covered": 33.88,
+      "coverage": 0.5139,
+      "precision": 0.4643,
+      "splits": 10168,
+      "merges": 137,
+      "merged_instances": 118,
+      "n_gt_fibers": 436,
+      "n_pred_instances": 1409,
+      "gt_length": 204964.3,
+      "pred_length": 273778.0,
+      "tolerance": 2.0
     }
   },
   "floors_scoring_version": 3,
   "floors_not_recomputed": [],
   "floors_external": [
     "tracer_strict_relink",
-    "villa_neural_tracer"
+    "villa_neural_tracer",
+    "villa_neural_tracer_scan_context"
   ],
   "floors_external_source": {
     "tracer_strict_relink": "vesuvius-autoresearch finding 80 (reports/tracer_rescore.md, prereg f5f775c3 + Amendment 1 aa1c5712, 2026-10-09): bench_cli trace at its published defaults (relink on, tangent window 1, no skips, no seed NMS); 512^3 cubes traced with --detect-block 128, bit-identical to dense. Its version-1 score reproduces the 0.3.2 rows exactly on the six cubes that had one. Re-scored from the same labelling with scoring version 3 in ScrollGT 0.7.0; its version-2 row reproduces exactly as erl_covered and erl_merge_penalized_covered.",
-    "villa_neural_tracer": "vesuvius-autoresearch finding 91 (reports/neural_tracer_entrant.md, prereg 8a0d033f + amendment baa7e917, 2026-10-16): villa #2045's vesuvius.neural_tracing.tracers.fibers.tracing.volume at villa ccb431818, checkpoint scrollprize/fiber_single_small at 451182558cb3270cfc2ddf967acbd4f36b9b816b (last.pt sha256 3268a0ac1807debdeaded05fa7bc90b82d3ca8102125247e5cba688a10a4811f), volume mode, every default plus --ct-level 0 --ct-grid-scale 1 --grid-scale 2 --base-um 7.91 for a 7.91 um cube; presence = the probability of scrollprize/fiber_hz_vt, the reference mask's own model. Its .afv fibers are rasterised as thin centrelines (afv_to_labels.py: 0.25 vx samples, nearest sample wins a voxel). Deterministic: two repeated cubes reproduced exactly. Training (read from the checkpoint): 563 Scroll 1 (Paris 4) fibers and four automated fiber volumes (PHerc0175A, PHerc1447, PHerc0125, Paris 4 central); no Scroll 3 or Scroll 5. Pitch (vesuvius-autoresearch finding 92, reports/neural_tracer_pitch.md, prereg 5c052f7c, 2026-10-19): its Scroll-3 lead depends on running at the cubes' own 7.91 um. Resampled to 9.6 um, its Scroll 1 training pitch, and run with the same settings, it scores lower on all 21 cubes (merge-penalized ERL a median 0.63 of these rows) and leads our tracer on none of the 8 Scroll-3 cubes. These rows are the native run. Tolerance (vesuvius-autoresearch finding 94, reports/tolerance4_rescore.md, prereg 04cb7e51, 2026-10-20): at tolerance 4 it leads our tracer here (65.29 against 59.43), as on all three in-sample 512\u00b3 cubes, while it still trails on the eight in-sample 256\u00b3 cubes. These rows stay at tolerance 2."
+    "villa_neural_tracer": "vesuvius-autoresearch finding 91 (reports/neural_tracer_entrant.md, prereg 8a0d033f + amendment baa7e917, 2026-10-16): villa #2045's vesuvius.neural_tracing.tracers.fibers.tracing.volume at villa ccb431818, checkpoint scrollprize/fiber_single_small at 451182558cb3270cfc2ddf967acbd4f36b9b816b (last.pt sha256 3268a0ac1807debdeaded05fa7bc90b82d3ca8102125247e5cba688a10a4811f), volume mode, every default plus --ct-level 0 --ct-grid-scale 1 --grid-scale 2 --base-um 7.91 for a 7.91 um cube; presence = the probability of scrollprize/fiber_hz_vt, the reference mask's own model. Its .afv fibers are rasterised as thin centrelines (afv_to_labels.py: 0.25 vx samples, nearest sample wins a voxel). Deterministic: two repeated cubes reproduced exactly. Training (read from the checkpoint): 563 Scroll 1 (Paris 4) fibers and four automated fiber volumes (PHerc0175A, PHerc1447, PHerc0125, Paris 4 central); no Scroll 3 or Scroll 5. Pitch (vesuvius-autoresearch finding 92, reports/neural_tracer_pitch.md, prereg 5c052f7c, 2026-10-19): its Scroll-3 lead depends on running at the cubes' own 7.91 um. Resampled to 9.6 um, its Scroll 1 training pitch, and run with the same settings, it scores lower on all 21 cubes (merge-penalized ERL a median 0.63 of these rows) and leads our tracer on none of the 8 Scroll-3 cubes. These rows are the native run. Tolerance (vesuvius-autoresearch finding 94, reports/tolerance4_rescore.md, prereg 04cb7e51, 2026-10-20): at tolerance 4 it leads our tracer here (65.29 against 59.43), as on all three in-sample 512\u00b3 cubes, while it still trails on the eight in-sample 256\u00b3 cubes. These rows stay at tolerance 2.",
+    "villa_neural_tracer_scan_context": "vesuvius-autoresearch finding 97 (the 256^3 cubes; reports/neural_tracer_ct_context.md; pre-registered in #209 with amendment 1 cb9bd1ab, 2026-10-23) and finding 98 (the 512^3 cubes; reports/neural_tracer_ct_context_512.md; pre-registered at f1d8e36a, 2026-10-24): villa_neural_tracer's command, checkpoint and settings (finding 91), with the cube's CT padded by 128 voxels of the public raw scan it was cut from (Scroll 1 PHercParis4 20230205180739 and Scroll 3 PHerc332 20231117143551, raw 16-bit slices; Scroll 5 PHerc172 20241024131838, raw zarr), converted as the cube's CT was (/ 257, clipped, truncated). Each padded core equals the cube's CT voxel for voxel, and tools/context_ct.py reproduces the padded arrays exactly. As run, the box is the cube, so the seed planes are finding 91's, and the presence is finding 91's, zero beyond the cube. Its .afv fibers are shifted to the cube's frame and rasterised as finding 91's (afv_to_labels.py). Each run's smoke, finding 91's own command, reproduced its run point for point."
   }
 }
