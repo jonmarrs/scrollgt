@@ -405,9 +405,17 @@ cubes its closest traced seed lay 38 voxels from a face (vesuvius-autoresearch f
 * **Size, not scroll:** both separate by cube size across scrolls, while our tracer's coverage does not (0.255–0.675 on
   256³ cubes, 0.500–0.672 on 512³ ones). Ten of the 13 cubes on which it trails our tracer are 256³.
 
-So on the 256³ cubes its rows measure it under a handicap that a scroll would not impose. How large is untested: a
-pre-registered run with real scroll CT around each 256³ cube is pending (vesuvius-autoresearch #209). No row changes.
-Each 256³ cube's `floors_external_source` gives its own values.
+**Given the scan around each 256³ cube, it keeps its seeds and about doubles its coverage** (vesuvius-autoresearch
+finding 97, pre-registered, `reports/neural_tracer_ct_context.md`). The run gave it 128 voxels of real CT around each
+cube, with the box still the cube and everything else as here.
+* **Seeds dropped:** 0.002–0.010 on the eight in-sample cubes, and 0.266 and 0.353 on the two held-out ones.
+* **Coverage:** 1.76–2.78 times its row here, on all ten.
+* **Against our tracer:** at tolerance 4 it leads on 8 of 10. At tolerance 2 it leads on both held-out cubes. It still
+  trails on the eight in-sample ones, but at a median 0.60–0.65 of our tracer rather than 0.27–0.36.
+
+So on the 256³ cubes its rows here understate it as it would run on a scroll. Our tracer's rows and the reference mask
+also come from the cube alone. No row changes. Each 256³ cube's `floors_external_source` gives its own values, with
+and without the scan around it.
 
 One checkpoint, in volume mode, at its defaults: VC3D's seed mode is not tested. Bold: its merge-penalized ERL
 leads both our tracer and connected components.
