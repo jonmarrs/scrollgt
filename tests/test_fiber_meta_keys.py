@@ -60,7 +60,7 @@ def test_a_held_out_target_says_what_is_held_out(target):
     assert "fiber_hz_vt" in meta["split_note"] and "did not train" in meta["split_note"]
     assert "not held-out secrecy" in meta["split_note"]
     assert meta["ground_truth"]["nml"]["dataset"].startswith("Dataset004")
-    assert meta["floors_external"] == ["tracer_strict_relink", "villa_neural_tracer"]
+    assert meta["floors_external"] == ["tracer_strict_relink", "villa_neural_tracer", "villa_neural_tracer_scan_context"]
     assert "finding 83" in meta["floors_external_source"]["tracer_strict_relink"]
     assert "finding 91" in meta["floors_external_source"]["villa_neural_tracer"]
 
