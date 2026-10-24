@@ -396,6 +396,27 @@ of it. These five are where the offset is largest, by a cut chosen after seeing 
 fibers' centres a smaller 0.18–0.48 voxels off on 7 of the 8 Scroll-3 cubes, so an offset of a fraction of a voxel may
 be general. No row changes. Each cube's values are in its `meta.json`, under `ground_truth.placement_note`.
 
+**On the 256³ cubes this benchmark's protocol keeps it from seeding near the faces (0.8.3, finding 96): it drops any
+seed whose 77-voxel CT window crosses the edge of the CT it is given, and it is given the cube alone.** On all 21
+cubes its closest traced seed lay 38 voxels from a face (vesuvius-autoresearch finding 96, exploratory,
+`reports/neural_tracer_boundary.md`). A seed's window fits in 0.348 of a 256³ cube and 0.618 of a 512³ one.
+* **Seeds dropped:** 0.54–0.70 of its seed dots on the ten 256³ cubes, against 0.26–0.36 on the eleven 512³ ones.
+* **Output:** 0.28–0.78 of the ground-truth length on the 256³ cubes, against 0.83–1.43.
+* **Size, not scroll:** both separate by cube size across scrolls, while our tracer's coverage does not (0.255–0.675 on
+  256³ cubes, 0.500–0.672 on 512³ ones). Ten of the 13 cubes on which it trails our tracer are 256³.
+
+**Given the scan around each 256³ cube, it keeps its seeds and about doubles its coverage** (vesuvius-autoresearch
+finding 97, pre-registered, `reports/neural_tracer_ct_context.md`). The run gave it 128 voxels of real CT around each
+cube, with the box still the cube and everything else as here.
+* **Seeds dropped:** 0.002–0.010 on the eight in-sample cubes, and 0.266 and 0.353 on the two held-out ones.
+* **Coverage:** 1.76–2.78 times its row here, on all ten.
+* **Against our tracer:** at tolerance 4 it leads on 8 of 10. At tolerance 2 it leads on both held-out cubes. It still
+  trails on the eight in-sample ones, but at a median 0.60–0.65 of our tracer rather than 0.27–0.36.
+
+So on the 256³ cubes its rows here understate it as it would run on a scroll. Our tracer's rows and the reference mask
+also come from the cube alone. No row changes. Each 256³ cube's `floors_external_source` gives its own values, with
+and without the scan around it.
+
 One checkpoint, in volume mode, at its defaults: VC3D's seed mode is not tested. Bold: its merge-penalized ERL
 leads both our tracer and connected components.
 

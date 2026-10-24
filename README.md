@@ -7,6 +7,27 @@
 targets, column-level reading targets, and fiber connectivity targets, each with anti-gaming
 floors and our own negative results published.**
 
+> **v0.8.3 — villa's neural tracer on the 256³ cubes: given the cube's CT alone, it cannot seed near the faces; given
+> the scan around the cube, its coverage about doubles. No row changes.**
+> * **The rule.** It sets each seed's heading from a 77-voxel window of CT around the seed, and drops the seed if the
+>   window crosses the edge of the CT it is given. Every entrant here is given the cube alone, so on all 21 cubes its
+>   closest traced seed lay 38 voxels from a face (vesuvius-autoresearch finding 96, exploratory,
+>   `reports/neural_tracer_boundary.md`). On a scroll, the edge of the CT is far away.
+> * **The cost goes with cube size.** On the ten 256³ cubes it drops 0.54–0.70 of its seed dots, and its output is
+>   0.28–0.78 of the ground-truth length. On the eleven 512³ cubes those are 0.26–0.36 and 0.83–1.43. Both separate by
+>   size across scrolls, while our tracer's coverage does not. Ten of the 13 cubes on which it trails our tracer are
+>   256³.
+> * **Given the scan around each 256³ cube, it keeps its seeds** (vesuvius-autoresearch finding 97, pre-registered,
+>   `reports/neural_tracer_ct_context.md`). The run gave it 128 voxels of real CT around each cube, with the box still
+>   the cube and everything else as here.
+>   * On the eight in-sample cubes it drops 0.002–0.010 of its seed dots.
+>   * Its coverage rises 1.76–2.78× on all ten.
+>   * At tolerance 4 it then leads our tracer on 8 of the 10. At tolerance 2 it leads on both held-out cubes and still
+>     trails on the eight in-sample ones.
+> * **No row changes.** The rows are its score under the protocol every entrant gets. Our tracer's rows and the
+>   reference mask also come from the cube alone. Each 256³ cube's `floors_external_source` gives its own values,
+>   with and without the scan around it.
+
 > **v0.8.2 — five in-sample fiber cubes: the hand-traced centrelines sit about a voxel off the CT's fibers; and
 > villa's neural tracer's in-sample deficit is a tolerance-2 result on the 512³ cubes.**
 > * **The measurement.** vesuvius-autoresearch PR #157 (exploratory, `reports/neural_tracer_entrant.md`) measured where
@@ -629,7 +650,10 @@ its 9.6 µm training pitch, it scores lower on all 21 cubes (merge-penalized ERL
 and leads our tracer on none of the 8 Scroll-3 cubes. Its in-sample deficit is a tolerance-2 result on the 512³ cubes
 (0.8.2, finding 94): at tolerance 4 it leads our tracer on all three in-sample 512³ cubes (median 49.50 against
 43.69), and still trails on all eight in-sample 256³ cubes and both held-out Scroll-5 cubes. Its Scroll-3 lead holds
-at tolerance 4 and widens (a median 2.22 times our tracer, against 1.26).
+at tolerance 4 and widens (a median 2.22 times our tracer, against 1.26). On the 256³ cubes this benchmark's protocol
+keeps it from seeding near the faces (0.8.3, finding 96): it drops any seed whose 77-voxel CT window crosses the edge
+of the CT it is given, and it is given the cube alone. Given the scan around each 256³ cube, its coverage there rises
+1.76–2.78× (finding 97).
 Full tables in [`baselines/BASELINES.md`](baselines/BASELINES.md).
 
 ## Roadmap
