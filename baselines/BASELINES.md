@@ -396,6 +396,19 @@ of it. These five are where the offset is largest, by a cut chosen after seeing 
 fibers' centres a smaller 0.18–0.48 voxels off on 7 of the 8 Scroll-3 cubes, so an offset of a fraction of a voxel may
 be general. No row changes. Each cube's values are in its `meta.json`, under `ground_truth.placement_note`.
 
+**On the 256³ cubes this benchmark's protocol keeps it from seeding near the faces (0.8.3, finding 96): it drops any
+seed whose 77-voxel CT window crosses the edge of the CT it is given, and it is given the cube alone.** On all 21
+cubes its closest traced seed lay 38 voxels from a face (vesuvius-autoresearch finding 96, exploratory,
+`reports/neural_tracer_boundary.md`). A seed's window fits in 0.348 of a 256³ cube and 0.618 of a 512³ one.
+* **Seeds dropped:** 0.54–0.70 of its seed dots on the ten 256³ cubes, against 0.26–0.36 on the eleven 512³ ones.
+* **Output:** 0.28–0.78 of the ground-truth length on the 256³ cubes, against 0.83–1.43.
+* **Size, not scroll:** both separate by cube size across scrolls, while our tracer's coverage does not (0.255–0.675 on
+  256³ cubes, 0.500–0.672 on 512³ ones). Ten of the 13 cubes on which it trails our tracer are 256³.
+
+So on the 256³ cubes its rows measure it under a handicap that a scroll would not impose. How large is untested: a
+pre-registered run with real scroll CT around each 256³ cube is pending (vesuvius-autoresearch #209). No row changes.
+Each 256³ cube's `floors_external_source` gives its own values.
+
 One checkpoint, in volume mode, at its defaults: VC3D's seed mode is not tested. Bold: its merge-penalized ERL
 leads both our tracer and connected components.
 
