@@ -59,6 +59,9 @@ from .skeleton_io import Skeleton
 #    exactly; the version-2 values are kept as erl_covered and erl_merge_penalized_covered.
 SCORING_VERSION = 3
 
+# EDT's temporary arrays otherwise scale with the whole cube (several GiB at 512³).
+_EDT_BLOCK_DEPTH = 64
+
 
 @dataclass
 class ConnectivityScores:
@@ -101,6 +104,38 @@ class ConnectivityScores:
         }
 
 
+def _distance_blocks(background: np.ndarray, radius: float, *, return_indices=False):
+    """Exact EDT within ``radius``, in z slabs with a ceil(radius) halo.
+
+    Every foreground voxel that can affect an interior point is in the halo.
+    Keep SciPy's nearest-voxel tie handling; translate its z indices back to the
+    original volume. Distances beyond the radius are not used by either caller.
+    """
+    from scipy import ndimage
+
+    depth = background.shape[0]
+    finite = np.isfinite(radius)
+    block = _EDT_BLOCK_DEPTH if finite else depth
+    halo = int(min(depth, np.ceil(radius))) if finite else 0
+    for start in range(0, depth, block):
+        stop = min(start + block, depth)
+        lo, hi = max(0, start - halo), min(depth, stop + halo)
+        window = background[lo:hi]
+        if window.all():
+            # No true foreground nearby. EDT on an all-background window invents
+            # an outside (-1, 0, 0) seed; it must not wrap to the last global slice.
+            continue
+        core = slice(start - lo, stop - lo)
+        if return_indices:
+            distance, nearest = ndimage.distance_transform_edt(window, return_indices=True)
+            nearest[0] += lo
+            nearest = nearest[:, core]
+        else:
+            distance = ndimage.distance_transform_edt(window)
+            nearest = None
+        yield slice(start, stop), distance[core], nearest
+
+
 def _dilate_labels(instances: np.ndarray, radius: float) -> np.ndarray:
     """Grow instance labels by `radius` so a near-miss counts as a hit.
 
@@ -110,15 +145,11 @@ def _dilate_labels(instances: np.ndarray, radius: float) -> np.ndarray:
     """
     if radius <= 0:
         return instances
-    from scipy import ndimage
-
     background = instances == 0
-    # distance_transform_edt with return_indices gives, for each background voxel,
-    # the index of the nearest non-background voxel.
-    dist, (iz, iy, ix) = ndimage.distance_transform_edt(background, return_indices=True)
     out = instances.copy()
-    grow = background & (dist <= radius)
-    out[grow] = instances[iz[grow], iy[grow], ix[grow]]
+    for slab, distance, (iz, iy, ix) in _distance_blocks(background, radius, return_indices=True):
+        grow = background[slab] & (distance <= radius)
+        out[slab][grow] = instances[iz[grow], iy[grow], ix[grow]]
     return out
 
 
@@ -314,9 +345,9 @@ def score_tracing(
             if all(0 <= idx[a] < shape[a] for a in range(3)):
                 gt_mask[idx] = True
     if tolerance > 0 and gt_mask.any():
-        from scipy import ndimage
-
-        gt_near = ndimage.distance_transform_edt(~gt_mask) <= tolerance
+        gt_near = np.zeros(shape, dtype=bool)
+        for slab, distance, _ in _distance_blocks(~gt_mask, tolerance):
+            gt_near[slab] = distance <= tolerance
     else:
         gt_near = gt_mask
     pred_vox = instances > 0
