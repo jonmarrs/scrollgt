@@ -605,14 +605,32 @@ connected-components floor alone is ~70 s, at ~8 GB peak RSS).
 `tools/context_ct.py` fetches a cube's CT padded by up to 128 voxels of the public scan it was cut from. Scroll 1 and
 Scroll 3 come by byte range from their raw slices; Scroll 5 comes from its raw zarr, which needs `numcodecs`. The CT is
 converted as the cube's own was. With `--check CUBE_CT.tif` it confirms that the core is the cube's own CT, voxel for
-voxel. At 128 voxels a 256³ cube takes about 0.3–0.5 GB of download and a 512³ one 0.9–1.5 GB. A row that uses it says
-so: `villa_neural_tracer_scan_context` did, with 128 voxels. Every other row, and the reference mask, use the cube
+voxel. Each cube's own CT is public beside its ground truth, as `imagesTr/<cube>_0000.tif` in villa's `fiber-skeletons`
+Dataset004. At 128 voxels a 256³ cube takes about 0.3–0.5 GB of download and a 512³ one 0.9–1.5 GB. A row that uses it
+says so: `villa_neural_tracer_scan_context` did, with 128 voxels. Every other row, and the reference mask, use the cube
 alone.
 
 ```bash
 # 512³ uint8, the cube at [128, 384) on each axis
-python tools/context_ct.py s1_00497_01497_03997_256 --out context.npy
+.venv/bin/python tools/context_ct.py s1_00497_01497_03997_256 --out context.npy
+# a Scroll-5 cube also needs
+.venv/bin/pip install numcodecs
+# with the check against the cube's own CT (the second run reads the first one's cache, .context_ct_cache)
+curl -O https://dl.ash2txt.org/datasets/fiber-skeletons/Dataset004_sk-fibers-binary-20250728/imagesTr/s1_00497_01497_03997_256_0000.tif
+.venv/bin/python tools/context_ct.py s1_00497_01497_03997_256 --out context.npy --check s1_00497_01497_03997_256_0000.tif
 ```
+
+Measured 2026-10-24 from a fresh clone of v0.9.0 on Python 3.14.7 (numpy 2.5.4, numcodecs 0.17.1), on a machine
+running other jobs, each with `--check` against the cube's public CT, which every core equalled:
+`s1_00497_01497_03997_256` took 1,148 s, 0.33 GB of download and 0.7 GB of memory; `s5_16997_03997_04497_256` 133 s,
+0.51 GB and 0.9 GB; `s3_00994_00494_01994_512` 2,226 s, 1.03 GB and 1.9 GB. The raw slices of Scrolls 1 and 3 came at
+0.35–0.45 slices a second; Scroll 5's zarr is far quicker. All three arrays equal, voxel for voxel, the ones
+`villa_neural_tracer_scan_context` was traced on.
+
+> Corrected 2026-10-24. The first command read `python tools/context_ct.py ...`. Run literally from a fresh clone it
+> exited 127, `python: command not found`: stock Ubuntu has no `python`, and the quickstart installs into `.venv`. Nor
+> did the text say where the cube's own CT for `--check` comes from. Found by running the commands from a clean
+> directory.
 
 Twenty-one cubes, in two size classes (**ten at 256³**, **eleven at 512³**) and three splits.
 * **In sample: 11 cubes, all trained on by the reference mask.**
