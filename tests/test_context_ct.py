@@ -207,3 +207,33 @@ def test_a_failed_request_is_tried_again(monkeypatch):
     calls.clear()
     with pytest.raises(TimeoutError):
         cx.retry(flaky, 1, tries=2)
+
+
+README = (ROOT / "README.md").read_text()
+CUBE_CT = "https://dl.ash2txt.org/datasets/fiber-skeletons/Dataset004_sk-fibers-binary-20250728/imagesTr/"
+
+
+def _bash_commands(text: str) -> list[str]:
+    """Every command line in the README's ```bash blocks (comments and blank lines left out)."""
+    blocks = text.split("```bash\n")[1:]
+    lines = [line.strip() for b in blocks for line in b.split("```", 1)[0].splitlines()]
+    return [line for line in lines if line and not line.startswith("#")]
+
+
+def test_the_readme_runs_the_tool_as_its_quickstart_installs_it():
+    """Run from a fresh clone, the README's `python tools/context_ct.py ...` exited 127: stock Ubuntu has no `python`,
+    and the quickstart installs into .venv, whose interpreter is .venv/bin/python."""
+    commands = _bash_commands(README)
+    assert not [c for c in commands if c.split()[0] == "python"]
+    tool = [c for c in commands if "tools/context_ct.py" in c]
+    assert tool and all(c.startswith(".venv/bin/python tools/context_ct.py ") for c in tool)
+    assert ".venv/bin/pip install numcodecs" in commands
+
+
+def test_the_readme_says_where_the_cube_ct_for_check_is():
+    """--check needs the cube's own CT; it is public, beside the ground truth every target names."""
+    datasets = {json.loads(m.read_text())["ground_truth"]["nml"]["dataset"] for m in (ROOT / "data").glob("fibers_*/meta.json")}
+    assert datasets == {CUBE_CT.split("/")[-3]}
+    stem = "s1_00497_01497_03997_256"
+    assert f"curl -O {CUBE_CT}{stem}_0000.tif" in _bash_commands(README)
+    assert f".venv/bin/python tools/context_ct.py {stem} --out context.npy --check {stem}_0000.tif" in _bash_commands(README)
