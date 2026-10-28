@@ -7,6 +7,14 @@
 targets, column-level reading targets, and fiber connectivity targets, each with anti-gaming
 floors and our own negative results published.**
 
+> **v0.9.1 — fiber scoring within workstation memory.** The merged
+> [memory fix](https://github.com/jonmarrs/scrollgt/pull/14) bounds distance-transform
+> temporaries in z slabs. All 21 released connected-components rows reproduce
+> exactly across all 315 published field values, under a 7 GiB address-space limit.
+> Observed peak RSS is about 0.57 GiB for 256³ cubes and 2.55–2.57 GiB for 512³
+> cubes in the checked Linux environment. Scoring version 3, target data and
+> published rows are unchanged. [Commands, measurements and scope](docs/FIBER_SCORER_MEMORY.md).
+
 > **v0.9.0 — the scan around each fiber cube: a tool that fetches it, and villa's neural tracer re-run with it as a
 > new row. No existing row changes.**
 > * **For entrants.** A tracer may now read the public scan past the cube's faces. `tools/context_ct.py` writes a

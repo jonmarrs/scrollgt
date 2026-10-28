@@ -13,10 +13,10 @@ TARGETS = sorted(pathlib.Path("data").glob("fibers_*"))
 
 # --- which targets pay the floor-recomputation cost by default -------------------------
 # Recomputing the connected-components floor is the guarantee that the published numbers
-# reproduce from the repo with no GPU. It is also the expensive test: a 512 cube measures
-# ~70 s and ~8 GB peak RSS against a few seconds and well under 1 GB for a 256 cube.
-# Running all three 512 cubes by default puts that load on a CI runner that has never
-# once executed against this data, and OOMs a 7 GB runner outright.
+# reproduce from the repo with no GPU. The bounded-memory scorer now reproduces all
+# eleven 512 cubes under a 7 GiB address-space limit (2.55–2.57 GiB peak RSS in the
+# recorded Linux check), but each case still takes minutes. Keep the default runtime
+# bounded; the complete corpus was independently checked in docs/FIBER_SCORER_MEMORY.md.
 #
 # The call: every 256 target plus ONE 512 target runs by default, so the reproduction
 # guarantee still covers both size classes and a 512-specific packaging mistake is still

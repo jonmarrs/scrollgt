@@ -55,6 +55,17 @@ inference and other operating systems were not tested here.
 
 ## Run the example
 
+The October 27 (Pacific) [whole-corpus follow-up](https://github.com/jonmarrs/vesuvius-autoresearch/blob/2c5c93d062b87052e8929856d972abb7d6e5e087/reports/scrollgt_corpus_reproduction_2026-10-27.md)
+checks the same patched scorer on all 21 released targets: all 315 published
+connected-components field values match exactly. Each CLI process completes
+under the 7 GiB address-space limit. Peak RSS is about 0.57 GiB for the ten
+256³ cubes and 2.55–2.57 GiB for the eleven 512³ cubes. The report publishes
+the frozen harness and all raw scorecards, logs, requests and measurements.
+It verifies rounded rows; the other floors remain published metadata. These
+are single-run operational measurements, not a general speedup or a new
+model-quality result. Version 0.9.1 identifies the memory fix; the v0.9.0
+tag predates it.
+
 From a checkout with its Python dependencies already available:
 
 ```sh
