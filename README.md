@@ -196,10 +196,10 @@ floors and our own negative results published.**
 > (`s5_03997_01497_03997_256`) and by under 0.02% on an unbranched one.
 
 > **v0.3.1 — floors now ship with every score, in all three families.** `score`, `score-columns`
-> and `score-fibers` each compute the trivial predictors against the target you are scoring and
-> return them in a `floors` block, so a number never travels without the bar it has to clear.
-> Previously only the fiber family did this. Computed at scoring time from the target itself,
-> never hardcoded, so a floor cannot drift away from the target it belongs to.
+> and `score-fibers` return the target's trivial predictors in a `floors` block, so a number
+> travels with its comparison. Ink and column floors are computed at scoring time. Fiber
+> floors default to the shipped, version-checked rows; `--recompute-floors` recomputes them
+> from the target's own mask. The fiber family already reported floors before this release.
 >
 > | family | floors reported |
 > |---|---|
@@ -264,7 +264,7 @@ notice below concerns the **ink** family only and does not touch the fiber or co
 > | canon teacher | 0.563 | **0.753** |
 > | arm B (2-scroll student) | 0.553 | **0.731** |
 > | arm C (3-scroll student) | 0.558 | **0.746** |
-> | legacy detector (all-positive floor) | 0.501 | 0.518 |
+> | legacy detector (near-constant model) | 0.501 | 0.518 |
 >
 > AP-prevalence-lift moves from ~1.15 (chance) to **2.15–2.44**. These models were reading
 > held-out ink the whole time; the benchmark was measuring its own misalignment.
@@ -349,8 +349,9 @@ The full record — the withdrawn rows, the corrected rows, and what is still br
 
 ## Run it in Docker
 
-Everything needed to reproduce every published number is in the image; scoring is CPU-only and
-needs no network and no GPU at run time.
+The image contains the scoring code, shipped targets and built-in floors. Scoring is CPU-only
+and needs no network or GPU at run time. Reproducing a published model row also requires that
+model's prediction map or a fresh model run; the image does not bundle all entrant predictions.
 
 ```bash
 docker build -t scrollgt .
@@ -470,11 +471,15 @@ truth on a segment no listed model trained on. Full tables + the train-region co
 | arm A (1-scroll student) | selection-set only | 0.772 | 2.672 | 0.501 | *0.563* |
 | arm B (2-scroll student) | **clean held-out** | 0.731 | 2.338 | 0.440 | *0.553* |
 | arm C (3-scroll student) | **clean held-out** | 0.746 | 2.440 | 0.466 | *0.558* |
-| legacy detector (all-positive) | — | 0.518 | 1.009 | 0.311 | *0.501* |
+| legacy detector (near-constant model) | — | 0.518 | 1.009 | 0.311 | *0.501* |
+| all-positive floor (constant 1.0) | — | 0.500 | 1.000 | 0.311 | — |
 
 The old table claimed every row sat at chance and that "an honest ROC-AUC > 0.60 would be
-news." The models were already there; our registration was hiding it. The all-positive
-floor at 0.518 / lift 1.009 is the comparison that makes the rest meaningful.
+news." The models were already there; our registration was hiding it. The legacy detector
+is a measured model baseline. The separate all-positive floor has ROC-AUC **0.500** and
+AP-lift **1.000**. Its F1 of about 0.311 comes from this target's ink prevalence, rather
+than from distinguishing ink from background. The [CPU audit](docs/evidence/guidance_audit_2026-10-27.json)
+records the constant predictors recomputed from the shipped ground truth.
 
 `arm C + GT fine-tune` is **not listed**: it was fine-tuned on the displaced label, so its
 published 0.531 measured nothing. It needs retraining before it can be scored.
@@ -603,11 +608,14 @@ scrollgt score-fibers labels.npy data/fibers_s1_00497_01497_03997_256 --json-out
 ```
 
 **No GPU, no model download, no network.** Each target ships the hand-traced ground truth and the
-reference fiber mask — ~210–350 KB for a 256³ cube and 2.1–2.9 MB for a 512³ one, 12 MB for all
-of `data/` — so the published floors reproduce from the repo alone, and a test enforces exactly
-that. Pass `--recompute-floors` to verify them yourself from the shipped mask instead of reading
-the published values: ~50 s for a 256³ cube, several minutes for a 512³ one (its
-connected-components floor alone is ~70 s, at ~8 GB peak RSS).
+reference fiber mask: 0.21–0.40 MB per 256³ target, 2.18–3.73 MB per 512³ target, and
+38.79 MB across all 21 targets' committed files ([byte audit](docs/GUIDANCE_AUDIT_2026-10-27.md)).
+The published floors reproduce from the repo alone. Pass
+`--recompute-floors` to verify all four from the shipped mask instead of reading the published
+values. That costs more than scoring one labelling. With 0.9.1, the connected-components
+CLI reproduces all 21 published rows under a 7 GiB address-space limit, with 0.57 GiB peak RSS
+for 256³ cubes and 2.55–2.57 GiB for 512³ cubes in the checked environment. These measurements
+cover connected components, not all four floors; [commands and scope](docs/FIBER_SCORER_MEMORY.md).
 
 **The scan around each cube (0.9.0).** Scoring needs only the repo, but a tracer may also read past the cube's faces.
 `tools/context_ct.py` fetches a cube's CT padded by up to 128 voxels of the public scan it was cut from. Scroll 1 and
@@ -662,6 +670,10 @@ every fiber in each cube hand-traced in WEBKNOSSOS at 7.91 µm, as of its latest
 Each target's `meta.json` names the NML file and its SHA-256 under `ground_truth.nml`. Only the
 `nml/` files carry fiber identity; the shipped `labelsTr/*.tif` are semantic and cannot support
 connectivity metrics.
+An [October 27 provenance check](docs/GUIDANCE_AUDIT_2026-10-27.md#fresh-upstream-annotation-check)
+freshly downloads all 21 recorded NML files: all hashes match, and both the existing verifier
+and an independent XML decode reproduce all nine packed skeleton arrays on every target.
+That checks annotation identity and packaging, not the annotations' physical accuracy in CT.
 
 Reference mask: `scrollprize/fiber_hz_vt` (Apache-2.0) at P ≥ 0.5, identical for every entrant built on it (the
 floors and our tracer), so their scorecard differences come from the labelling rather than the segmentation.

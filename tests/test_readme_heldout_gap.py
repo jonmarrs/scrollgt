@@ -2,8 +2,9 @@
 connected-components floor (the whole mask). Every number the README prints beside them is read from the target's
 own `meta.json`, so a re-scored row or a swapped cube fails here.
 
-The 256³ command is also run through the CLI. The 512³ one takes minutes and ~8 GB, so only its published row is
-checked (tests/test_fiber_target.py reproduces the 512³ floors under the `heavy` marker).
+The 256³ command is also run through the CLI. This suite checks only the 512³ command's published row;
+test_fiber_target.py recomputes one 512³ target by default and marks the other ten as heavy. The 0.9.1 corpus
+check records 2.55–2.57 GiB peak RSS for the 512³ connected-components CLI under a 7 GiB address-space limit.
 """
 
 import json
