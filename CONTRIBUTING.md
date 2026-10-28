@@ -22,8 +22,10 @@ model that ScrollGT's authors did not train. That is the whole point of the benc
    - **an explicit statement of exposure**: did the model see this segment (or its 2023
      labels) in training? Held-out rows are the ones that matter.
 
-We add verified rows to `baselines/BASELINES.md`. **Beating ROC-AUC 0.60 on the held-out
-target, honestly, would be news.**
+We add verified rows to `baselines/BASELINES.md`. Compare with its current model rows
+and the target's computed floors, and disclose exposure before interpreting a difference
+as generalization. Existing clean held-out students already score ROC-AUC 0.731–0.746;
+0.60 is not a new-performance threshold.
 
 ## Submit a row on the column target (`pherc1667_merged_columns`)
 

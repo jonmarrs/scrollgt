@@ -1,0 +1,127 @@
+{
+  "recorded_at_utc": "2026-10-28T03:45:44.642405+00:00",
+  "source_commit": "0f3fa90890fe40bc48a1f0274154697d23c29f9a",
+  "scope": "CPU documentation audit; constant predictors on shipped ink ground truth and on-disk fiber asset sizes. No model evaluation or new quality gain.",
+  "runtime": {
+    "python": "3.10.21",
+    "numpy": "2.2.6",
+    "scipy": "1.15.3",
+    "sklearn": "1.7.2"
+  },
+  "code_sha256": {
+    "src/scrollgt/score.py": "0df436c17b509463a81871d0eaacab6d4c135dcd55fc80f803b3b94bbb913998",
+    "src/scrollgt/metrics.py": "e3f4de516edbaf88e51584127e7bf2161ffb5ed4170d8c67f45c753f799c29eb"
+  },
+  "target": "scroll1_20231210121321",
+  "target_shape": [
+    4096,
+    4096
+  ],
+  "selected_pixels": 16777216,
+  "positive_pixels": 3091940,
+  "positive_rate": 0.1842939853668213,
+  "target_inputs_sha256": {
+    "data/scroll1_20231210121321/gt_ink.png": "6ad38c53d270bb1fb4152e7c43d0cdc8d86c35162517fe500f15cb61053da385",
+    "data/scroll1_20231210121321/meta.json": "de99c1c374ff91e8c22a79cca5c6901fcdc1f36f9f1dba8a30fa04dd3ec7fa4c"
+  },
+  "constant_predictors": {
+    "floor_all_positive": {
+      "what": "predict 1.0 everywhere",
+      "roc_auc": 0.5,
+      "average_precision": 0.1842939853668213,
+      "ap_prevalence_lift": 1.0,
+      "val_f1": 0.3112301297548824
+    },
+    "floor_constant": {
+      "what": "predict 0.5 everywhere",
+      "roc_auc": 0.5,
+      "average_precision": 0.1842939853668213,
+      "ap_prevalence_lift": 1.0,
+      "val_f1": 0.3112301297548824
+    }
+  },
+  "fiber_bytes": {
+    "total": 38789957,
+    "targets": 21,
+    "per_size": {
+      "256": {
+        "count": 10,
+        "minimum": 208047,
+        "maximum": 394798,
+        "total": 3082679
+      },
+      "512": {
+        "count": 11,
+        "minimum": 2184875,
+        "maximum": 3725580,
+        "total": 35707278
+      }
+    }
+  },
+  "fiber_files_sha256": {
+    "data/fibers_s1_00497_01497_03997_256/mask.npz": "3263fbe85731bdf934b86004f78593be96791155e17edbffd35aa105886d5b4a",
+    "data/fibers_s1_00497_01497_03997_256/meta.json": "f60359a7569e3f7b7a0317a818d26a67d08bb5812af9eaedf38dea58340256eb",
+    "data/fibers_s1_00497_01497_03997_256/skeleton.npz": "d7a8604aa9b2b84a1498d0669eb490e8a6bb7c7504be188e1792b2d5ebe87764",
+    "data/fibers_s1_00497_02497_02997_256/mask.npz": "7a1feb81f232f3501111951a342fd09afcb08be295cf7012a39a0ba1dd3d79ef",
+    "data/fibers_s1_00497_02497_02997_256/meta.json": "79ae8e972fdba736be5ecd5851779d4e6986f7a246ae5f41a39e8d00049131ef",
+    "data/fibers_s1_00497_02497_02997_256/skeleton.npz": "7b62d285a37b8cc6c5fd93cd7a1c8d6dcd79b5377247c6da3db04c97e16aa383",
+    "data/fibers_s1_00997_02497_02997_256/mask.npz": "2220a3397b1541768c4c48867f054b373bf3e761ea47ac30a50162ec257d358e",
+    "data/fibers_s1_00997_02497_02997_256/meta.json": "da742f46f111b23289738c0e3f98e371d3a595b22876394a05ac32d4b356d5ac",
+    "data/fibers_s1_00997_02497_02997_256/skeleton.npz": "42479ba3940cf13ec22fa52cca34ebd2f02a157e3a929eab1fd6faf1e7b8cc4d",
+    "data/fibers_s1_08997_02997_02497_256/mask.npz": "96c7d20aebb0e7403de81f65a261ccf37b7c0bcc5e6f6791f415e277d4a36159",
+    "data/fibers_s1_08997_02997_02497_256/meta.json": "62f7e20310a80fd067c53200c714210109f0879e2b48d700069c9afcdc29c25c",
+    "data/fibers_s1_08997_02997_02497_256/skeleton.npz": "b75f06cd68a82c6bb7d0d486edf6fede71d065c414f02584b8519f48b5c8b145",
+    "data/fibers_s1_10997_02997_02997_256/mask.npz": "c1d9276f95d08137c38c3f3e89ff85b05d600444a596e6ee44e8786a77dd1e73",
+    "data/fibers_s1_10997_02997_02997_256/meta.json": "d2a2b96f2cbc87558ff565c1cdfd06385361f29e051a53bf8212cfac6302d7d8",
+    "data/fibers_s1_10997_02997_02997_256/skeleton.npz": "fe88b070dcfbee82cc5930de0f93e3b16529d75c7308bb09521f25232eb65d5c",
+    "data/fibers_s3_00994_00494_01994_512/mask.npz": "2f88aa371ef55f12d25fc4659380bf804131473a5bdcd1ee3eadaf957429d1ee",
+    "data/fibers_s3_00994_00494_01994_512/meta.json": "b766f96d085abd24da287393b857c99ddaa00a4460c1ade8511199e4b832afce",
+    "data/fibers_s3_00994_00494_01994_512/skeleton.npz": "6161d4687a98831fecab9708ca253547a3e43f7dfb453a3fb5404851215863d4",
+    "data/fibers_s3_00994_01994_00494_512/mask.npz": "ed1b53813732aa25f61b0913409253400942d2119a5e4a5fc52273654d49898c",
+    "data/fibers_s3_00994_01994_00494_512/meta.json": "b9615accdb3ba398aeedef36dc267f863c18218b53f00755a7cc4fd3f542fa01",
+    "data/fibers_s3_00994_01994_00494_512/skeleton.npz": "32e5976150d63d5d38ebb52ad11a0862c445d61b75b9b6d025313424048ae08a",
+    "data/fibers_s3_00994_02494_01494_512/mask.npz": "405fc5ff41a787d8312a61d40709fade4a897626eb908284482d16615ea75788",
+    "data/fibers_s3_00994_02494_01494_512/meta.json": "86c8933bf4b33333a163a6ebfd8b46ad5f2a5a6575ff3a2acc4f1b558bd8c08d",
+    "data/fibers_s3_00994_02494_01494_512/skeleton.npz": "02cfdb8ee2fa625807c973c867c4afbd6573a9cb9e3b022956296a170b2bc2b1",
+    "data/fibers_s3_01994_01494_00994_512/mask.npz": "606fdd633840de41dce4f01a73615801d7e92261d173be6eff7f24742dc9aabc",
+    "data/fibers_s3_01994_01494_00994_512/meta.json": "ba657571a1551cff482e24f596e5b74579ccce641144388adac7208ab715ac96",
+    "data/fibers_s3_01994_01494_00994_512/skeleton.npz": "04a59df25570c73b64c2b8e7c6fa9ebb9077a6d25c6051e3da0dc092cb936a3a",
+    "data/fibers_s3_01994_01994_01494_512/mask.npz": "0a7c2742c4113106352ec2c1af4e948f27f267ecd8ab5a326de12290e449fb06",
+    "data/fibers_s3_01994_01994_01494_512/meta.json": "a6ff64fd1f71d2b365d9019bf07c93898bad5243b9a40fb910b8821c84c4f98a",
+    "data/fibers_s3_01994_01994_01494_512/skeleton.npz": "0727c2e493c7f2a097cf6ddbe986cd1accda6f238966fd5c6a21f3aaa865548b",
+    "data/fibers_s3_02994_02494_01994_512/mask.npz": "4f7e42af1aee97ed30445e01e26f17b01a3cbeab1d3895fcc9d4510325e16dad",
+    "data/fibers_s3_02994_02494_01994_512/meta.json": "c027523bc136dadb5b78923c4481b1941f539921a6a9a73b9ff04014d1c16aef",
+    "data/fibers_s3_02994_02494_01994_512/skeleton.npz": "bdc540a34bb36ec419f7fe5b253c28f29a9c192429c3c4c13156f1844389bf3c",
+    "data/fibers_s3_03494_01494_00494_512/mask.npz": "265172b8e5aece95ef968491d3714b95d9ac4898d9f682a312a141fbe8a2a18d",
+    "data/fibers_s3_03494_01494_00494_512/meta.json": "5ce208bf6d641a9e7d243606bd90c2fde55ce3e2cb8e5a17771a4ca39b291aa8",
+    "data/fibers_s3_03494_01494_00494_512/skeleton.npz": "03601a1459e23fc0710ca655c1f5bee9c960bb616614df6c05300f8031b2c2d2",
+    "data/fibers_s3_04494_00994_01494_512/mask.npz": "373a0f838768ac0fef977a3a5f051329ff668ce2ebece65210edfb6657739466",
+    "data/fibers_s3_04494_00994_01494_512/meta.json": "dbc77a1cda47b60951e97a947c4598163ba8ac767c661d70547f004bbc3fe93f",
+    "data/fibers_s3_04494_00994_01494_512/skeleton.npz": "f721b1e70abcc548d0dcf4e7c53ddcdeab7854c02fc0e3fe843340fa1fbd4b00",
+    "data/fibers_s5_03997_01497_03997_256/mask.npz": "577b09ee7fb527b3b3d46ac355985351cb61e4db906a9c5159f50b1638fb3498",
+    "data/fibers_s5_03997_01497_03997_256/meta.json": "843dee2ba54ba6e5a99030e76395f3ef5b87bb75135781943277a99cacbd5e94",
+    "data/fibers_s5_03997_01497_03997_256/skeleton.npz": "6b6863a5b2846e42af05b41f9b24d9b76113a49b5cb5c7a62110f934d260a511",
+    "data/fibers_s5_06494_01994_03994_512/mask.npz": "8282c08df6335d05ebbcaa0a639b5d71d13355b795a2d390b0d3ea83e7827d8f",
+    "data/fibers_s5_06494_01994_03994_512/meta.json": "9d781322ebc744ef35db02ecb5525b06e62261263dc316b5b997dba31aac9d35",
+    "data/fibers_s5_06494_01994_03994_512/skeleton.npz": "088c185ca3cd420e6f83ea6138251702a00a0b12883c05254a2ef4cdef656312",
+    "data/fibers_s5_06994_00994_04994_512/mask.npz": "18cb8d0103c64c980b94a5d3a715ef788904f59b9ea799111ceaf84d07fb33d5",
+    "data/fibers_s5_06994_00994_04994_512/meta.json": "fef58bfdb49b05d562f7845577d2c6fd431112b75c0021d86a2cdd328b3b323d",
+    "data/fibers_s5_06994_00994_04994_512/skeleton.npz": "c1c93d7b1711b7d165788f9b14dfce638e76b8208055864dd18bb0b0763089b5",
+    "data/fibers_s5_07994_01994_05494_512/mask.npz": "58f3990f2007983f48e3925d234ae839014f68bdff3f23be6830237a8ffbe564",
+    "data/fibers_s5_07994_01994_05494_512/meta.json": "77fdeee913fb8a3339c6670201e720e77892f1b0aead8318cdf76777c2cde70a",
+    "data/fibers_s5_07994_01994_05494_512/skeleton.npz": "a7426d8bf422880308743fe7e1e8d4e0f2e5c804799cf5443267c063f8cd1b21",
+    "data/fibers_s5_07997_02997_05497_256/mask.npz": "153ea8b94e497510edd3a7745b42b2fc135490396897ffcfb1a89c7e6fc03cf6",
+    "data/fibers_s5_07997_02997_05497_256/meta.json": "11339c990a925c4eb12d08ca59eb2affb06bc7a559cff696425100a7a6885ad7",
+    "data/fibers_s5_07997_02997_05497_256/skeleton.npz": "c65934e971f09eddf9cbafd30d53023beb9f6c86069c9daf0b4b46e417c19dfc",
+    "data/fibers_s5_13497_01497_02497_256/mask.npz": "40fac5cb4a492888f6e985befaf0a99b741cb306280537084ffdb7ed5d71b42e",
+    "data/fibers_s5_13497_01497_02497_256/meta.json": "d819b695bc16138a11414e5d331070d7dac16d2dd20305144ae7ca569f0f57b8",
+    "data/fibers_s5_13497_01497_02497_256/skeleton.npz": "00cd1698626c83d019464e0bff1b7dc074c18690a06a62c9359806fb58e6f4e5",
+    "data/fibers_s5_14997_01497_01497_256/mask.npz": "b3f0eb4075ec1f1a3317ae5332fd117b08a016ccbc0796d01ef8509cb17fdcaa",
+    "data/fibers_s5_14997_01497_01497_256/meta.json": "91f995bbc870dfc1c935f9934663ef565352506e188f5614300f846082a099f5",
+    "data/fibers_s5_14997_01497_01497_256/skeleton.npz": "c23cc494d1db7f6aa2b5ffbcc5e27fed89b5a47d4b9fe0fa5acc103d3fed3293",
+    "data/fibers_s5_16997_03997_04497_256/mask.npz": "0c5d41d58df7fbc83d97f647925fbc98a4fbb2491a502dfdaba8066935939f5f",
+    "data/fibers_s5_16997_03997_04497_256/meta.json": "a18d76abc18c086f20ee2a0e2be6aaaf395c86a0264c6383904a12a28bfcd969",
+    "data/fibers_s5_16997_03997_04497_256/skeleton.npz": "4e9d43b9ff12d999403d1e71e51fc59b9affbf45e485535a6d4fd340fe3f481b"
+  },
+  "method": "Cached Python environment; load_target then ink_floors; all-positive/constant ROC AUC and AP lift checked exactly and F1 against 2p/(1+p) within 1e-12. Asset byte totals include meta.json, mask.npz and skeleton.npz for each target. No downloads during scoring."
+}

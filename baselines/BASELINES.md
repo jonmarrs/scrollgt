@@ -83,12 +83,15 @@ Withdrawn 2026-07 values, for the record: canon teacher 0.5632, arm A 0.5626,
 arm B 0.5531, arm C 0.5576, legacy 0.5006 roc_auc — all reported as chance.
 
 Arms B and C never saw this segment, and read it at roc_auc 0.73–0.75 with AP-lift
-2.3–2.4 against an all-positive floor of 0.518 / 1.009. That is genuine held-out
-generalization; the previous release said it was chance.
+2.3–2.4. Those student results show held-out generalization; the previous release
+said they were chance. The legacy detector is a near-constant model baseline at
+0.518 / 1.009; the all-positive floor is exactly 0.500 / 1.000 (ROC-AUC / AP-lift).
 
 Metric note: at this region's ink prevalence (~0.18) the trivial all-positive predictor
-already scores F1 ≈ 0.31, so `val_f1` is degenerate here; the robust reads are
-`ap_prevalence_lift` and `roc_auc`, where the all-positive floor sits at 1.009 / 0.518.
+already scores F1 ≈ 0.31: an F1 at that level alone is not evidence of discrimination.
+Its AP-lift is 1.000 and ROC-AUC is 0.500. These constant-predictor results were
+[recomputed on the shipped target](../docs/evidence/guidance_audit_2026-10-27.json);
+the historical model rows above are unchanged.
 
 ## Target `scroll1_20230702185753_y7000_x4000` (v0.1.1)
 
@@ -551,7 +554,8 @@ other. The claim is pinned by `tests/test_fiber_gaming.py`, so a change that bre
 Score your model's probability map on the held-out target and open a PR/issue with the
 scorecard JSON (`scrollgt score pred.png data/scroll1_20231210121321 --json-out card.json`).
 State plainly whether your model saw segment 20231210121321 (or its 2023 labels) in
-training. **Beating ROC 0.60 held-out, honestly, would be news.**
+training. Compare with the current published model rows and the target's computed
+floors, and disclose exposure before interpreting a difference as generalization.
 
 For fibers, score an instance labelling against any cube
 (`scrollgt score-fibers labels.npy data/fibers_<cube> --json-out card.json`) and report both ERL

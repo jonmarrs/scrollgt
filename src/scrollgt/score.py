@@ -57,8 +57,9 @@ def load_target(target_dir):
 #
 # The fiber family has shipped these since v0.3 and it is the one piece of this
 # repository an outside reader has said they would copy. Ink and column scoring
-# published a bare number, so a reader had to find the README to learn that an
-# all-positive prediction already scores 0.518 here. A score that travels
+# published a bare number, so a reader had to find the README to learn that the
+# near-constant legacy model scored 0.518 here, mislabelled as an all-positive
+# floor. A genuinely constant predictor has ROC-AUC 0.5. A score that travels
 # without its floor invites exactly the over-reading this benchmark exists to
 # prevent, and we have made that mistake ourselves.
 #
