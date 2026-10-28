@@ -389,7 +389,9 @@ Output: a markdown scorecard row + JSON with threshold-swept **F1** (primary),
 **AP-prevalence-lift** (the imbalance-robust real-signal gate: a constant prediction
 scores ~1.0 no matter how it games F1), and **ROC-AUC** (secondary diagnostic).
 
-Prize-compliance pre-check (window cap + train/predict overlap):
+Prize-compliance pre-check: train/predict overlap fails; a window larger than the old 0.5 mm guidance gets a
+note. Villa #1751 (2026-09-10) dropped that guidance: "Large windows are fine, but you must demonstrate that the
+text is not hallucinated", for example by finding plausible text on held-out regions.
 
 ```bash
 scrollgt check --window-px 64 --scan-um 8.0 --regions-json regions.json
@@ -399,7 +401,7 @@ scrollgt check --window-px 64 --scan-um 8.0 --regions-json regions.json
 
 **One scoreable pixel target, plus a documented contrast.** As of 2026-08-14 both
 `20230702185753` regions are marked **non-scoring**: local placement error there reaches
-~1.9x the 512 um prize analysis window (64 px at 8 um), so within a single window a model
+~1.9x the 512 um analysis window (64 px at 8 um), so within a single window a model
 can be scored against ground truth from a different part of the sheet. `20231210121321`
 stays scoreable, with worst-case local error at 0.94 windows. Their published rows remain in
 [`baselines/BASELINES.md`](baselines/BASELINES.md) as the train-region contrast that shows

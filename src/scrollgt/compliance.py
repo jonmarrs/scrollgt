@@ -1,37 +1,68 @@
 """Prize-compliance checks for ink-detection submissions.
 
 Adapted from vesuvius-autoresearch `scripts/validate_prize_artifact.py` (the
-submission-package validator). This standalone version checks the two rules that
-bound every Vesuvius letter-reading prize claim:
+submission-package validator). This standalone version checks one rule that
+bounds every Vesuvius letter-reading prize claim, and advises on a second:
 
-1. ML window size: <= 0.5 x 0.5 mm on papyrus (64 x 64 px at 8 um; scaled for
-   other scan resolutions).
-2. Train/predict separation: the declared training regions must not intersect
-   the predicted region.
+1. Train/predict separation: the declared training regions must not intersect
+   the predicted region. A failure.
+2. ML window size: no longer capped. Villa #1751 (2026-09-10) replaced "we
+   strongly discourage ... window sizes larger than 0.5x0.5 mm" with "Large
+   windows are fine, but you must demonstrate that the text is not hallucinated
+   -- for example by finding plausible text on held-out regions." A window over
+   the old 0.5 mm guidance gets a note asking for that evidence, not a failure.
 
-These checks are *necessary, not sufficient* — the official rules also require
-programmatic generation, scale bars, 3D position metadata, and hallucination
-mitigation documentation.
+These checks are *necessary, not sufficient* -- the official rules also require
+programmatic generation, scale bars, 3D position metadata, held-out validation
+and hallucination mitigation documentation.
 """
 
+import warnings
+
+# The pre-2026-09-10 guidance: 0.5 x 0.5 mm, or 64 px at 8 um (64 x 8 um = 0.512 mm,
+# explicitly blessed). Kept as the size above which the rules ask for evidence.
 MAX_WINDOW_MM = 0.5
 MAX_WINDOW_PX = 64
 
 
-def window_compliant(window_px, scan_um):
-    """True iff the window satisfies the official cap.
-
-    The rule text is "0.5 x 0.5 mm (64 x 64 pixels for 8 um scans)" — note that
-    64 px x 8 um = 0.512 mm, so the pixel form is explicitly blessed even though
-    it slightly exceeds the literal mm form. Mirroring the reference validator
-    (vesuvius-autoresearch scripts/validate_prize_artifact.py), a window is
-    compliant iff window_px <= 64 OR window_mm <= 0.5.
-    """
+def _window_mm(window_px, scan_um):
     if window_px <= 0 or scan_um <= 0:
         raise ValueError("window_px and scan_um must be positive")
-    window_mm = window_px * scan_um / 1000.0
-    ok = window_px <= MAX_WINDOW_PX or window_mm <= MAX_WINDOW_MM + 1e-9
-    return ok, window_mm
+    return window_px * scan_um / 1000.0
+
+
+def window_advisory(window_px, scan_um):
+    """The window in mm, and whether it is larger than the old 0.5 mm guidance.
+
+    A larger window is allowed; the rules ask for evidence that the text is not
+    hallucinated. Returns {"window_mm", "large", "note"} (note is None when not large).
+    """
+    window_mm = _window_mm(window_px, scan_um)
+    large = not (window_px <= MAX_WINDOW_PX or window_mm <= MAX_WINDOW_MM + 1e-9)
+    note = None
+    if large:
+        note = (
+            f"ML window {window_px}px @ {scan_um}um = {window_mm:.3f}mm is larger than the "
+            f"old {MAX_WINDOW_MM}mm guidance. Large windows are allowed (villa #1751, "
+            "2026-09-10), but you must demonstrate that the text is not hallucinated, "
+            "e.g. by finding plausible text on held-out regions."
+        )
+    return {"window_mm": window_mm, "large": large, "note": note}
+
+
+def window_compliant(window_px, scan_um):
+    """Deprecated: the superseded pre-2026-09-10 window guidance, as (ok, window_mm).
+
+    The prize rules no longer cap the window (villa #1751); use window_advisory.
+    """
+    warnings.warn(
+        "window_compliant checks the window guidance villa #1751 replaced on 2026-09-10; "
+        "large windows are allowed with evidence against hallucination (window_advisory)",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    advice = window_advisory(window_px, scan_um)
+    return (not advice["large"]), advice["window_mm"]
 
 
 def regions_overlap(a, b):
@@ -43,14 +74,13 @@ def regions_overlap(a, b):
 
 
 def check_submission(window_px, scan_um, train_regions, predict_region):
-    """Run both checks. Returns (ok, list of failure strings)."""
+    """Train/predict separation. Returns (ok, list of failure strings).
+
+    The window is validated (positive sizes) but no longer fails a submission;
+    see window_advisory for the note a large window gets.
+    """
+    _window_mm(window_px, scan_um)
     failures = []
-    ok_window, window_mm = window_compliant(window_px, scan_um)
-    if not ok_window:
-        failures.append(
-            f"ML window {window_px}px @ {scan_um}um = {window_mm:.3f}mm exceeds "
-            f"the {MAX_WINDOW_MM}mm prize cap"
-        )
     for i, tr in enumerate(train_regions):
         same_volume = tr.get("volume") == predict_region.get("volume")
         if same_volume and regions_overlap(tr, predict_region):

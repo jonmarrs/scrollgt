@@ -5,7 +5,7 @@ import json
 import sys
 
 from .columns import score_columns
-from .compliance import check_submission
+from .compliance import check_submission, window_advisory
 from .fibers.report import fiber_markdown_report
 from .fibers.target import DEMO_FLOORS, score_fiber_prediction
 from .score import markdown_report, score_prediction
@@ -67,7 +67,7 @@ def main(argv=None):
                             "it is what the quickstart runs.")
     p_fib.add_argument("--json-out", default=None, help="write the scorecard JSON here")
 
-    p_check = sub.add_parser("check", help="prize-compliance pre-check (window + overlap)")
+    p_check = sub.add_parser("check", help="prize-compliance pre-check (train/predict overlap; large-window note)")
     p_check.add_argument("--window-px", type=int, required=True,
                          help="ML window size in pixels (lateral)")
     p_check.add_argument("--scan-um", type=float, required=True,
@@ -132,10 +132,12 @@ def main(argv=None):
             predict_region = spec.get("predict_region", {})
         ok, failures = check_submission(args.window_px, args.scan_um,
                                         train_regions, predict_region)
+        advice = window_advisory(args.window_px, args.scan_um)
+        if advice["note"]:
+            print(f"NOTE: {advice['note']}")
         if ok:
-            print("COMPLIANT: window within 0.5mm cap"
-                  + ("; no train/predict overlap" if train_regions else
-                     " (no regions supplied — overlap not checked)"))
+            print("PASS: " + ("no train/predict overlap" if train_regions else
+                              "no regions supplied, so overlap not checked"))
             return 0
         for fail in failures:
             print(f"FAIL: {fail}")
