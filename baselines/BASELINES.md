@@ -83,9 +83,9 @@ Withdrawn 2026-07 values, for the record: canon teacher 0.5632, arm A 0.5626,
 arm B 0.5531, arm C 0.5576, legacy 0.5006 roc_auc — all reported as chance.
 
 Arms B and C never saw this segment, and read it at roc_auc 0.73–0.75 with AP-lift
-2.3–2.4. The legacy detector is a near-constant model baseline at 0.518 / 1.009;
-the all-positive floor is exactly 0.500 / 1.000 (ROC-AUC / AP-lift). That is held-out
-generalization; the previous release said it was chance.
+2.3–2.4. Those student results show held-out generalization; the previous release
+said they were chance. The legacy detector is a near-constant model baseline at
+0.518 / 1.009; the all-positive floor is exactly 0.500 / 1.000 (ROC-AUC / AP-lift).
 
 Metric note: at this region's ink prevalence (~0.18) the trivial all-positive predictor
 already scores F1 ≈ 0.31: an F1 at that level alone is not evidence of discrimination.
