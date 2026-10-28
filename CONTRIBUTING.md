@@ -72,9 +72,11 @@ mismatched shape with a `ValueError`, and eleven of the targets are 512³.
    scrollgt score-fibers labels.npy data/fibers_<cube> --json-out card.json
    ```
    Add `--recompute-floors` to verify the published floors from the shipped mask yourself
-   rather than reading them from `meta.json`. Budget ~50 s for a 256³ cube and several
-   minutes for a 512³ one — its connected-components floor alone measures ~70 s, at ~8 GB
-   peak RSS.
+   rather than reading them from `meta.json`. Recomputing every floor takes longer than
+   scoring one. With 0.9.1, connected-components reproduction on all eleven 512³ cubes
+   completes under a 7 GiB address-space limit at 2.55–2.57 GiB peak RSS in the checked
+   Linux environment. See [the measurements and commands](docs/FIBER_SCORER_MEMORY.md);
+   those checks do not time or recompute all four floors.
 3. **Report both ERL variants together, with the tolerance.** Raw ERL alone is gameable — a
    single instance covering the whole cube scores about three quarters of the oracle while its
    merge-penalized ERL is exactly 0.00 — so a row quoting one number without the other will be
@@ -137,8 +139,10 @@ pytest -m heavy      # plus the ten opt-in 512³ floor reproductions
 
 **The `heavy` marker.** `test_published_floors_reproduce_from_shipped_data` recomputes a
 cube's connected-components floor from the shipped mask and checks it against the published
-value — the regression that keeps the no-GPU reproduction guarantee real. On a 512³ cube that
-costs ~70 s and ~8 GB peak RSS. The default run therefore covers all ten 256³ targets **plus
+value — the regression that keeps the no-GPU reproduction guarantee real. The bounded-memory
+scorer no longer needs the earlier multi-GB whole-volume temporaries; the full-corpus check
+measures 2.55–2.57 GiB peak RSS for 512³ cubes, with minute-scale runtime per case.
+To bound the default suite's runtime, it covers all ten 256³ targets **plus
 one** 512³ target, so both size classes stay covered; the remaining ten 512³ parametrizations
 are marked `heavy` and deselected by `addopts = ["-m", "not heavy"]` in `pyproject.toml`. Run
 them before changing anything that touches fiber packaging or the ERL implementation. A test
@@ -146,7 +150,7 @@ asserts that the default run still includes a 512³ target, so the coverage cann
 collapse to one class.
 
 CI runs the default suite on Python 3.10–3.14 plus a CLI smoke on every push (see
-`.github/workflows/ci.yml`); it does not run `heavy`, because an 8 GB working set is at the
-edge of a hosted runner. Keep `src/scrollgt/metrics.py` byte-identical to the source
+`.github/workflows/ci.yml`); the remaining ten 512³ reproductions are opt-in to keep the
+five-version matrix's runtime bounded. Keep `src/scrollgt/metrics.py` byte-identical to the source
 repo's `detector/metrics.py` — the metric contract is the product, and the two must not
 drift.

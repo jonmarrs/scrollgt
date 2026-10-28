@@ -1,6 +1,6 @@
 [project]
 name = "scrollgt"
-version = "0.9.0"
+version = "0.9.1"
 description = "ScrollGT: registered human ground-truth ink evaluation for the open Vesuvius Challenge SOTA scroll data"
 readme = "README.md"
 license = { text = "MIT" }
@@ -31,8 +31,9 @@ packages = ["src/scrollgt"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-# `heavy` is opt-in: reproducing a 512 fiber cube's floors costs ~70 s and ~8 GB peak
-# RSS. One 512 cube runs by default so both size classes stay covered (see
+# `heavy` is opt-in for runtime: 512-cube connected-components reproduction takes
+# minutes per case. The bounded-memory scorer was checked on all 21 targets.
+# One 512 cube runs by default so both size classes stay covered (see
 # tests/test_fiber_target.py::FLOOR_TARGETS); the other ten are deselected here and run
 # with `pytest -m heavy`, which wins because a command-line -m overrides addopts.
 addopts = ["-m", "not heavy"]
