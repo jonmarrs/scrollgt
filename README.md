@@ -7,6 +7,20 @@
 targets, column-level reading targets, and fiber connectivity targets, each with anti-gaming
 floors and our own negative results published.**
 
+> **v0.9.2: the compliance check follows the current prize rules, and the guidance is checked against the shipped
+> data.** No score, target or published row changes.
+> * **`scrollgt check`** ([#17](https://github.com/jonmarrs/scrollgt/pull/17)). The prize rules no longer discourage
+>   windows over 0.5 mm. villa #1751 (2026-09-10) replaced that guidance with "Large windows are fine, but you must
+>   demonstrate that the text is not hallucinated". The check now fails only on train/predict overlap. A window over
+>   the old guidance gets a NOTE asking for that evidence. `window_compliant` keeps its result and is deprecated.
+> * **Guidance checked against the data** ([#16](https://github.com/jonmarrs/scrollgt/pull/16),
+>   [audit](docs/GUIDANCE_AUDIT_2026-10-27.md)).
+>   * On `scroll1_20231210121321` the all-positive floor is ROC-AUC 0.500 and AP-lift 1.000. Its F1 of 0.311 comes
+>     from the ink prevalence alone.
+>   * The legacy detector's 0.518 / 1.009 is a near-constant model's measurement, and is now labelled so.
+>   * Fiber target sizes are restated from a byte audit: 38.79 MB across the 21 targets.
+>   * A fresh download of all 21 NML files matches every recorded SHA-256 and every shipped skeleton array.
+
 > **v0.9.1 — fiber scoring within workstation memory.** The merged
 > [memory fix](https://github.com/jonmarrs/scrollgt/pull/14) bounds distance-transform
 > temporaries in z slabs. All 21 released connected-components rows reproduce
